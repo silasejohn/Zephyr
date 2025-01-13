@@ -1,1 +1,4 @@
 league-env/*
+credentials.json
+token.json
+.DS_Store

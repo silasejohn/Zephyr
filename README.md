@@ -39,3 +39,9 @@ project_root/
 └── requirements.txt            # Dependencies for the project
 
 ```
+
+https://developers.google.com/sheets/api/quickstart/python
+
+[Activate Virtual Environment] `source hw2-env/bin/activate`
+[Changing Scope Locally] Delete `config/token.json`
+[Configure Run Button to Virtual Env] CMD + SHIFT + P ~> Select Appropriate Interpreter (auto configures run button)
