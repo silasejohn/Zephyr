@@ -14,8 +14,8 @@ project_root/
 │   ├── __init__.py
 │   ├── scraping/
 │   │   ├── __init__.py
-│   │   ├── opgg_profile_scraper.py     # Contains scraping logic with Selenium
-│   │   └── api_client.py               # For API interactions
+│   │   ├── opgg_profile_scraper.py          # 
+│   │   └── riot_api_client.py               # For API interactions
 │   │
 │   ├── processing/
 │   │   ├── __init__.py
@@ -43,5 +43,21 @@ project_root/
 https://developers.google.com/sheets/api/quickstart/python
 
 [Activate Virtual Environment] `source hw2-env/bin/activate`
+
 [Changing Scope Locally] Delete `config/token.json`
+
 [Configure Run Button to Virtual Env] CMD + SHIFT + P ~> Select Appropriate Interpreter (auto configures run button)
+
+[RESET Riot API Key every 24 hours] Response Codes: Note that our APIs return only non-empty values to save on bandwidth. Zero is considered an empty value, as well as empty strings, empty lists, and nulls. Any numeric field that isn't returned can be assumed to be 0 (or null as you prefer). Any list field that isn't returned can be assumed to be an empty list or null. Any String field that isn't returned can be assumed to be empty string or null.
+- always read the "status" ~> response code first before the response 
+- https://developer.riotgames.com/docs/portal
+- https://developer.riotgames.com/docs/lol 
+- Route via na1.api.riotgames.com (platform) or americas.api.riotgames.com (region)
+- use data dragon for champ pics 
+ 
+TODO: 
+- finish cross packaging on python within double nested folders
+- riot API
+
+
+<sub><sup>Zephyr is not endorsed by Riot Games and does not reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games and all associated properties are trademarks or registered trademarks of Riot Games, Inc</sup></sub>

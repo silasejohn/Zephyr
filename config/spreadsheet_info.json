@@ -1,0 +1,32 @@
+{
+    "[GCS] Scouting": {
+        "[TO] Nova Crystallis": {
+            "SHEET ID": "1ur1YDOgna2lsHO6ESRgpxgfBNHxpdVsjqqg9812qJHs",
+            "SHEET NAME": "[TO] Nova Crystallis",
+            "SHEET RANGE": "A2:Z"
+        },
+        "[TO] Group Therapy": {
+            "SHEET ID": "1ur1YDOgna2lsHO6ESRgpxgfBNHxpdVsjqqg9812qJHs",
+            "SHEET NAME": "[TO] Group Therapy",
+            "SHEET RANGE": "A2:Z"
+        }
+    },
+    "[GCS] Draft Analysis": {
+        "Rank Data Output": {
+            "SHEET ID": "1AGI4Ra5ueZnb-OP0G0l5EQQvxnxYZX0u0-hTVVtP6XI",
+            "SHEET NAME": "Rank Data Output",
+            "SHEET RANGE": "A2:Z"
+        },
+        "[Roles]": {
+            "SHEET ID": "1AGI4Ra5ueZnb-OP0G0l5EQQvxnxYZX0u0-hTVVtP6XI",
+            "SHEET NAME": "[Roles]",
+            "SHEET RANGE": "A1:Z"
+        }
+    },
+    "EDIT_SCOPE": [
+        "https: //www.googleapis.com/auth/spreadsheets"
+    ],
+    "READ_SCOPE": [
+        "https: //www.googleapis.com/auth/spreadsheets.readonly"
+    ]
+}
