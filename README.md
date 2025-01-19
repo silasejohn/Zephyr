@@ -57,7 +57,8 @@ https://developers.google.com/sheets/api/quickstart/python
  
 TODO: 
 - finish cross packaging on python within double nested folders
-- riot API
+- riot API exploration
+- change params to accomodate optional params (if one is specified, then add to the param dict, else don't)
 
 
 # API STUFF
