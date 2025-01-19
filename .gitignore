@@ -3,3 +3,8 @@ credentials.json
 token.json
 .DS_Store
 *.env
+.vscode/*
+scripts/__pycache__/*
+scripts/api/__pycache__/*
+config/__pycache__/*
+examples/__pycache__/*

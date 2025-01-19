@@ -60,4 +60,22 @@ TODO:
 - riot API
 
 
+# API STUFF
+`SUMMONER-V4` 
+- [INPUT] player’s in-game name (summoner name)
+- [OUTPUT] profile data
+
+`MATCH-V5` 
+- [INPUT] player puuid
+- [OUTPUT] match ids from last 20 games played
+
+`MATCH-V5` 
+- [INPUT] match id
+- [OUTPUT] match information
+
+DTO = Data Transfer Object (in API world)
+Riot ID = <IGN><TAG>
+- ex. dont ever stop#NA1
+
+
 <sub><sup>Zephyr is not endorsed by Riot Games and does not reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games and all associated properties are trademarks or registered trademarks of Riot Games, Inc</sup></sub>
