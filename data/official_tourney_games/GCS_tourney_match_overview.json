@@ -1,0 +1,418 @@
+{
+    "D1S1": {
+        "pool_id": "A",
+        "schedule": {
+            "day": "saturday",
+            "date": "01-18-2025"
+        },
+        "team_ids": [
+            "O7",
+            "AWB"
+        ],
+        "match_info": {
+            "match_1": {
+                "match_id": "5209438498",
+                "winning_team_id": ""
+            },
+            "match_2": {
+                "match_id": "5209467496",
+                "winning_team_id": ""
+            },
+            "match_3": {
+                "match_id": "5209502283",
+                "winning_team_id": ""
+            },
+            "winning_team_id": "AWB"
+        }
+    },
+    "D1S2": {
+        "pool_id": "1",
+        "schedule": {
+            "day": "saturday",
+            "date": "01-18-2025"
+        },
+        "team_ids": [
+            "WOW",
+            "SI"
+        ],
+        "match_info": {
+            "match_1": {
+                "match_id": "5209576920",
+                "winning_team_id": ""
+            },
+            "match_2": {
+                "match_id": "5209620037",
+                "winning_team_id": ""
+            },
+            "match_3": {
+                "match_id": "%",
+                "winning_team_id": ""
+            },
+            "winning_team_id": "WOW"
+        }
+    },
+    "D1S3": {
+        "pool_id": "2",
+        "schedule": {
+            "day": "saturday",
+            "date": "01-18-2025"
+        },
+        "team_ids": [
+            "GT",
+            "PP"
+        ],
+        "match_info": {
+            "match_1": {
+                "match_id": "5209441071",
+                "winning_team_id": ""
+            },
+            "match_2": {
+                "match_id": "5209477548",
+                "winning_team_id": ""
+            },
+            "match_3": {
+                "match_id": "5209512690",
+                "winning_team_id": ""
+            },
+            "winning_team_id": "PP"
+        }
+    },
+    "D1S4": {
+        "pool_id": "2",
+        "schedule": {
+            "day": "saturday",
+            "date": "01-18-2025"
+        },
+        "team_ids": [
+            "FF",
+            "LKMT"
+        ],
+        "match_info": {
+            "match_1": {
+                "match_id": "5209438443",
+                "winning_team_id": ""
+            },
+            "match_2": {
+                "match_id": "5209470521",
+                "winning_team_id": ""
+            },
+            "match_3": {
+                "match_id": "%",
+                "winning_team_id": ""
+            },
+            "winning_team_id": "LKMT"
+        }
+    },
+    "D1S5": {
+        "pool_id": "1",
+        "schedule": {
+            "day": "saturday",
+            "date": "01-18-2025"
+        },
+        "team_ids": [
+            "V8",
+            "GF"
+        ],
+        "match_info": {
+            "match_1": {
+                "match_id": "5209490586",
+                "winning_team_id": ""
+            },
+            "match_2": {
+                "match_id": "5209535989",
+                "winning_team_id": ""
+            },
+            "match_3": {
+                "match_id": "%",
+                "winning_team_id": ""
+            },
+            "winning_team_id": "GF"
+        }
+    },
+    "D1S6": {
+        "pool_id": "1",
+        "schedule": {
+            "day": "saturday",
+            "date": "01-18-2025"
+        },
+        "team_ids": [
+            "NS",
+            "MDFC"
+        ],
+        "match_info": {
+            "match_1": {
+                "match_id": "5209504484",
+                "winning_team_id": ""
+            },
+            "match_2": {
+                "match_id": "5209540316",
+                "winning_team_id": ""
+            },
+            "match_3": {
+                "match_id": "%",
+                "winning_team_id": ""
+            },
+            "winning_team_id": "NS"
+        }
+    },
+    "D1S7": {
+        "pool_id": "2",
+        "schedule": {
+            "day": "saturday",
+            "date": "01-18-2025"
+        },
+        "team_ids": [
+            "LEG",
+            "MBR"
+        ],
+        "match_info": {
+            "match_1": {
+                "match_id": "5209502081",
+                "winning_team_id": ""
+            },
+            "match_2": {
+                "match_id": "5209545218",
+                "winning_team_id": ""
+            },
+            "match_3": {
+                "match_id": "%",
+                "winning_team_id": ""
+            },
+            "winning_team_id": "MBR"
+        }
+    },
+    "D1S8": {
+        "pool_id": "2",
+        "schedule": {
+            "day": "saturday",
+            "date": "01-18-2025"
+        },
+        "team_ids": [
+            "TWO",
+            "SMA"
+        ],
+        "match_info": {
+            "match_1": {
+                "match_id": "5209504508",
+                "winning_team_id": ""
+            },
+            "match_2": {
+                "match_id": "5209546009",
+                "winning_team_id": ""
+            },
+            "match_3": {
+                "match_id": "5209577117",
+                "winning_team_id": ""
+            },
+            "winning_team_id": "TWO"
+        }
+    },
+    "D2S1": {
+        "pool_id": "1",
+        "schedule": {
+            "day": "sunday",
+            "date": "01-19-2025"
+        },
+        "team_ids": [
+            "O7",
+            "WOW"
+        ],
+        "match_info": {
+            "match_1": {
+                "match_id": "5210284153",
+                "winning_team_id": ""
+            },
+            "match_2": {
+                "match_id": "5210319996",
+                "winning_team_id": ""
+            },
+            "match_3": {
+                "match_id": "%",
+                "winning_team_id": ""
+            },
+            "winning_team_id": "WOW"
+        }
+    },
+    "D2S2": {
+        "pool_id": "1",
+        "schedule": {
+            "day": "sunday",
+            "date": "01-19-2025"
+        },
+        "team_ids": [
+            "V8",
+            "AWB"
+        ],
+        "match_info": {
+            "match_1": {
+                "match_id": "5210282828",
+                "winning_team_id": ""
+            },
+            "match_2": {
+                "match_id": "5210317065",
+                "winning_team_id": ""
+            },
+            "match_3": {
+                "match_id": "5210344632",
+                "winning_team_id": ""
+            },
+            "winning_team_id": "AWB"
+        }
+    },
+    "D2S3": {
+        "pool_id": "2",
+        "schedule": {
+            "day": "sunday",
+            "date": "01-19-2025"
+        },
+        "team_ids": [
+            "GT",
+            "FF"
+        ],
+        "match_info": {
+            "match_1": {
+                "match_id": "5210285416",
+                "winning_team_id": ""
+            },
+            "match_2": {
+                "match_id": "5210332208",
+                "winning_team_id": ""
+            },
+            "match_3": {
+                "match_id": "%",
+                "winning_team_id": ""
+            },
+            "winning_team_id": "GT"
+        }
+    },
+    "D2S4": {
+        "pool_id": "2",
+        "schedule": {
+            "day": "sunday",
+            "date": "01-19-2025"
+        },
+        "team_ids": [
+            "LEG",
+            "PP"
+        ],
+        "match_info": {
+            "match_1": {
+                "match_id": "5210275543",
+                "winning_team_id": ""
+            },
+            "match_2": {
+                "match_id": "5210318784",
+                "winning_team_id": ""
+            },
+            "match_3": {
+                "match_id": "5210353337",
+                "winning_team_id": ""
+            },
+            "winning_team_id": "PP"
+        }
+    },
+    "D2S5": {
+        "pool_id": "1",
+        "schedule": {
+            "day": "sunday",
+            "date": "01-19-2025"
+        },
+        "team_ids": [
+            "NS",
+            "SI"
+        ],
+        "match_info": {
+            "match_1": {
+                "match_id": "5210361570",
+                "winning_team_id": ""
+            },
+            "match_2": {
+                "match_id": "5210422863",
+                "winning_team_id": ""
+            },
+            "match_3": {
+                "match_id": "5210456927",
+                "winning_team_id": ""
+            },
+            "winning_team_id": "SI"
+        }
+    },
+    "D2S6": {
+        "pool_id": "1",
+        "schedule": {
+            "day": "sunday",
+            "date": "01-19-2025"
+        },
+        "team_ids": [
+            "MDFC",
+            "GF"
+        ],
+        "match_info": {
+            "match_1": {
+                "match_id": "%",
+                "winning_team_id": ""
+            },
+            "match_2": {
+                "match_id": "5210403167",
+                "winning_team_id": ""
+            },
+            "match_3": {
+                "match_id": "%",
+                "winning_team_id": ""
+            },
+            "winning_team_id": "GF"
+        }
+    },
+    "D2S7": {
+        "pool_id": "2",
+        "schedule": {
+            "day": "sunday",
+            "date": "01-19-2025"
+        },
+        "team_ids": [
+            "TWO",
+            "LKMT"
+        ],
+        "match_info": {
+            "match_1": {
+                "match_id": "5210367078",
+                "winning_team_id": ""
+            },
+            "match_2": {
+                "match_id": "5210410418",
+                "winning_team_id": ""
+            },
+            "match_3": {
+                "match_id": "%",
+                "winning_team_id": ""
+            },
+            "winning_team_id": "TWO"
+        }
+    },
+    "D2S8": {
+        "pool_id": "2",
+        "schedule": {
+            "day": "sunday",
+            "date": "01-19-2025"
+        },
+        "team_ids": [
+            "SMA",
+            "MBR"
+        ],
+        "match_info": {
+            "match_1": {
+                "match_id": "5210366715",
+                "winning_team_id": ""
+            },
+            "match_2": {
+                "match_id": "5210406830",
+                "winning_team_id": ""
+            },
+            "match_3": {
+                "match_id": "%",
+                "winning_team_id": ""
+            },
+            "winning_team_id": "MBR"
+        }
+    }
+}

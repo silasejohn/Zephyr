@@ -58,8 +58,10 @@ https://developers.google.com/sheets/api/quickstart/python
 TODO: 
 - finish cross packaging on python within double nested folders
 - riot API exploration
+- average game time for teams 
 - change params to accomodate optional params (if one is specified, then add to the param dict, else don't)
-
+- Logic within your application should fail gracefully based the response code alone, and should not rely on the response body.
+    - https://developer.riotgames.com/docs/portal#:~:text=500%20(Internal%20Server%20Error)%20This,because%20of%20an%20unknown%20reason.
 
 # API STUFF
 `SUMMONER-V4` 
@@ -77,6 +79,11 @@ TODO:
 DTO = Data Transfer Object (in API world)
 Riot ID = <IGN><TAG>
 - ex. dont ever stop#NA1
+
+
+SAMPLE RIOT API PYTHON APP - https://github.com/RiotGames/developer-relations/blob/main/sample_apps/rso_sample_apps/python/main.py
+RIOT GAMES API DEEP DIVE - https://technology.riotgames.com/news/riot-games-api-deep-dive
+
 
 
 <sub><sup>Zephyr is not endorsed by Riot Games and does not reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games and all associated properties are trademarks or registered trademarks of Riot Games, Inc</sup></sub>
