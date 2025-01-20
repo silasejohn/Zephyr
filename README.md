@@ -81,6 +81,9 @@ TODO:
 - dynamically generate spreadsheet_info.json
 - Output everything at the end into google spreadsheets directly for output
 - for matchDTO, see if there's a way to use the **args thingy to directly import a dict into the MatchDTO class or only identify useful information / heads (like pick / bans) and see if we can partially upload
+- add teams to the main spreadsheet (for each player) + create views based on the teams
+- global logging of all API calls (perhaps a wrapper function)
+- automatic rate limiting of all API calls... 
 
 Zephyr API Key
 - 20 requests every 1 seconds
