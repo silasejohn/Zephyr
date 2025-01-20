@@ -7,7 +7,7 @@ import os, json
 
 # local imports
 from __init__ import update_sys_path
-update_sys_path(True)
+update_sys_path()
 from modules.api_clients.riot_client.services.account_v1 import ACCOUNT_V1
 from models.account_dto import AccountDTO
 
@@ -21,7 +21,7 @@ for file in os.listdir("data/custom_examples"):
         with open(f"data/custom_examples/{file}") as f:
             data = json.load(f)
             print(f"File: {file}")
-            print(f"Metadata: {data['metadata']}")
+            # print(f"Metadata: {data['metadata']}")
             participants_list = data['metadata']['participants']
             for participant_puuid in participants_list:
                 response_code, reponse_json = ACCOUNT_V1.get_account_by_puuid(participant_puuid)

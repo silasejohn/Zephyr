@@ -4,7 +4,8 @@
         "rateLimits": [
             "20 requests every 1 seconds",
             "100 requests every 2 minutes"
-        ]
+        ],
+        "MAX_RETRY_ATTEMPTS": 3
     },
     "summoner-v4": {
         "/lol/summoner/v4/summoners/by-puuid/{encryptedPUUID}": {

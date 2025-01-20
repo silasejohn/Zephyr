@@ -67,7 +67,7 @@ Features:
 
 TODO: 
 - riot API exploration
-- API Queue System
+- API Queue System (refer to Chat)
     - retry_attempts should be a config env MAX_RETRY_ATTEMPTS
     - logging
     - craft() calls should return an api_id. process() calls shouldn't execute until api_id returns "true"?
@@ -79,11 +79,19 @@ TODO:
 - database integration (caching results)
 - connect to google spreadsheet for auto-outputting data
 - dynamically generate spreadsheet_info.json
+- Output everything at the end into google spreadsheets directly for output
+- for matchDTO, see if there's a way to use the **args thingy to directly import a dict into the MatchDTO class or only identify useful information / heads (like pick / bans) and see if we can partially upload
 
 Zephyr API Key
 - 20 requests every 1 seconds
 - 100 requests every 2 minutes
 - Individual Request Rates per API Call? (check ZephyrRateLimits.json)
+
+## Identify Past Peak Ranks??
+To determine past rank peaks using the Riot API, you need to first retrieve a summoner's current information using the "Get Summoner By Account" endpoint, which will provide their summoner ID, then use that ID to access their match history through the "Get Matchlist" endpoint, parsing each match to identify their rank at the time of play, and finally, analyze this data to identify their highest achieved rank across a specific period of time. 
+- need to create rank split divides and maintain a "max" for each split
+- very necessary to simply cache the match histories per each player imo
+
 
 
 QUEUE TYPES
