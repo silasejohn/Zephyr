@@ -1,0 +1,102 @@
+{
+    "overall": {
+        "description": "Overall rate limits for all endpoints",
+        "rateLimits": [
+            "20 requests every 1 seconds",
+            "100 requests every 2 minutes"
+        ]
+    },
+    "summoner-v4": {
+        "/lol/summoner/v4/summoners/by-puuid/{encryptedPUUID}": {
+            "description": "By PUUID, get SummonerDTO (encrypted account ID, encrypted summoner ID, encrypted PUUID, summonerLevel)",
+            "rateLimits": [
+                "1600 requests every 1 minutes"
+            ]
+        }
+    },
+    "league-v4": {
+        "/lol/league/v4/entries/by-summoner/{encryptedSummonerId}": {
+            "description": "given encrypted summoner ID, get current ranks in RANKED_SOLO_5x5, RANKED_FLEX_SR",
+            "rateLimits": [
+                "100 requests every 1 minutes"
+            ]
+        },
+        "/lol/league/v4/entries/{queue}/{tier}/{division}": {
+            "description": "given a tier & division & queue type, get all players in that tier & division",
+            "rateLimits": [
+                "50 requests every 10 seconds"
+            ]
+        }
+    },
+    "league-exp-v4": {
+        "/lol/league-exp/v4/entries/{queue}/{tier}/{division}": {
+            "description": "given a tier & division & queue type, get all players in that tier & division",
+            "rateLimits": [
+                "50 requests every 10 seconds"
+            ]
+        }
+    },
+    "clash-v1": {},
+    "account-v1": {
+        "/riot/account/v1/accounts/by-riot-id/{gameName}/{tagLine}": {
+            "description": "given gameName & tagLine (riot ID), get PUUID",
+            "rateLimits": [
+                "1000 requests every 1 minutes"
+            ]
+        },
+        "/riot/account/v1/accounts/by-puuid/{puuid}": {
+            "description": "given PUUID, get gameName & tagLine (riot ID)",
+            "rateLimits": [
+                "1000 requests every 1 minutes"
+            ]
+        }
+    },
+    "lol-status-v4": {},
+    "match-v5": {
+        "/lol/match/v5/matches/{matchId}": {
+            "description": "given match ID, get match info (MatchDTO)",
+            "rateLimits": [
+                "2000 requests every 10 seconds"
+            ]
+        },
+        "/lol/match/v5/matches/by-puuid/{puuid}/ids": {
+            "description": "given PUUID, get match IDs from specified time range",
+            "rateLimits": [
+                "2000 requests every 10 seconds"
+            ]
+        },
+        "/lol/match/v5/matches/{matchId}/timeline": {
+            "description": "given match ID, get match timeline info (MatchTimelineDTO)",
+            "rateLimits": [
+                "2000 requests every 10 seconds"
+            ]
+        }
+    },
+    "lol-challenges-v1": {},
+    "champion-mastery-v4": {
+        "/lol/champion-mastery/v4/champion-masteries/by-puuid/{encryptedPUUID}": {
+            "description": "given PUUID, get all champion masteries / info",
+            "rateLimits": [
+                "20000 requests every 10 seconds",
+                "1200000 requests every 10 minutes"
+            ]
+        },
+        "/lol/champion-mastery/v4/champion-masteries/by-puuid/{encryptedPUUID}/by-champion/{championId}": {
+            "description": "given PUUID & champion ID, get champion mastery info",
+            "rateLimits": [
+                "20000 requests every 10 seconds",
+                "1200000 requests every 10 minutes"
+            ]
+        }
+    },
+    "tournament-stub-v5": {
+        "/lol/tournament-stub/v5/lobby-events/by-code/{tournamentCode}": {
+            "description": "given tournament code, get lobby events (chat?)",
+            "rateLimits": [
+                "20000 requests every 10 seconds",
+                "1200000 requests every 10 minutes"
+            ]
+        }
+    },
+    "spectator-v5": {}
+}

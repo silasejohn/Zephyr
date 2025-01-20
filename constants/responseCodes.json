@@ -1,0 +1,57 @@
+[
+    {
+        "httpStatusCode": 400,
+        "reason": "Bad request",
+        "description": ""
+    },
+    {
+        "httpStatusCode": 401,
+        "reason": "Unauthorized",
+        "description": ""
+    },
+    {
+        "httpStatusCode": 403,
+        "reason": "Forbidden",
+        "description": ""
+    },
+    {
+        "httpStatusCode": 404,
+        "reason": "Data not found",
+        "description": ""
+    },
+    {
+        "httpStatusCode": 405,
+        "reason": "Method not allowed",
+        "description": ""
+    },
+    {
+        "httpStatusCode": 415,
+        "reason": "Unsupported media type",
+        "description": ""
+    },
+    {
+        "httpStatusCode": 429,
+        "reason": "Rate Limit Exceeded",
+        "description": ""
+    },
+    {
+        "httpStatusCode": 500,
+        "reason": "Internal server error",
+        "description": ""
+    },
+    {
+        "httpStatusCode": 502,
+        "reason": "Bad Gateway",
+        "description": ""
+    },
+    {
+        "httpStatusCode": 503,
+        "reason": "Service Unavailable",
+        "description": ""
+    },
+    {
+        "httpStatusCode": 504,
+        "reason": "Gateway Timeout",
+        "description": ""
+    }
+]

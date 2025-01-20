@@ -9,3 +9,4 @@ scripts/api/__pycache__/*
 config/__pycache__/*
 examples/__pycache__/*
 scripts/utils/__pycache__/*
+models/__pycache__/*

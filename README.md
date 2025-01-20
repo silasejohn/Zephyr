@@ -54,14 +54,49 @@ https://developers.google.com/sheets/api/quickstart/python
 - https://developer.riotgames.com/docs/lol 
 - Route via na1.api.riotgames.com (platform) or americas.api.riotgames.com (region)
 - use data dragon for champ pics 
- 
+
+Features: 
+- support for cross-folder imports via customized sys_path updates (handled automatically wrt to project directory)
+- API Queue System: graceful handling of API calls, automatic retry of failed calls, and managing rate-limited requests
+- retry mechanism: exponential backoff & queue system 
+    - [1] Queue System: all api calls are added to a queue
+    - [2] Retry Mechanism: retry failed calls with 5XX (server issue) response, MAX_RETRY_LIMIT, and exponential backoff
+    - [3] Rate Limiting: throttle requests to adhere to the Riot API's rate limits
+    - [4] Logging: log each API request & response, including errors
+
+
 TODO: 
-- finish cross packaging on python within double nested folders
 - riot API exploration
+- API Queue System
+    - retry_attempts should be a config env MAX_RETRY_ATTEMPTS
+    - logging
+    - craft() calls should return an api_id. process() calls shouldn't execute until api_id returns "true"?
 - average game time for teams 
 - change params to accomodate optional params (if one is specified, then add to the param dict, else don't)
 - Logic within your application should fail gracefully based the response code alone, and should not rely on the response body.
     - https://developer.riotgames.com/docs/portal#:~:text=500%20(Internal%20Server%20Error)%20This,because%20of%20an%20unknown%20reason.
+- Respect the rate limit for your Tournament API Key and implement logic that considers the headers returned from a 429 Rate Limit Exceeded response.
+- database integration (caching results)
+- connect to google spreadsheet for auto-outputting data
+- dynamically generate spreadsheet_info.json
+
+Zephyr API Key
+- 20 requests every 1 seconds
+- 100 requests every 2 minutes
+- Individual Request Rates per API Call? (check ZephyrRateLimits.json)
+
+
+QUEUE TYPES
+Unranked
+    RANKED_SOLO_5x5 (valid)
+    RANKED_TEAM_5x5
+Ranked Solo/Duo
+    RANKED_SOLO_5x5 (valid)
+Ranked Team 5x5
+    RANKED_TEAM_5x5
+Ranked Flex
+    RANKED_FLEX_SR  (valid)
+
 
 # API STUFF
 `SUMMONER-V4` 
@@ -83,6 +118,12 @@ Riot ID = <IGN><TAG>
 
 SAMPLE RIOT API PYTHON APP - https://github.com/RiotGames/developer-relations/blob/main/sample_apps/rso_sample_apps/python/main.py
 RIOT GAMES API DEEP DIVE - https://technology.riotgames.com/news/riot-games-api-deep-dive
+
+API client typically encompasses the logic needed to interact with specific endpoints, handle requests, and process responses
+Craft Functions: These functions construct the request payloads, URLs, headers, and other parameters needed to make API calls.
+Process Functions: These functions handle the responses from the API, including parsing data, handling errors, and executing business logic based on the API's responses.
+
+you need a __init__.py with a update_sys_path() function if you call classes / funcs from other nested folders 
 
 
 
