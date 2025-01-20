@@ -3515,5 +3515,10 @@
             }
         ],
         "tournamentCode": "NA04e8b-e234489b-792f-42c7-84c0-64f38aa16db1"
-    }
+    },
+    "team_ids": [
+        "TWO",
+        "LKMT"
+    ],
+    "winning_team_id": "TWO"
 }

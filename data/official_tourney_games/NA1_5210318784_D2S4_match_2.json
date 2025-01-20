@@ -3508,5 +3508,10 @@
             }
         ],
         "tournamentCode": "NA04e8b-54318614-c2e2-4cba-9b29-f8006ed10055"
-    }
+    },
+    "team_ids": [
+        "LEG",
+        "PP"
+    ],
+    "winning_team_id": "PP"
 }

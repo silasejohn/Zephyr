@@ -3507,5 +3507,10 @@
             }
         ],
         "tournamentCode": "NA04e8a-91272355-35fc-46a3-8e31-aa2395a60296"
-    }
+    },
+    "team_ids": [
+        "FF",
+        "LKMT"
+    ],
+    "winning_team_id": "LKMT"
 }

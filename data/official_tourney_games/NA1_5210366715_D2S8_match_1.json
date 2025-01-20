@@ -3512,5 +3512,10 @@
             }
         ],
         "tournamentCode": "NA04e8b-2e9c8aea-5647-40b4-93a1-bf699a597788"
-    }
+    },
+    "team_ids": [
+        "SMA",
+        "MBR"
+    ],
+    "winning_team_id": "MBR"
 }

@@ -3527,5 +3527,10 @@
             }
         ],
         "tournamentCode": "NA04e8a-ec8ddf48-8a76-4e7f-a04b-e960652f71bc"
-    }
+    },
+    "team_ids": [
+        "LEG",
+        "MBR"
+    ],
+    "winning_team_id": "MBR"
 }

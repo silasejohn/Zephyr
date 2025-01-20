@@ -3526,5 +3526,10 @@
             }
         ],
         "tournamentCode": "NA04e8a-c6613e13-aafb-46f7-a15a-1d7ec3b909fa"
-    }
+    },
+    "team_ids": [
+        "GT",
+        "PP"
+    ],
+    "winning_team_id": "PP"
 }

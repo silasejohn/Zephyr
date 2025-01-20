@@ -3511,5 +3511,10 @@
             }
         ],
         "tournamentCode": "NA04e8b-e97a11dd-4a1f-4094-a9a7-27fba9c48d46"
-    }
+    },
+    "team_ids": [
+        "V8",
+        "AWB"
+    ],
+    "winning_team_id": "AWB"
 }

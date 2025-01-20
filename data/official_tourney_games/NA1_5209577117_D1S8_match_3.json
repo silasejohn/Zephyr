@@ -3542,5 +3542,10 @@
             }
         ],
         "tournamentCode": "NA04e8a-a5f88b06-2f5c-40fe-8c0e-e077312125ef"
-    }
+    },
+    "team_ids": [
+        "TWO",
+        "SMA"
+    ],
+    "winning_team_id": "TWO"
 }

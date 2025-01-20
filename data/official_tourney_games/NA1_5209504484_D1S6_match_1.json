@@ -3494,5 +3494,10 @@
             }
         ],
         "tournamentCode": "NA04e8a-509e084d-301c-4612-9f26-9ad7b6d63b94"
-    }
+    },
+    "team_ids": [
+        "NS",
+        "MDFC"
+    ],
+    "winning_team_id": "NS"
 }

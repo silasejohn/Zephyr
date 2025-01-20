@@ -39,6 +39,10 @@ data_keys = data.keys()
 for key in data_keys:
     match_info = data[key]["match_info"]
     match_keys = match_info.keys()
+
+    team_ids = data[key]["team_ids"]
+    winning_team_id = data[key]["match_info"]["winning_team_id"]
+
     for match_key in match_keys:
 
         # ensure that we are pulling the correct match data
@@ -58,7 +62,7 @@ for key in data_keys:
         # construct output file name
         output_file_name = f"data/official_tourney_games/{match_id}_{key}_{match_key}.json"
 
-        # check if output file alr exists in the directory data/official_tourney_games
+        # if output file already exists, then move on to the next match
         if output_file_name in os.listdir("data/official_tourney_games"):
             print(f"File already exists: {output_file_name}")
             continue
@@ -66,6 +70,10 @@ for key in data_keys:
         # get match data by match_id
         response_code, response_json = MATCH_V5.get_match_by_id(match_id)
         print(f"Response Code: {response_code}")
+
+        # add some additional data to response_json MatchDTO
+        response_json["team_ids"] = team_ids
+        response_json["winning_team_id"] = winning_team_id
 
         save_json_to_file(response_json, output_file_name)
     

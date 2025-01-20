@@ -3519,5 +3519,10 @@
             }
         ],
         "tournamentCode": "NA04e8a-ca99bf58-52fc-46ec-8b16-cfca07cb607b"
-    }
+    },
+    "team_ids": [
+        "WOW",
+        "SI"
+    ],
+    "winning_team_id": "WOW"
 }

@@ -3513,5 +3513,10 @@
             }
         ],
         "tournamentCode": "NA04e8b-e8488ac3-2d83-44b5-aaa5-2fbcbdc1b26b"
-    }
+    },
+    "team_ids": [
+        "GT",
+        "FF"
+    ],
+    "winning_team_id": "GT"
 }

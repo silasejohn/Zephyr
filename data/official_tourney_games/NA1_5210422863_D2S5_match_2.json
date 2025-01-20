@@ -3529,5 +3529,10 @@
             }
         ],
         "tournamentCode": "NA04e8b-c580bd22-e75b-4d34-ac60-a2ef61b17629"
-    }
+    },
+    "team_ids": [
+        "NS",
+        "SI"
+    ],
+    "winning_team_id": "SI"
 }

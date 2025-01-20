@@ -3518,5 +3518,10 @@
             }
         ],
         "tournamentCode": "NA04e8a-bae4cf46-2a1c-403b-98d5-5033029f9711"
-    }
+    },
+    "team_ids": [
+        "V8",
+        "GF"
+    ],
+    "winning_team_id": "GF"
 }

@@ -3496,5 +3496,10 @@
             }
         ],
         "tournamentCode": "NA04e8b-79ce75fa-6682-4210-9843-2b997c2314d6"
-    }
+    },
+    "team_ids": [
+        "O7",
+        "WOW"
+    ],
+    "winning_team_id": "WOW"
 }

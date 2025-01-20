@@ -3501,5 +3501,10 @@
             }
         ],
         "tournamentCode": "NA04e8b-50a9e08e-bfe6-42dc-bdd9-f6f26d789059"
-    }
+    },
+    "team_ids": [
+        "MDFC",
+        "GF"
+    ],
+    "winning_team_id": "GF"
 }
