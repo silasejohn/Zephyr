@@ -11,3 +11,4 @@ examples/__pycache__/*
 scripts/utils/__pycache__/*
 models/__pycache__/*
 constants/__pycache__/*
+modules/api_clients/riot_client/services/__pycache__/*

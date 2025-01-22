@@ -11,6 +11,7 @@ update_sys_path()
 from modules.api_clients.riot_client.services.account_v1 import ACCOUNT_V1
 from models.account_dto import AccountDTO
 from constants.constants import Constants
+from models.league_draft_dto import LeagueDraftDTO
 
 ############
 ### EX 1 ###
@@ -40,6 +41,9 @@ for file in os.listdir("data/official_tourney_games"):
     if file.startswith("NA1_"):                                     # signifies tourney custom match
         with open(f"data/official_tourney_games/{file}") as f:  
             data = json.load(f)
+
+            # get match_ID, participants, team_ids, winning_team_id
+            match_id = data['metadata']['matchId']
             participants_list = data['metadata']['participants']
             team_ids = data['team_ids']
             winning_team_id = data['winning_team_id']
@@ -54,6 +58,15 @@ for file in os.listdir("data/official_tourney_games"):
 
             # create instance of Constants class
             constants = Constants()
+
+            # Create instance of LeagueDraftDTO
+            # make sure blue / red are the right side of the draft
+            league_draft_dto = LeagueDraftDTO(
+                gcs_id=data['gcs_id'],
+                match_id=data['match_id'],
+                blue_team_id=data['team_ids'][0], 
+                red_team_id=data['team_ids'][1]
+            )
 
             # picks / info for both teams 
             draft_picks = data['info']['participants']
@@ -74,19 +87,21 @@ for file in os.listdir("data/official_tourney_games"):
                 print(f"Draft Pick - Champ Name: {champ_name}, Individual Position: {individual_position}, Lane: {lane}, Riot ID Game Name: {riotIdGameName}, Riot ID Tagline: {riotIdTagline}, Role: {role}, Summoner Name: {summonerName}, Team Position: {teamPosition}")
                 
             # bans per team
-            team_1_bans = data['info']['teams'][0]['bans']
-            team_2_bans = data['info']['teams'][1]['bans']
+            blue_bans = data['info']['teams'][0]['bans']
+            red_bans = data['info']['teams'][1]['bans']
 
             # print out the champion names for each ban
-            for ban in team_1_bans:
+            for ban in blue_bans:
                 champ_id = ban['championId']
                 print(f"Team 1 Ban - Champ ID: {champ_id}")
-
                 champ_name = constants.get_champion_name(champ_id)
                 print(f"Team 1 Ban - Champ Name: {champ_name}")
+                pick_order = ban['pickTurn']
+                if pick_order == 1:
+                    print(f"Team 1 Ban - Pick Order: {pick_order}")
 
             # print out the champion names for each ban
-            for ban in team_2_bans:
+            for ban in red_bans:
                 champ_id = ban['championId']
                 print(f"Team 2 Ban - Champ ID: {champ_id}")
 

@@ -48,6 +48,16 @@ class LeagueDraftDTO:
             draft_sequence=json_data['draft_sequence']
         )
     
+    def to_json(self):
+        """return DTO as JSON"""
+        return {
+            "gcs_id": self.gcs_id,
+            "match_id": self.match_id,
+            "blue_team_id": self.blue_team_id,
+            "red_team_id": self.red_team_id,
+            "draft_sequence": self.draft_sequence
+        }
+    
     ### Getters and Setters (Property Decorators) ###
     @property
     def gcs_id(self):
@@ -79,8 +89,13 @@ class LeagueDraftDTO:
     def red_team_id(self):
         return self._red_team_id
     
-    def get_draft_sequence(self):
-        return self.draft_sequence
+    @red_team_id.setter
+    def red_team_id(self, red_team_id):
+        self._red_team_id = red_team_id
+
+    @property
+    def draft_sequence(self):
+        return self._draft_sequence
     
     def __repr__(self):
         return f"LeagueDraftDTO(gcs_id={self.gcs_id}, match_id={self.match_id}, blue_team_id={self.blue_team_id}, red_team_id={self.red_team_id}, draft_sequence={self.draft_sequence})"
@@ -88,7 +103,8 @@ class LeagueDraftDTO:
 """
 JSON STRUCTURE
 {
-  "game": {
+  "gcs_id": {
+    "match_id": "MATCH_ID",
     "blue_team_id": "TEAM_BLUE_ID",
     "red_team_id": "TEAM_RED_ID",
     "draft_sequence": [

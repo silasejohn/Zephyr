@@ -1,0 +1,87 @@
+{
+    "team_id": "WOW",
+    "team_name": "Wizards of Wahoo",
+    "pool_id": "1",
+    "rosters": [
+        {
+            "player_riot_id": "Happiercat477#NA1",
+            "player_pos": "CAPTAIN",
+            "rank_score": "17",
+            "peak_rank": "Diamond 1",
+            "current_rank": "Diamond 4 94 LP",
+            "player_puuid": "LH96V1q4FJKUOgM7mwdzo-vMDlsDCYl18ZQ1Ccv6bmZX8AZILhMMZSsuLAJwVOVtlWu7mz-T4mvueQ",
+            "player_encrypted_summoner_id": "3CWC3um4TTOf6Pa8xovXNaREiOn0Db7j11QbKKhtwPm3yeg",
+            "player_encrypted_account_id": "glm34H2KKQbiGAjmok6MwIAIbmORHB5twVJ7DJgRPaqunFU"
+        },
+        {
+            "player_riot_id": "ReapersBlade#13479",
+            "player_pos": "%",
+            "rank_score": "22",
+            "peak_rank": "Emerald 1",
+            "current_rank": "Emerald 4 27 LP",
+            "player_puuid": "Kokwq1YoaxWo8yB7zPssde19jVyMFkIQXo-bgJCT2XI2mZK8fgT7QNubPJBHHCx-w53_vL7m0pVp7A",
+            "player_encrypted_summoner_id": "qUFp4j6lvsTSV2VC3Xu6uhund_7NFqqFgI99eo71Lty5WxM",
+            "player_encrypted_account_id": "k37aeOgXA5lIViQ191vLhQBYO2j8BkpfbSIsolw95W5xTPY"
+        },
+        {
+            "player_riot_id": "Death#March",
+            "player_pos": "%",
+            "rank_score": "17",
+            "peak_rank": "Diamond 1",
+            "current_rank": "Emerald 3 65 LP",
+            "player_puuid": "rupT7Vo9_rd0DFbINF0ycyUfo81uYSQjk74H-t7OsqXqWF18Ccmn46L4WL3xPYFxObeJmI7Htz406g",
+            "player_encrypted_summoner_id": "ecZbKtr2ZPtBoyvvsLcHrBEtjMg9nyYfX3HUYqh8cQtmSIA",
+            "player_encrypted_account_id": "NKaaRMqzUiITv8I-Nr91n6VK8enEqyN7eX-FPWBIWnyVUP8"
+        },
+        {
+            "player_riot_id": "Hyperdragon#Ellie",
+            "player_pos": "CAPTAIN",
+            "rank_score": "14",
+            "peak_rank": "Masters 129 LP",
+            "current_rank": "Emerald 1 36 LP",
+            "player_puuid": "N6_CDVuaJpLGuzzzRkR8CQjwME6H0SZtL5L7Z28a6LHqcfgd7x_woqZDTn_PeLhzWbBMJ2YlR5PMog",
+            "player_encrypted_summoner_id": "yJYCVR9Owg1w41xKY_TztCrJQ3dLDuCUW5nLoWjYEFADbVc",
+            "player_encrypted_account_id": "t5aNV0_UyCZkViqYbbYAA46-i4L5ritEDO3tshA5OlZiUNY"
+        },
+        {
+            "player_riot_id": "Xeuhktal#NA1",
+            "player_pos": "%",
+            "rank_score": "16",
+            "peak_rank": "Masters 146 LP",
+            "current_rank": "Emerald 3 16 LP",
+            "player_puuid": "GkdBv2u9tWjqWzfs9ii51hkdkiuPtkBNbHlEeBwBb1CESB2OUT5oJcbx1-xNKEENPx5M7th0TPqPnA",
+            "player_encrypted_summoner_id": "fWTwviFgDEpEjWGSxbEyuDGLUKqOkXC6p_Gx3Duw4hcU_35h",
+            "player_encrypted_account_id": "EXF8q3FpMZnFGlcIJYMMUl1XMBjIZDey-Q2Oqaa-_mYmAUbaLFMF9VaN"
+        },
+        {
+            "player_riot_id": "kybcat#7796",
+            "player_pos": "%",
+            "rank_score": "32",
+            "peak_rank": "Platinum 4",
+            "current_rank": "Gold 4 59 LP",
+            "player_puuid": "AsDT31RotciMpGNeAwqQVX2wZxIQp-gHrynVouXnYhvWAksk3JzavmxDu2DHdowWBvXDLZ-Ewyfszw",
+            "player_encrypted_summoner_id": "CC2eXgI2SySwuKqwqrKCmOHD-JxkQV8oeu4Yi0NtZ1pz9DXY",
+            "player_encrypted_account_id": "Axynov_bSgE7A8uRu-ZMv44Y9RY4QdcjLhB4S29SifHSN2smVJHNV2-S"
+        },
+        {
+            "player_riot_id": "Sukiha#owo",
+            "player_pos": "%",
+            "rank_score": "25",
+            "peak_rank": "Emerald 1",
+            "current_rank": "Unranked",
+            "player_puuid": "675fGFlVX27akbCXvPDeU1VYf-9nHGsOd6uiWdUpkaEqodLn8EQAGtFSPDDt-FWmaB5_W6CRbhhDlw",
+            "player_encrypted_summoner_id": "AfLeArWSEpuuqqi2vtC0CTsZ1ikUWSGExW9rwQBriOPxwLE",
+            "player_encrypted_account_id": "fTIpkWfOhiDS1AqIzxDwMvLmr6UQfH49FSzPRr31ajB0fuM"
+        },
+        {
+            "player_riot_id": "The Moon#urbro",
+            "player_pos": "%",
+            "rank_score": "35",
+            "peak_rank": "Gold 3",
+            "current_rank": "Silver 1 75 LP",
+            "player_puuid": "FUCYbhkaqKyMA5abTpxE7gc__s894ECwO_l88A4UxKRe6xsDxdYENM9w9d1xpHbyS_02lK921UNlIA",
+            "player_encrypted_summoner_id": "TslIUFOSYIr8mZkqCTPRLGaMYZsDhJjUByxM5i7z8NmKpmMBePZ0teAAFg",
+            "player_encrypted_account_id": "iiaK5mE8TVU4rWw98j6cHPdOWVnZQ99mhcx6SGesGWySyYteJPgkDdMu"
+        }
+    ]
+}
