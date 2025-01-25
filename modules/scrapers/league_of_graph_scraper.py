@@ -127,7 +127,7 @@ class LeagueOfGraphsScraper:
 
                 if "Not Found" in error_element.text:
                     print(f"{ColorPrint.RED}[ERROR] Error accessing player profile: {player_ign}{ColorPrint.RESET}")
-                    return 0 # error
+                    return player_ign # error
             else:
                 return 1 # success
         except Exception as e:
@@ -190,7 +190,7 @@ class LeagueOfGraphsScraper:
             calculated_current_ego_wr = round(int(current_ego_wins.text) / (int(current_ego_wins.text) + int(current_ego_losses.text)) * 100, 2)
             
             # clean up information for output
-            current_ego_tier = current_ego_tier.text.replace("IV", "4").replace("III", "3").replace("II", "2").replace("I", "1")
+            current_ego_tier = current_ego_tier.text.replace("IV", "4").replace("III", "3").replace("II", "2").replace("I", "1").replace("1ron", "Iron")
             if tier_and_lp_together:
                 current_ego_rank = current_ego_tier
             else:
@@ -292,7 +292,7 @@ class LeagueOfGraphsScraper:
                     else:
                         rank_tag_text = rank_tag_text.split("reached ")[1] # remove the "This player reached" text
                         rank_tag_text = rank_tag_text.split(" during")[0] # remove the " in " text
-                        rank_tag_text = rank_tag_text.replace("IV", "4").replace("III", "3").replace("II", "2").replace("I", "1")
+                        rank_tag_text = rank_tag_text.replace("IV", "4").replace("III", "3").replace("II", "2").replace("I", "1").replace("1ron", "Iron")
                         rank_tag_text = rank_tag_text.replace("GrandMaster", "Grandmaster") # fix Grandmaster spelling
                         rank_tag_text = rank_tag_text.replace("LP", " LP").strip() # add space before LP
 
@@ -393,21 +393,32 @@ gcs_roster_additive = gcs_roster.copy()
 # iterate through each row in the gcs_roster
 setup = False
 counter = 1
+execute = False
 
 for index, row in gcs_roster.iterrows():
-    print(f"{ColorPrint.YELLOW}[Counter] {counter}{ColorPrint.RESET}")
 
     team_name = row['Team Name']
 
-    # if player is not on a team, don't scrape info on them
-    if team_name == "":
+    # # if player is not on a team, don't scrape info on them
+    if team_name == "" or pd.isna(team_name):
         continue
 
-    # obtain clean profile_igns
-    # profile_ign = "MajinHollow#Vayne"
-    profile_ign = row['Summoner IGN']
+    # if not team_name == "MDFC":
+    #     continue
 
-    # if not "Ritty#NA1" in profile_ign:
+    # obtain clean profile_igns
+    profile_ign = row['Summoner IGN']
+    
+    if profile_ign == "" or pd.isna(profile_ign):
+        continue # skip if profile_ign is empty
+
+    print(f"{ColorPrint.YELLOW}\n[{profile_ign}]\nRow:\n{row}{ColorPrint.RESET}")
+    print(f"{ColorPrint.YELLOW}[Counter] {counter}{ColorPrint.RESET}")
+
+    # if "Brandis#0704" in profile_ign:
+    #     execute = True
+
+    # if not execute:
     #     continue 
 
     # if not profile_ign == "hackzorzzzz#NA1|Bengar#6969|UNC is Gapped#LUL|WATCH ME PLAYING#NA2" and not profile_ign == "PeepaTheHound#Molly|Doublethink#Orew|GeppettosPuppet#3671|PositiveEV#1111|Winston The Pooh#Win|ZUPER ZA1YAN#NA1":
@@ -429,6 +440,7 @@ for index, row in gcs_roster.iterrows():
 
     # if multiple profiles, splice into a profile list
     profile_ign_list = []
+    problem_profiles = []
     if "|" in profile_ign:
         profile_ign_list = profile_ign.split("|")
     else:
@@ -442,9 +454,14 @@ for index, row in gcs_roster.iterrows():
         setup = True
 
     # iterate through each profile_ign in the list
+    # profile_ign_list = ["Haumea#GCS, BioMatrix#Dead"]
     for profile_ign in profile_ign_list:
         status = LeagueOfGraphsScraper.load_player_profile(profile_ign)
-        if status == 0:
+        if status == profile_ign:
+            problem_profiles.append(profile_ign)
+            # store a copy of problem profiles into the output txt file at data/synthesized/problem_profiles.txt
+            with open('data/synthesized/problem_profiles.txt', 'a') as f:
+                f.write(f"{profile_ign}\n")            
             continue
         zephyr_print(f"Scraping {profile_ign} Current Ego Rank, Wins, Losses, and Winrate")
         current_ego_rank, current_ego_rank_wins, current_ego_rank_losses, current_ego_rank_wr = LeagueOfGraphsScraper.scrape_player_current_rank()
@@ -453,7 +470,7 @@ for index, row in gcs_roster.iterrows():
         if current_ego_rank == -1:
             print(f"{ColorPrint.RED}[ERROR] Error accessing player current rank: {profile_ign}{ColorPrint.RESET}")
             input("Press Enter to Quit...")
-            sys.exit()            
+            sys.exit()
 
         # save a copy of the last profile "Current Ego Rank" if needed
         old_current_ego_rank = profile_max_output['Current Ego Rank']
@@ -562,11 +579,12 @@ for index, row in gcs_roster.iterrows():
     gcs_roster.loc[index] = profile_max_output
     gcs_roster_additive.loc[index] = profile_max_output
 
-    # store temp copy of gcs_roster_additive into the csv file
-    gcs_roster_additive.to_csv(output_data_file, index=False)
+    # store temp copy of gcs roster and gcs_roster_additive into the csv file
+    # gcs_roster.to_csv(input_data_file, index=False)
+    # gcs_roster_additive.to_csv(output_data_file, index=False)
 
     # # wait for user input
-    # input("Press Enter to continue...")
+    input("Press Enter to continue...")
     counter += 1
 
 LeagueOfGraphsScraper.close()
@@ -574,8 +592,4 @@ LeagueOfGraphsScraper.close()
 # TODO
 # take previous_peak_ranks ~> add to the the df
 # add wr or # of total games / champs played per season in parentheses
-
-
-
-
 
