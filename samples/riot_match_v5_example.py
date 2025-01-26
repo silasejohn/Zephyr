@@ -33,7 +33,7 @@ from modules.utils.file_utils import save_json_to_file, load_json_from_file
 # # Sample Usage of Accessing MatchDTO from API given MatchID
 
 # load data_file, pull match ids
-data_file = "data/official_tourney_games/GCS_tourney_match_overview.json"
+data_file = "data/official_tourney_games/GCS_tourney_match_overview_week2.json"
 data = load_json_from_file(data_file)
 data_keys = data.keys()
 for key in data_keys:

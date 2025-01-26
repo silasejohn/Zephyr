@@ -1,10 +1,10 @@
 class LeagueDraftDTO:
-    def __init__(self, gcs_id: str, match_id: str, blue_team_id: str, red_team_id: str, draft_sequence: list = []):
+    def __init__(self, gcs_id: str, match_id: str, blue_team_id: str, red_team_id: str):
         self.gcs_id = gcs_id
         self.match_id = match_id
         self.blue_team_id = blue_team_id
         self.red_team_id = red_team_id
-        self.draft_sequence = draft_sequence        # list of champions picked / banned in draft
+        self.draft_sequence = None        # list of champions picked / banned in draft
 
         # options per arg for semantic reasons
         self.draft_phase_options = ['ban_phase_1', 'draft_phase_1', 'ban_phase_2', 'draft_phase_2']
