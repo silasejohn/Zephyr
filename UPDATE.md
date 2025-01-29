@@ -6,3 +6,4 @@
 
 1. Update GCS_tourney_match_overview_week{x}.json for match outcomes
 2. Run riot_match_v5_example.py to pull all the json files of the custom games
+3. parse_custom_tourney_json.py for analysis of the custom tournament match data

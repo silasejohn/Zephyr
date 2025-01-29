@@ -138,24 +138,6 @@ def parse_custom_match_info_by_team_id(team_id: str = None, optional_opponent_te
                 #     blue_team_id=data['team_ids'][0],  # MATCHA team_ids[0] could be blue or red side not sure yet
                 #     red_team_id=data['team_ids'][1]
                 # )
-
-                # picks / info for both teams 
-                draft_picks = data['info']['participants']
-                for pick in draft_picks:
-                    champ_name = pick['championName']
-                    # print(f"Team 1 Pick - Champ Name: {champ_name}")
-                    individual_position = pick['individualPosition']
-                    lane = pick['lane']
-                    riotIdGameName = pick['riotIdGameName']
-                    riotIdTagline = pick['riotIdTagline']
-                    role = pick['role']
-                    summonerName = pick['summonerName']
-                    teamPosition = pick['teamPosition']
-                    summonerId = pick['summonerId']
-                    puuid = pick['puuid']
-                    
-                    # print all this information together
-                    print(f"Draft Pick - Champ Name: {champ_name}, Individual Position: {individual_position}, Lane: {lane}, Riot ID Game Name: {riotIdGameName}, Riot ID Tagline: {riotIdTagline}, Role: {role}, Summoner Name: {summonerName}, Team Position: {teamPosition}\n")
                     
                 # bans per team
                 blue_bans = data['info']['teams'][0]['bans']
@@ -192,7 +174,25 @@ def parse_custom_match_info_by_team_id(team_id: str = None, optional_opponent_te
                 red_ban_5 = constants.get_champion_name(red_bans[4]['championId'])
                 print(f"\n<{team_id_is_red[1]}> [Red Ban Phase 2]")
                 print(f"\t{red_ban_4} | {red_ban_5}")
-   
-                print("\n")
 
-parse_custom_match_info_by_team_id("V8", "AWB")
+                # picks / info for both teams 
+                draft_picks = data['info']['participants']
+                for pick in draft_picks:
+                    champ_name = pick['championName']
+                    # print(f"Team 1 Pick - Champ Name: {champ_name}")
+                    individual_position = pick['individualPosition']
+                    lane = pick['lane']
+                    riotIdGameName = pick['riotIdGameName']
+                    riotIdTagline = pick['riotIdTagline']
+                    role = pick['role']
+                    summonerName = pick['summonerName']
+                    teamPosition = pick['teamPosition']
+                    summonerId = pick['summonerId']
+                    puuid = pick['puuid']
+                    
+                    # print all this information together
+                    print(f"Draft Pick - Champ Name: {champ_name}, Individual Position: {individual_position}, Lane: {lane}, Riot ID Game Name: {riotIdGameName}, Riot ID Tagline: {riotIdTagline}, Role: {role}, Summoner Name: {summonerName}, Team Position: {teamPosition}\n")
+   
+                print("\n\n")
+
+parse_custom_match_info_by_team_id("V8")

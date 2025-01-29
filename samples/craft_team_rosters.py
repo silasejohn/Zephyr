@@ -6,7 +6,7 @@
 # ###############
 
 # global imports
-import os, json
+import os, json, sys
 
 # local imports
 from __init__ import update_sys_path
@@ -57,11 +57,14 @@ def update_team_roster_info(team_id: str = None):
     ### [STEP 2] Update Player Riot IDs (if changed from previous iteration) ###
     updatedRiotIDs, roster = update_player_riot_id(roster) # updates the player_riot_id in json if not already updated
 
-    for updatedIDs in updatedRiotIDs:
-        print(f"Player Riot ID updated: {updatedIDs}")
-        # wait for user input
-        input("Press Enter to continue...")
+    if updatedRiotIDs[0] != "":
+        for updatedIDs in updatedRiotIDs:
+            print(f"Player Riot ID updated: {updatedIDs}")
+            # wait for user input
+            input("Press Enter to continue...")
     
+    input("\nPress Enter to continue...")
+        
     # update teams json, new copy of roster to use
     teams["rosters"] = roster 
     roster = teams["rosters"] 
@@ -77,11 +80,15 @@ def update_team_roster_info(team_id: str = None):
     updatedSummonerIDs, updatedAccountIDs, roster = update_player_summoner_and_account_ids(roster) 
 
     for updatedIDs in updatedSummonerIDs:
+        if updatedIDs == "":
+            continue
         print(f"Player Summoner ID updated: {updatedIDs}")
         # wait for user input
         input("Press Enter to continue...")
     
     for updatedIDs in updatedAccountIDs:
+        if updatedIDs == "":
+            continue
         print(f"Player Account ID updated: {updatedIDs}")
         # wait for user input
         input("Press Enter to continue...")
@@ -97,6 +104,8 @@ def update_team_roster_info(team_id: str = None):
     else:
         print(f"\nNo SUMMONER / ACCOUNT id updates needed for team: {team_id}")
 
+    # MATCHA: Why does ACCOUNT_ID change on every run?
+    
     # MATCHA: code that AUTO pulls their peak rank & current rank (games, roles, champs played those seasons)
 
     # MATCHA: code that auto goes through .json custom files + pulls the roles that they have played
@@ -111,6 +120,7 @@ def update_team_roster_info(team_id: str = None):
     return
     
 def identify_new_player_puuid(roster_json):
+    print("\n\n[STEP 1] Identify New Player PUUIDs for New Players (as needed)")
 
     # flag to determine if original json needs to be updated
     first_update = False
@@ -118,7 +128,7 @@ def identify_new_player_puuid(roster_json):
     # iterate through each player on a team
     for player in roster_json:
         # use riot id to determine permanent puuid if not already provided
-        print(f"Player Riot ID: {player['player_riot_id']} - [Rank Score] {player['rank_score']}")    # riot id is the snapshot of players current in game identifier
+        print(f"<Player Riot ID> {player['player_riot_id']} ... <Rank Score> {player['rank_score']}")    # riot id is the snapshot of players current in game identifier
         
         ### Obtain puuid from riot id if not already provided ###
         if player["player_puuid"] == "%" or player["player_puuid"] == "":
@@ -126,84 +136,168 @@ def identify_new_player_puuid(roster_json):
             if player["player_riot_id"] == "%" or player["player_riot_id"] == "NAME#TAG" or player["player_riot_id"] == "%":
                 print(f"[ERROR] No player_riot_id provided for player: {player}")
                 return
+            else:
+                print(f"[INFO] No player_puuid provided for player: {player['player_riot_id']}")
             
             # obtain player puuid via Riot API Account_V1
             player_riot_id = player["player_riot_id"]
-            gameName, tagLine = player_riot_id.split("#")
-            _, response_json = ACCOUNT_V1.get_account_by_riot_id(gameName, tagLine)
-            account_dto = AccountDTO.from_json(response_json)
-            player_puuid = account_dto.puuid    # get puuid from account_dto
+
+            player_riot_id_list = []
+            player_puuid_list = []
+            if "|" in player_riot_id:
+                player_riot_id_list = player_riot_id.split("|")
+            else:
+                player_riot_id_list = player_riot_id
+
+            print(f"Raw Player Riot IDs: {player_riot_id}")
+            print(f"Player Riot IDs: {player_riot_id_list}")
+            
+            for player_riot_id in player_riot_id_list:
+                gameName, tagLine = player_riot_id.split("#")
+                _, response_json = ACCOUNT_V1.get_account_by_riot_id(gameName, tagLine)
+                account_dto = AccountDTO.from_json(response_json)
+                player_puuid_list.append(account_dto.puuid)    # get puuid from account_dto
 
             # store updated information + set flag to modify original json as needed
-            player["player_puuid"] = player_puuid
+            player["player_puuid"] = player_puuid_list
+            print(f"Player PUUID: {player['player_puuid']}\n")
+
+            # set flag to update original json
             first_update = True
 
     return first_update, roster_json
 
 def update_player_riot_id(roster_json):
+    print("\n\n[STEP 2] Update Player Riot IDs (if changed from previous iteration)")
     # Update Riot ID (if has changed from previous iteration)
     riot_id_updates = []
+
     for player in roster_json:
-        old_player_riot_id = player["player_riot_id"]
-        _, response_json = ACCOUNT_V1.get_account_by_puuid(player["player_puuid"])
-        account_dto = AccountDTO.from_json(response_json)
-        new_player_riot_id = f"{account_dto.gameName}#{account_dto.tagLine}"
-        if old_player_riot_id != new_player_riot_id:
-            print(f"[Old player_riot_id] {old_player_riot_id}")
-            print(f"[New player_riot_id] {new_player_riot_id}")
-            combined_ids = old_player_riot_id + "|" + new_player_riot_id
-            riot_id_updates.append(combined_ids)
-            player["player_riot_id"] = old_player_riot_id + "|" + new_player_riot_id
-        else:
-            pass # no change in player_riot_id
+        print("\n-------------------------------------")
+        print (f"Updating Player Riot IDs for Player: {player['player_riot_id']}")
+        print("-------------------------------------")
+
+        # stores multiple accounts per player
+        old_player_riot_id_list = player["player_riot_id"]
+        player_puuid_list = player["player_puuid"]
+        new_player_riot_id_list = []
+
+        print(f"\nPulling Player Info for all Accounts...")
+        print(f"\tPlayer PUUIDs: {player_puuid_list}")
+        print(f"\tPlayer Riot IDs (old): {old_player_riot_id_list}")
+
+        for account_idx in range(len(player_puuid_list)): # iterates from 0 to len(player_puuid_list) - 1
+            print(f"\nUpdating Account {account_idx + 1} of {len(player_puuid_list)}")
+            _, response_json = ACCOUNT_V1.get_account_by_puuid(player_puuid_list[account_idx])
+            account_dto = AccountDTO.from_json(response_json)
+            new_player_riot_id = f"{account_dto.gameName}#{account_dto.tagLine}"
+            new_player_riot_id_list.append(new_player_riot_id)
+            
+            if old_player_riot_id_list[account_idx] != new_player_riot_id_list[account_idx]:
+                print(f"[Account {account_idx + 1}] {old_player_riot_id_list[account_idx]} ~> {new_player_riot_id_list[account_idx]}")
+            else:
+                print(f"[Account {account_idx + 1}] No change in player_riot_id ({new_player_riot_id_list[account_idx]})")
+
+        # update player_riot_id in json
+        combined_ids = ""
+        for account_idx in range(len(player_puuid_list)):
+            if old_player_riot_id_list[account_idx] != new_player_riot_id_list[account_idx]:
+                combined_ids += "{" + str(old_player_riot_id_list[account_idx]) + "~>" + str(new_player_riot_id_list[account_idx]) + "}"
+        riot_id_updates.append(combined_ids)
+
+        # update player_riot_id in json
+        player["player_riot_id"] = new_player_riot_id_list
+        
     return riot_id_updates, roster_json
 
 def update_player_summoner_and_account_ids(roster_json):
+    print("\n\n[STEP 3] Update Player SummonerID and AccountID (if changed from previous iteration)")
     # Update Summoner / Account ID (if has changed from previous iteration)
     riot_summmoner_id_updates = []
     riot_account_id_updates = []
 
     for player in roster_json:
+        print("\n-------------------------------------")
+        print (f"Updating Summoner & Account IDs for Player: {player['player_riot_id']}")
+        print("-------------------------------------")
 
-        _, response_json = SUMMONER_V4.get_summoner_info_by_puuid(player["player_puuid"])
-        summoner_dto = SummonerDTO.from_json(response_json)
+        player_puuid_list = player["player_puuid"]
+        old_player_account_id_list = player["player_encrypted_account_id"]
+        old_player_summoner_id_list = player["player_encrypted_summoner_id"]
+        new_player_account_id_list = []
+        new_player_summoner_id_list = []
+        
+        # iterate through each player account 
+        for account_idx in range(len(player_puuid_list)):
+            print(f"Updating Account {account_idx + 1} of {len(player_puuid_list)}")
+            _, response_json = SUMMONER_V4.get_summoner_info_by_puuid(player_puuid_list[account_idx])
+            summoner_dto = SummonerDTO.from_json(response_json)
+            new_player_account_id_list.append(summoner_dto.encryptedAccountId)
+            new_player_summoner_id_list.append(summoner_dto.encryptedSummonerID)
 
-        old_player_account_id = player["player_encrypted_account_id"]
-        old_player_summoner_id = player["player_encrypted_summoner_id"]
+        ##########################
+        ### ACCOUNT ID UPDATES ###
+        ##########################
+        # if Account ID doesn't previously exist ... update with new account ids
+        if old_player_account_id_list == "%" or old_player_account_id_list[0] == "":
+            # update account id in json
+            player["player_encrypted_account_id"] = new_player_account_id_list
 
-        new_player_account_id = summoner_dto.encryptedAccountId
-        new_player_summoner_id = summoner_dto.encryptedSummonerID
-
-        # update account id if it doesn't exist
-        if old_player_account_id == "%" or old_player_account_id == "":
-            player["player_encrypted_account_id"] = new_player_account_id
-            new_id_msg = f"{old_player_account_id} -> {new_player_account_id}"
+            # store updated information
+            new_id_msg = ""
+            for account_idx in range(len(player_puuid_list)):
+                print(f"[Account {account_idx + 1}] % ~> {new_player_account_id_list[account_idx]}")
+                new_id_msg += "{" + f"% -> {str(new_player_account_id_list[account_idx])}" + "}"
             riot_account_id_updates.append(new_id_msg)
-        else: # if account id already exists,
-            if old_player_account_id != new_player_account_id:
-                print(f"[Old player_account_id] {old_player_account_id}")
-                print(f"[New player_account_id] {new_player_account_id}")
-                combined_ids = f"{old_player_account_id} -> {new_player_account_id}"
-                riot_account_id_updates.append(combined_ids)
-                player["player_encrypted_account_id"] = old_player_account_id + "|" + new_player_account_id
-            else:
-                pass
 
-        # update summoner id if it doesn't exist
-        if old_player_summoner_id == "%" or old_player_summoner_id == "":
-            player["player_encrypted_summoner_id"] = new_player_summoner_id
-            new_id_msg = f"{old_player_summoner_id} -> {new_player_summoner_id}"
+        else: # if Account ID already exists, compare and update if needed
+            for account_idx in range(len(player_puuid_list)):
+                if old_player_account_id_list[account_idx] != new_player_account_id_list[account_idx]:
+                    print(f"[Account {account_idx + 1}] {old_player_account_id_list[account_idx]} ~> {new_player_account_id_list[account_idx]}")
+                else:
+                    print(f"[Account {account_idx + 1}] No change in player_encrypted_account_id ({new_player_account_id_list[account_idx]})")
+            
+            # update account id in json
+            combined_ids = ""
+            for account_idx in range(len(player_puuid_list)):
+                if old_player_account_id_list[account_idx] != new_player_account_id_list[account_idx]:
+                    combined_ids += "{" + str(old_player_account_id_list[account_idx]) + "~>" + str(new_player_account_id_list[account_idx]) + "}"
+            riot_account_id_updates.append(combined_ids)
+
+            # update account id in json
+            player["player_encrypted_account_id"] = new_player_account_id_list
+
+        ###########################
+        ### SUMMONER ID UPDATES ###
+        ###########################
+        # if Summoner ID doesn't previously exist ... update with new summoner ids
+        if old_player_summoner_id_list == "%" or old_player_summoner_id_list[0] == "":
+            # update summoner id in json
+            player["player_encrypted_summoner_id"] = new_player_summoner_id_list
+
+            # store updated information
+            new_id_msg = ""
+            for account_idx in range(len(player_puuid_list)):
+                print(f"[Account {account_idx + 1}] % ~> {new_player_summoner_id_list[account_idx]}")
+                new_id_msg += "{" + f"% -> {str(new_player_summoner_id_list[account_idx])}" + "}"
             riot_summmoner_id_updates.append(new_id_msg)
-        else: # if summoner id already exists,
-            if old_player_summoner_id != new_player_summoner_id:
-                print(f"[Old player_summoner_id] {old_player_summoner_id}")
-                print(f"[New player_summoner_id] {new_player_summoner_id}")
-                combined_ids = f"{old_player_summoner_id} -> {new_player_summoner_id}"
-                riot_summmoner_id_updates.append(combined_ids)
-                player["player_encrypted_summoner_id"] = old_player_summoner_id + "|" + new_player_summoner_id
-            else:
-                pass
 
+        else: # if Summoner ID already exists, compare and update if needed
+            for account_idx in range(len(player_puuid_list)):
+                if old_player_summoner_id_list[account_idx] != new_player_summoner_id_list[account_idx]:
+                    print(f"[Account {account_idx + 1}] {old_player_summoner_id_list[account_idx]} ~> {new_player_summoner_id_list[account_idx]}")
+                else:
+                    print(f"[Account {account_idx + 1}] No change in player_summoner_id ({new_player_summoner_id_list[account_idx]})")
+            
+            # update account id in json
+            combined_ids = ""
+            for account_idx in range(len(player_puuid_list)):
+                if old_player_summoner_id_list[account_idx] != new_player_summoner_id_list[account_idx]:
+                    combined_ids += "{" + str(old_player_summoner_id_list[account_idx]) + "~>" + str(new_player_summoner_id_list[account_idx]) + "}"
+            riot_summmoner_id_updates.append(combined_ids)
+
+            # update account id in json
+            player["player_encrypted_account_id"] = new_player_summoner_id_list
     return riot_summmoner_id_updates, riot_account_id_updates, roster_json
 
-update_team_roster_info("V8")
+update_team_roster_info("07")
