@@ -1,0 +1,508 @@
+##########################
+### Import Statements ####
+##########################
+
+# local imports
+from __init__ import update_sys_path
+update_sys_path()
+
+# data manipulation, time buffering, quick exit, csv editing
+import pandas as pd
+import time, sys, csv, os
+
+# pretty printing and color
+import modules.utils.color_utils as ColorPrint
+from modules.utils.file_utils import load_json_from_file
+
+# Selenium WebDriver Options
+from selenium import webdriver
+from selenium.webdriver.firefox.options import Options as FirefoxOptions    #  for FirefoxOptions
+from selenium.webdriver.chrome.options import Options as ChromeOptions      # for ChromeOptions
+from selenium.webdriver.firefox.service import Service                      # for FirefoxService
+from selenium.webdriver.chrome.service import Service as ChromeService      # for ChromeService
+from selenium.webdriver.common.by import By                                 # for locating elements BY specific types (e.g. ID, NAME, etc.)
+from selenium.webdriver.common.keys import Keys                             # for clicking RETURN
+from selenium.webdriver.support.ui import Select                            # for dropdown menus (element selection)
+from selenium.webdriver.support.ui import WebDriverWait                     # for waiting for elements to load
+from selenium.webdriver.support import expected_conditions as EC            # for expected conditions
+from selenium.common.exceptions import TimeoutException, NoSuchElementException     # for timeout exceptions
+
+def zephyr_print(msg):
+    print(f"\n[[{ColorPrint.MAGENTA} Z E P H Y R {ColorPrint.RESET}]] >> {msg}...")
+
+def create_data_df(csv_file):
+    data_df = pd.read_csv(csv_file)
+    return data_df
+
+#######################################
+### LeagueChampScraper (rewind.lol) ###
+#######################################
+class LeagueChampScraper:
+
+    MAIN_WEBSITE = 'https://rewind.lol/'
+    DRIVER = None
+    BROWSER = "chrome"
+    WEBSITE_TIMEOUT = 5
+    POSITION_LIST = ["top", "jng", "mid", "bot", "sup"]
+
+    @staticmethod
+    def input(inputType: str = None):
+        if inputType == "player_ign":
+            print("Enter the Player IGN: ")
+            player_ign = input()
+            return player_ign
+        else:
+            # default case
+            print("Enter the Player IGN: ")
+            player_ign = input()
+            return player_ign
+        
+    @staticmethod
+    # sets up the rewind.lol website
+    def set_up_rewind_lol():
+        try: 
+            zephyr_print("Prepping Rewind.lol")
+            LeagueChampScraper.get_web_driver()
+            LeagueChampScraper.DRIVER.get(LeagueChampScraper.MAIN_WEBSITE)
+            return 1 # success
+        except Exception as e:
+            print(f"Error: {e}")
+            LeagueChampScraper.close()
+            return -1 # error
+        
+    @staticmethod
+    # enter in player IGN and arrive at their rewind.lol profile page
+    def load_player_profile(player_ign):
+        zephyr_print(f"Entering Player IGN: {player_ign}")
+        try:
+            status = LeagueChampScraper.select_region()
+
+            # Find the rewind.lol search box, enter player IGN, and hit Enter
+            search_box = LeagueChampScraper.DRIVER.find_element(By.CLASS_NAME, 'main__interface-menu-input')
+            search_box.send_keys(player_ign + Keys.RETURN)  # Send query and hit Enter
+
+            return 1 # success
+        except Exception as e:
+            print(f"Error: {e}")
+            return -1 # error
+    
+    @staticmethod
+    # waits for an "element" to show up on page
+    # used to wait for page (and specific element) to load
+    def wait_for_element_to_load(by, value, timeout=10, custom_error_msg=None):
+        try:
+            element = WebDriverWait(LeagueChampScraper.DRIVER, timeout).until(
+                EC.presence_of_element_located((by, value))
+            )
+            return element
+        except TimeoutException:
+            if custom_error_msg:
+                print(f"{ColorPrint.RED}{custom_error_msg}{ColorPrint.RESET}")
+            else:
+                print(f"{ColorPrint.RED}{value} Element not Found!{ColorPrint.RESET}")
+            return -1
+    
+    @staticmethod
+    # access player's champion history
+    def access_player_champion_history():
+        print(f"{ColorPrint.YELLOW}>> Accessing Player Champion History{ColorPrint.RESET}")
+        try:
+            # Find the Champion History Button and Click
+            champ_history_menu = LeagueChampScraper.DRIVER.find_element(By.XPATH, "//a[contains(@onclick, '/user_champions.html')]")
+            champ_history_menu.click()  # Click the element
+
+        except Exception as e:
+            print(f"{ColorPrint.RED}[ERROR] Error accessing player champion history: {e}{ColorPrint.RESET}")
+
+    @staticmethod
+    # access player champion history table
+    def access_player_champion_history_table(player_ign, file_name):
+        print(f"{ColorPrint.YELLOW}>> Accessing Player Champion History Table{ColorPrint.RESET}")
+        try:
+            # Test: Find the Champion History Table
+            LeagueChampScraper.wait_for_element_to_load(By.XPATH, "//*[text()='Champions Played and stats for PvP games']")
+            champ_history_header = LeagueChampScraper.DRIVER.find_element(By.XPATH, "//*[text()='Champions Played and stats for PvP games']")
+
+            # Find a title element from header row
+            LeagueChampScraper.wait_for_element_to_load(By.XPATH, "//th[contains(@title, 'total KDA')]")
+            element = LeagueChampScraper.DRIVER.find_element(By.XPATH, "//th[contains(@title, 'total KDA')]")
+
+            # Find Header Row
+            header_row = element.find_element(By.XPATH, "parent::*")
+            # print(f"{ColorPrint.YELLOW}Header: {header_row.text}{ColorPrint.RESET}")
+
+            # Find Main Table of Data
+            champ_history_table_tbody = header_row.find_element(By.XPATH, "parent::*")
+
+            # store all the <tr> rows in this tbdoy element champ_history_table_tbody
+            tr_elements = champ_history_table_tbody.find_elements(By.TAG_NAME, 'tr')
+
+            # Extract Header Row from Table
+            header_row = tr_elements[0].find_elements(By.TAG_NAME, 'th')
+            # print(f"{ColorPrint.YELLOW}# of Headers: {len(header_row)}{ColorPrint.RESET}")
+
+            # Extract Data Rows from Table
+            data_rows = tr_elements[1:]
+
+            # Write to CSV File
+            role_prio_entry = []
+            with open(file_name, 'w', newline='', encoding='utf-8') as file:
+                writer = csv.writer(file)
+                if header_row: # write headers
+                    writer.writerow([header.text.strip().replace("\n"," ") for header in header_row])
+                else: # If there are no 'th' tags, use the first row as headers
+                    first_row = data_rows[0].find_elements(By.TAG_NAME, 'td')
+                    writer.writerow([cell.text for cell in first_row])
+
+                for row in data_rows: # Write the rows to the CSV file (each tr is a row)
+                    cells = row.find_elements(By.TAG_NAME, 'td')
+                    
+                    if cells:  # Skip rows without 'td' elements
+                        row_data = []
+                        
+                        first_cell = True
+                        for cell in cells:
+                            if first_cell:
+                                try:
+                                    img_src_text = cells[0].find_element(By.TAG_NAME, 'span').find_element(By.TAG_NAME, 'img').get_attribute('src')
+                                    role = img_src_text.split('/')[-1].split('.webp')[0]
+                                    # print(f"{ColorPrint.YELLOW}Position: {role}{ColorPrint.RESET}")
+                                    new_cell_text = cells[0].text + f" ({role})"
+                                    row_data.append(new_cell_text.strip())
+                                except NoSuchElementException:
+                                    # if the text has a "_" in it, then it is a champion name
+                                    if "_" in cells[0].text:
+                                        new_cell_text = cells[0].text.replace("_", "[Role] ").strip()
+                                        role_prio_entry.append(cells[0].text.replace("_", "").strip())
+                                        row_data.append(new_cell_text)
+                                    else:
+                                        row_data.append(cells[0].text.strip())
+                                first_cell = False
+                            else:
+                                row_data.append(cell.text.strip())
+                        writer.writerow(row_data)
+                role_prio_msg = f"Role Priority List (past 2 years): {role_prio_entry}"
+                # role_prio_list.append(role_prio_msg)
+                print(f"{ColorPrint.GREEN}{role_prio_msg}{ColorPrint.RESET}")
+
+            # import the csv back into a dataframe
+            print(f"{ColorPrint.YELLOW}>> Refining CSV File: {file_name}{ColorPrint.RESET}")
+            champ_df = pd.read_csv(file_name, sep=',')
+
+            # loop through each row in the dataframe
+            print(f"{ColorPrint.YELLOW}>> Extracting Roles from Champion Names{ColorPrint.RESET}")
+            for index, row in champ_df.iterrows():
+                champ_name = row['champion']
+                # if the champ_name has [Role] in it, output 'Overview' in the 'Role' column
+                # print(f"{ColorPrint.YELLOW}Champion: {champ_name}{ColorPrint.RESET}")
+                if champ_name.find("[Role]") != -1:
+                    champ_df.at[index, 'role'] = "OVERVIEW"
+                # if the champ_name has parenthesis in it, extract the role from the parenthesis into the 'Role' column
+                elif champ_name.find("(") != -1:
+                    champ_df.at[index, 'role'] = champ_name.split("(")[1].split(")")[0]
+                else: # if the champ_name is a champion name, extract the role from the CHAMPS_IN_ROLES dictionary
+                    # champ_df.at[index, 'role'] = LeagueChampScraper.CHAMPS_IN_ROLES[champ_name]
+                    pass
+            file_name = file_name.replace("_raw.csv", "") # strip .csv from file_name
+            file_name = file_name + "_refined.csv" # add "_refined.csv" to file_name
+            champ_df.to_csv(file_name, index=False) # save to new csv file
+
+            ### Role by Role df ### 
+            # for each role of [top, jng, mid, bot, sup, OVERVIEW], create a new df and save to csv
+            for role in ['top', 'jng', 'mid', 'bot', 'sup', 'OVERVIEW', '']:
+                role_df = champ_df[champ_df['role'] == role]
+                if not role_df.empty:
+                    if role == '':
+                        role_df.to_csv(file_name.replace("_refined.csv", f"_leftovers.csv"), index=False)
+                    elif role == 'OVERVIEW':
+                        role_df.to_csv(file_name.replace("_refined.csv", f"_role_distribution.csv"), index=False)
+                    else:
+                        role_df.to_csv(file_name.replace("_refined.csv", f"_{role}.csv"), index=False)
+            # return role_prio_list
+        except Exception as e:
+            print(f"{ColorPrint.RED}[ERROR] Error accessing player champion history table: {e}{ColorPrint.RESET}")
+            # return role_prio_list
+
+    @staticmethod
+    # access player's champion history for a single champion
+    def access_single_champion_history(player_name, champion_name):
+
+        # make champion_name CamelCase
+        champion_name = champion_name.lower().title()
+
+        zephyr_print(f"Accessing Player Champion History for <{champion_name}>")
+        try:
+            # Find the Champion History Button and Click
+            champ_select_element = LeagueChampScraper.DRIVER.find_element(By.ID, 'd1f-champion-name')
+
+            # Click the element
+            champ_select_element.click()
+
+            # Wrap the element in a Select object
+            champ_select = Select(champ_select_element)
+
+            # Select an option by value (e.g., 'NA' for North America)
+            # 3 options: select_by_index, select_by_value, select_by_visible_text
+            champ_select.select_by_visible_text(champion_name)
+
+            # click
+            champ_select_element.click()
+
+            return 1 # success
+
+        except Exception as e:
+            print(f"{ColorPrint.RED}[ERROR] Error accessing player champion history for {champion_name}: {e}{ColorPrint.RESET}")
+            return -1 # error
+
+    @staticmethod
+    # selection of region NA
+    def select_region(region = 'NA'):
+        print(f"{ColorPrint.YELLOW}>> Selecting Region: {region}{ColorPrint.RESET}")
+        try:
+            # Find the Region Select Dropdown
+            region_select_element = LeagueChampScraper.DRIVER.find_element(By.CLASS_NAME, 'main__interface-menu-input-servers')
+
+            # Wrap the element in a Select object
+            region_select = Select(region_select_element)
+
+            # Select an option by value (e.g., 'NA' for North America)
+            region_select.select_by_value('NA')
+            
+            return 1 # success
+        except Exception as e:
+            print(f"{ColorPrint.RED}[ERROR] Error selecting region {region}: {e}{ColorPrint.RESET}")
+            return -1 # error
+
+    @staticmethod
+    # sets up the webdriver (automated chrome access)
+    # [returns] 1 if driver created, 0 if driver already exists
+    def get_web_driver():
+        if LeagueChampScraper.DRIVER is None:
+            zephyr_print("Setting up Chrome WebDriver")
+            if LeagueChampScraper.BROWSER.lower() == "firefox":
+                options = FirefoxOptions()
+                options.headless = True  # Runs in headless mode, no UI.
+                service = Service('/path/to/geckodriver')  # Path to geckodriver
+                LeagueChampScraper.DRIVER = webdriver.Firefox(service=service, options=options)
+            elif LeagueChampScraper.BROWSER.lower() == "chrome":
+                options = ChromeOptions()
+                options.headless = True  # Runs in headless mode, no UI.
+                service = ChromeService('/opt/homebrew/bin/chromedriver')  # Path to chromedriver
+                LeagueChampScraper.DRIVER = webdriver.Chrome(service=service, options=options)
+            else:
+                raise ValueError("Only 'firefox' and 'chrome' browsers are supported.")
+            return 1 # driver created
+        else:
+            return 0 # driver already exists
+
+    def buffer(time_sec = WEBSITE_TIMEOUT):
+        time.sleep(time_sec)
+
+    @staticmethod
+    def close():
+        LeagueChampScraper.DRIVER.quit()
+
+    @staticmethod   
+    def close_previous_tab():
+        # Get a list of all open tabs
+        tabs = LeagueChampScraper.DRIVER.window_handles
+
+        # Switch to the previous tab
+        LeagueChampScraper.DRIVER.switch_to.window(tabs[0])
+
+        # Close the Current Tab
+        LeagueChampScraper.DRIVER.close()
+
+        # Switch to the previous tab open
+        LeagueChampScraper.DRIVER.switch_to.window(tabs[-1]) # tabs[-1] is the last tab opened 
+
+    @staticmethod
+    def create_new_tab():
+        # # Open a new tab
+        # LeagueChampScraper.DRIVER.execute_script("window.open('');")
+
+        # # Switch to the new tab
+        # LeagueChampScraper.DRIVER.switch_to.window(LeagueChampScraper.DRIVER.window_handles[-1])
+
+        # Load a new instance of rewind.lol in new tab
+        LeagueChampScraper.DRIVER.execute_script("window.open('https://rewind.lol', '_blank');")
+
+    @staticmethod
+    # update team champion history
+    def update_team_champ_history(team_id: str, player_riot_ids: list[str], run_update: bool = False):
+            
+        # setup the rewind.lol website for scraping
+        LeagueChampScraper.set_up_rewind_lol()
+
+        profiles_to_update = []
+
+        for player_account in player_riot_ids:
+            print(f"{ColorPrint.YELLOW}[Cleaning Player Account] {player_account}{ColorPrint.RESET}")
+
+            # skip empty rows / invalid IGNs
+            if player_account == "":
+                continue 
+
+            # if player_account is a string, convert to list                
+            if type(player_account) == str:
+                player_account = [player_account]
+            
+            # if there is only one account, add to list
+            if len(player_account) == 1:
+                if '#' not in player_account[0]:
+                    print(f"{ColorPrint.RED}Error: Invalid Player IGN of {player_account}{ColorPrint.RESET}")
+                    continue
+                profiles_to_update.append(player_account[0])
+
+            # if there are multiple accounts, add each account to list
+            elif len(player_account) > 1:
+                for account in player_account:
+                    if '#' not in account:
+                        print(f"{ColorPrint.RED}Error: Invalid Player IGN of {player_account}{ColorPrint.RESET}")
+                        continue 
+                    profiles_to_update.append(account)
+
+        for profile in profiles_to_update:
+
+            zephyr_print(f"{ColorPrint.RED}Updating Player Champion History for {profile}{ColorPrint.RESET}")
+
+            # access updated player champion history table + store into csv
+            LeagueChampScraper.load_player_profile(profile)
+            LeagueChampScraper.access_player_champion_history()
+
+            # create directory {team_id} if it doesn't exist
+            if not os.path.exists(f"data/processed/champ_mastery/{team_id}"):
+                os.makedirs(f"data/processed/champ_mastery/{team_id}")
+
+            # output csv file
+            champ_history_output = f"data/processed/champ_mastery/{team_id}/{profile}_raw.csv"
+
+            LeagueChampScraper.access_player_champion_history_table(profile, champ_history_output)
+
+            zephyr_print(f"{ColorPrint.GREEN}Player Champion History for {profile} UPDATED{ColorPrint.RESET}")
+
+            # buffer and close tab, then create new tab
+            LeagueChampScraper.buffer()
+            LeagueChampScraper.create_new_tab()
+            LeagueChampScraper.close_previous_tab()
+        
+        print(f"{ColorPrint.GREEN}Finished Updating Team Champion History{ColorPrint.RESET}")
+    
+        LeagueChampScraper.close()
+
+    @staticmethod
+    # access team roster information
+    def retrieve_team_roster(team_id: str):
+        team_roster_riot_ids = []
+        team_roster_positions = []
+        input_json_file = f"constants/teams/{team_id}.json"
+        
+        # if file doesn't exist or is empty return
+        if not os.path.exists(input_json_file) or os.stat(input_json_file).st_size == 0:
+            print(f"{ColorPrint.RED}Error: Team JSON File Not Found{ColorPrint.RESET}")
+            return -1
+        
+        # load the json file 
+        team_data = load_json_from_file(input_json_file)
+
+        # ensure that team_id matches the json roster
+        if team_data['team_id'] != team_id:
+            print(f"{ColorPrint.RED}Error: Team ID Mismatch{ColorPrint.RESET}")
+            return -1, -1
+        
+        zephyr_print(f"Retrieving Team Roster Information for Team ID: {team_id}")
+
+        # get the roster information
+        team_roster = team_data['rosters']
+
+        for player in team_roster:
+            player_accounts = player['player_riot_id']
+            if len(player_accounts) == 1:
+                team_roster_riot_ids.append(player_accounts[0])
+            elif len(player_accounts) > 1:
+                player_account_list = []
+                for account in player_accounts:
+                    player_account_list.append(account)
+                team_roster_riot_ids.append(player_account_list)
+            else:
+                print(f"{ColorPrint.RED}Error: No Player Accounts Found{ColorPrint.RESET}")
+
+            # get the positions information
+            player_positions = player['player_pos']
+            
+            # split by "|" to get multiple positions
+            pos_list = player_positions.split("|")
+            pos_list = [pos.lower() for pos in pos_list]
+            
+            if "captain" in pos_list:
+                pos_list.remove("captain")
+
+            if "jgl" in pos_list:
+                pos_list[pos_list.index("jgl")] = "jng"
+
+            team_roster_positions.append(pos_list)
+
+        print(f"\n----------------")
+        print(f"{ColorPrint.CYAN}[{team_id} ROSTER]{ColorPrint.RESET}")
+        print(f"----------------")
+        for player_riot_id in team_roster_riot_ids:
+            print(f"{ColorPrint.GREEN}{player_riot_id}{ColorPrint.RESET}")
+            print(f"{ColorPrint.YELLOW}{team_roster_positions[team_roster_riot_ids.index(player_riot_id)]}{ColorPrint.RESET}\n")
+
+        input("Press Enter to Continue...")
+
+        return team_roster_riot_ids, team_roster_positions
+
+    @staticmethod
+    # output player (multi account) champion mastery (in last 2 years)
+    def access_player_champ_pool(team_id, player_accounts, pos):
+
+        # set up empty df for storing player champ pool
+        player_champ_pool_df = pd.DataFrame()
+
+        # if player_account is not a list (is a string) then convert to list
+        if type(player_accounts) == str:
+            player_accounts = [player_accounts]
+        
+        zephyr_print(f"Accessing Player Champion Pool for {player_accounts[0]} in {pos}")
+
+        for player_ign in player_accounts:
+            does_file_exist = False
+            for file in os.listdir(f"data/processed/champ_mastery/{team_id}"):
+                if file.startswith(player_ign) and file.endswith(pos + ".csv"):
+                    print(f">> {ColorPrint.YELLOW}Processing {player_ign} champ pool for {pos}{ColorPrint.RESET}")
+                    player_account_champ_pool_df = pd.read_csv(f"data/processed/champ_mastery/{team_id}/" + file)
+                    player_champ_pool_df = pd.concat([player_champ_pool_df, player_account_champ_pool_df], axis=0)
+                     
+                    does_file_exist = True
+                    break
+            if not does_file_exist:
+                print(f"{ColorPrint.RED}Error: File Not Found for Team {team_id} and player account {player_ign} in role {pos}{ColorPrint.RESET}")
+        
+        print(player_champ_pool_df)
+
+    @staticmethod
+    def access_team_champ_pool(team_id: str, team_roster, team_pos_list):
+        zephyr_print(f"Accessing Team Champion Pool for Team ID: {team_id}")
+        for i in range(len(team_roster)):
+            pos_list = team_pos_list[i] # get the positions for the player / player accounts
+            for pos in pos_list:
+                zephyr_print(f"Pulling champ pool for {team_roster[i]} in {pos}")
+                LeagueChampScraper.access_player_champ_pool(team_id, team_roster[i], pos)
+
+###################
+### DRIVER CODE ###
+###################
+
+team_id = "07"
+input_riot_ids, input_team_positions = LeagueChampScraper.retrieve_team_roster(team_id)
+LeagueChampScraper.update_team_champ_history(team_id, input_riot_ids, run_update = False)
+LeagueChampScraper.access_team_champ_pool(team_id, input_riot_ids, input_team_positions)
+
+# MATCHA: combining multi-accounts into first Riot ID Acccount (useful fields, performing combine operations)
+# ... instead of using rewind.lol ... use riot API for player champ pools
+# ... do a role priority breakdown by role for everyone on a team...
+# ... auto create profile on rewind.lol if not exist && auto update profile past a certain date (limit 5 for rate limiting)
+
+
+

@@ -105,12 +105,11 @@ def update_team_roster_info(team_id: str = None):
         print(f"\nNo SUMMONER / ACCOUNT id updates needed for team: {team_id}")
 
     # MATCHA: Why does ACCOUNT_ID change on every run?
-    
+
     # MATCHA: code that AUTO pulls their peak rank & current rank (games, roles, champs played those seasons)
 
     # MATCHA: code that auto goes through .json custom files + pulls the roles that they have played
-
-    # MATCHA: code that handles going through multiple accounts
+    #   MATCHA: role / position / champ played / bans they took in previous custom matches (against which team too)
 
     # MATCHA: code that handles printing all this to google spreadsheet
 
