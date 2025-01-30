@@ -1,8 +1,14 @@
 1. [constants/gcsTeams.json] Update <team_id> Team Rosters Info
 2. [craft_team_rosters.py] Change <team_id> and generate <team_id>.json (updates puuids, riot ids, etc)
 3. Update rewind.lol profiles manually for all profiles on team
-4. [rewind_lol_scraper.py] change <team_id> and scrape all known champ information
-5. [access_team_champ_pool.py] change <team_id> and retrieve all known information
+4. [access_team_champ_pool.py] change <team_id> and retrieve all known information
+
+# ... do a role priority breakdown by role for everyone on a team...
+# ... auto create profile on rewind.lol if not exist && auto update profile past a certain date (limit 5 for rate limiting)
+# ... do op.gg scraping for champs played in last 30 days (recent match history)
+# ... google spreadsheeet api calls to display directly on the sheets (determine format first)
+# ... custom game drafts analysis (pick their past picks, roles, add to json for edits, add rosters / counters pick to the team rostres)
+# ... pull champ mastery of champs as well for 3rd view on champs played
 
 3. display basic roster info to NEW google spreadsheet via api calls
 4. display past drafts on google spreadsheet via api calls

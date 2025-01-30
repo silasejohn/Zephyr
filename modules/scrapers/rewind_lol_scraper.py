@@ -465,6 +465,7 @@ class LeagueChampScraper:
             player_accounts = [player_accounts]
         
         zephyr_print(f"Accessing Player Champion Pool for {player_accounts[0]} in {pos}")
+        potential_accounts_for_combining = player_accounts.copy()
 
         for player_ign in player_accounts:
             does_file_exist = False
@@ -473,13 +474,31 @@ class LeagueChampScraper:
                     print(f">> {ColorPrint.YELLOW}Processing {player_ign} champ pool for {pos}{ColorPrint.RESET}")
                     player_account_champ_pool_df = pd.read_csv(f"data/processed/champ_mastery/{team_id}/" + file)
                     player_champ_pool_df = pd.concat([player_champ_pool_df, player_account_champ_pool_df], axis=0)
-                     
                     does_file_exist = True
                     break
             if not does_file_exist:
                 print(f"{ColorPrint.RED}Error: File Not Found for Team {team_id} and player account {player_ign} in role {pos}{ColorPrint.RESET}")
+                potential_accounts_for_combining.remove(player_ign)
         
-        print(player_champ_pool_df)
+        # before printing the df, combine the stats for each player account
+        if len(potential_accounts_for_combining) > 1:
+            player_champ_pool_df = LeagueChampScraper.combine_champ_stats(player_champ_pool_df, potential_accounts_for_combining, pos)
+        elif len(potential_accounts_for_combining) == 1:
+            print(f"{ColorPrint.RED}>> [Single Account] No Need to Combine Champion Stats for {potential_accounts_for_combining[0]} in {pos}!{ColorPrint.RESET}")
+        else:
+            print(f"{ColorPrint.RED}Error: In {pos} position... No Player Accounts {player_accounts} Found for {team_id}{ColorPrint.RESET}")
+            input("Press Enter to Continue...")
+            return
+
+        # print the df but combined stats
+        print(f"{ColorPrint.GREEN}<{player_accounts}> [{pos}] Combined Champion Stats{ColorPrint.RESET}")
+
+        # drop columns 'triple kills', 'quadra kills', 'penta kills', 'role', 'average game duration'
+        sorted_player_champ_pool_df = player_champ_pool_df.sort_values(by='total games', ascending=False)
+        partial_player_champ_pool_df = sorted_player_champ_pool_df.drop(columns=['triple kills', 'quadra kills', 'penta kills', 'role', 'average game duration', 'per game K / D / A', 'total KD', 'average KD', 'average KDA ±SD', 'total KDA'])
+        print(partial_player_champ_pool_df)
+        # sort by 'total games' in descending order
+        input("Press Enter to Continue...")
 
     @staticmethod
     def access_team_champ_pool(team_id: str, team_roster, team_pos_list):
@@ -490,19 +509,269 @@ class LeagueChampScraper:
                 zephyr_print(f"Pulling champ pool for {team_roster[i]} in {pos}")
                 LeagueChampScraper.access_player_champ_pool(team_id, team_roster[i], pos)
 
+    @staticmethod
+    # combine appropriate stats for the champ df per each player account
+    def combine_champ_stats(player_champ_pool_df, player_accounts, pos):
+        champ_pool_was_combined = False
+        in_depth_print = False
+
+        print(f"{ColorPrint.YELLOW}>> Attempting to Combine Champion Stats for {player_accounts} in {pos}{ColorPrint.RESET}")
+
+        # create a new df w/ same columns as player_champ_pool_df
+        updated_player_champ_pool_df = pd.DataFrame(columns=player_champ_pool_df.columns)
+        
+        # loop through each unique champion in the player_champ_pool_df
+        for champ_name in player_champ_pool_df['champion'].unique():
+
+            # identify the slice of the df containing rows with the same champ_name (make a copy)
+            champ_df = player_champ_pool_df[player_champ_pool_df['champion'] == champ_name].copy()
+
+            # skip if there is only one row (means only one account)
+            if len(champ_df) == 1:
+                if updated_player_champ_pool_df.empty:
+                    updated_player_champ_pool_df = champ_df
+                else:
+                    updated_player_champ_pool_df = pd.concat([updated_player_champ_pool_df, champ_df], axis=0)
+                continue
+            elif len(champ_df) < 1:
+                print(f"{ColorPrint.RED}Error: No Champion Data Found for {champ_name}{ColorPrint.RESET}")
+                return -1
+
+            # print the champ_df slice if there are multiple rows
+            print(champ_df)
+            champ_pool_was_combined = True
+
+            # MetaVariables Storing Contribution Values for each Player (index = account_num)
+            account_num = 0
+            total_games_per_account = [] * len(champ_df)
+            total_wins_per_account = [] * len(champ_df)
+            total_losses_per_account = [] * len(champ_df)
+            contributing_total_KDA_per_account = [] * len(champ_df)
+            contributing_average_KDA_per_account = [] * len(champ_df)
+            contributing_average_KDA_SD_per_account = [] * len(champ_df)
+            contributing_per_game_K_per_account = [] * len(champ_df)
+            contributing_per_game_D_per_account = [] * len(champ_df)
+            contributing_per_game_A_per_account = [] * len(champ_df)
+            contributing_total_KD_per_account = [] * len(champ_df)
+            contributing_average_KD_per_account = [] * len(champ_df)
+            contributing_average_KP_per_account = [] * len(champ_df)
+            contributing_first_blood_per_account = [] * len(champ_df)
+            triple_kills_per_account = [] * len(champ_df)
+            quadra_kills_per_account = [] * len(champ_df)
+            penta_kills_per_account = [] * len(champ_df)
+            average_game_duration_per_account = [] * len(champ_df)
+            role_per_account = [] * len(champ_df)
+
+            # calculate total games for all rows
+            total_games_per_champ = champ_df['total games'].sum()
+
+            for index, row in champ_df.iterrows():
+
+                # update account number
+                account_num += 1
+                account_name = player_accounts[account_num - 1]
+
+                # contribution percentage of this account
+                contribution_percentage = row['total games'] / total_games_per_champ
+
+                # pull stats per each account per champ for the player
+                total_games_per_account.append(row['total games'])
+                total_wins_per_account.append(row['wins'])
+                total_losses_per_account.append(row['losses'])
+
+                # [Stat Combination] Total KDA
+                contributing_total_KDA = row['total KDA'] * contribution_percentage
+                contributing_total_KDA_per_account.append(contributing_total_KDA)
+
+                # [Stat Combination] average KDA ±SD
+                average_KDA_SD = row['average KDA ±SD']
+                contributing_average_KDA = float(str(average_KDA_SD).split("±")[0].strip()) * contribution_percentage
+                contributing_average_KDA_per_account.append(contributing_average_KDA)
+                contributing_average_KDA_SD = float(str(average_KDA_SD).split("±")[1].strip()) * contribution_percentage
+                contributing_average_KDA_SD_per_account.append(contributing_average_KDA_SD)
+
+                # [Stat Combination] KDA per game
+                per_game_K_D_A = row['per game K / D / A']
+                contributing_per_game_K = float(str(per_game_K_D_A).split("/")[0].strip()) * contribution_percentage
+                contributing_per_game_D = float(str(per_game_K_D_A).split("/")[1].strip()) * contribution_percentage
+                contributing_per_game_A = float(str(per_game_K_D_A).split("/")[2].strip()) * contribution_percentage
+                contributing_per_game_K_per_account.append(contributing_per_game_K)
+                contributing_per_game_D_per_account.append(contributing_per_game_D)
+                contributing_per_game_A_per_account.append(contributing_per_game_A)
+
+                # [Stat Combination] Total KD
+                contributing_total_KD = row['total KD'] * contribution_percentage
+                contributing_total_KD_per_account.append(contributing_total_KD)
+
+                # [Stat Combination] Average KD
+                contributing_average_KD = row['average KD'] * contribution_percentage
+                contributing_average_KD_per_account.append(contributing_average_KD)
+
+                # [Stat Combination] Average KP
+                average_KP = row['average KP'].replace("%", "")
+                contributing_average_KP = float(average_KP) * contribution_percentage
+                contributing_average_KP_per_account.append(contributing_average_KP)
+
+                # [Stat Combination] First Blood Rate
+                first_blood_rate = row['first blood rate'].replace("%", "")
+                contributing_first_blood = float(first_blood_rate) * contribution_percentage
+                contributing_first_blood_per_account.append(contributing_first_blood)
+
+                # [Stat Combination] Triple Kills, Quadra Kills, Penta Kills
+                triple_kills = row['triple kills']
+                quadra_kills = row['quadra kills']
+                penta_kills = row['penta kills']
+                triple_kills_per_account.append(triple_kills)
+                quadra_kills_per_account.append(quadra_kills)
+                penta_kills_per_account.append(penta_kills)
+
+                # [Stat Combination] Average Game Duration
+                average_game_duration = row['average game duration']
+                average_game_duration_per_account.append(average_game_duration)
+
+                # [Stat Combination] Role
+                role_per_account.append(row['role'])
+                
+                if in_depth_print:
+                    ## PRINT OUT STATS ###
+                    print(f"\n----------------")
+                    print(f"(A{account_num}) {account_name} ... {champ_name}")
+                    print(f"----------------")
+                    print(f"{ColorPrint.CYAN}(contribution %) {round(contribution_percentage, 3)}{ColorPrint.RESET}")
+                    print(f"[1] Total Games: {row['total games']}")
+                    print(f"[2] Wins: {row['wins']}")
+                    print(f"[3] Losses: {row['losses']}")
+                    print(f"[4] Winrate: {row['winrate']}")
+                    print(f"[5] Total KDA: {row['total KDA']}")
+                    print(f"{ColorPrint.YELLOW}>> KDA Contribution: {contributing_total_KDA}{ColorPrint.RESET}")
+                    print(f"[6] Average KDA ±SD: {row['average KDA ±SD']}")
+                    print(f"{ColorPrint.YELLOW}>> KDA Contribution: {contributing_average_KDA} ± {contributing_average_KDA_SD}{ColorPrint.RESET}")
+                    print(f"[7] K / D / A (per game): {row['per game K / D / A']}")
+                    print(f"{ColorPrint.YELLOW}>> KDA Contribution: {contributing_per_game_K} / {contributing_per_game_D} / {contributing_per_game_A}{ColorPrint.RESET}")
+                    print(f"[8] Total KD: {row['total KD']}")
+                    print(f"{ColorPrint.YELLOW}>> KD Contribution: {contributing_total_KD}{ColorPrint.RESET}")
+                    print(f"[9] Average KD: {row['average KD']}")
+                    print(f"{ColorPrint.YELLOW}>> KD Contribution: {contributing_average_KD}{ColorPrint.RESET}")
+                    print(f"[10] Average KP: {row['average KP']}")
+                    print(f"{ColorPrint.YELLOW}>> KP Contribution: {contributing_average_KP}{ColorPrint.RESET}")
+                    print(f"[11] First Blood Rate: {row['first blood rate']}")
+                    print(f"{ColorPrint.YELLOW}>> First Blood Contribution: {contributing_first_blood}{ColorPrint.RESET}")
+                    print(f"[12] Triple Kills: {row['triple kills']}")
+                    print(f"[13] Quadra Kills: {row['quadra kills']}")
+                    print(f"[14] Penta Kills: {row['penta kills']}")
+                    print(f"[15] Average Game Duration: {row['average game duration']}")
+                    print(f"[16] Role: {row['role']}")
+                    print(f"----------------")
+                
+            ##################################################
+            ### Update the new row with the combined stats ###
+            ##################################################
+
+            # create a new row as a series
+            new_row = pd.Series()
+
+            # wins, losses, total gamaes
+            new_row['champion'] = champ_name
+            new_row['total games'] = sum(total_games_per_account)
+            new_row['wins'] = sum(total_wins_per_account)
+            new_row['losses'] = sum(total_losses_per_account)
+
+            # winrate
+            winrate = sum(total_wins_per_account) / sum(total_games_per_account)
+            new_row['winrate'] = str(round(winrate * 100, 2)) + "%"
+
+            # total KDA
+            player_total_KDA = sum(contributing_total_KDA_per_account)
+            new_row['total KDA'] = str(round(player_total_KDA, 3))
+
+            # average KDA ±SD
+            player_average_KDA = sum(contributing_average_KDA_per_account)
+            player_average_KDA_SD = sum(contributing_average_KDA_SD_per_account)
+            new_row['average KDA ±SD'] = str(round(player_average_KDA, 3)) + " ± " + str(round(player_average_KDA_SD, 3))
+
+            # per game K / D / A
+            player_per_game_K = sum(contributing_per_game_K_per_account)
+            player_per_game_D = sum(contributing_per_game_D_per_account)
+            player_per_game_A = sum(contributing_per_game_A_per_account)
+            new_row['per game K / D / A'] = str(round(player_per_game_K, 2)) + " / " + str(round(player_per_game_D, 2)) + " / " + str(round(player_per_game_A, 2))
+
+            # total KD
+            player_total_KD = sum(contributing_total_KD_per_account)
+            new_row['total KD'] = str(round(player_total_KD, 2))
+
+            # average KD
+            player_average_KD = sum(contributing_average_KD_per_account)
+            new_row['average KD'] = str(round(player_average_KD, 3))
+
+            # average KP
+            player_average_KP = sum(contributing_average_KP_per_account)
+            new_row['average KP'] = str(round(player_average_KP, 2)) + "%"
+
+            # first blood rate
+            player_first_blood = sum(contributing_first_blood_per_account)
+            new_row['first blood rate'] = str(round(player_first_blood, 2)) + "%"
+
+            # triple kills, quadra kills, penta kills
+            new_row['triple kills'] = sum(triple_kills_per_account)
+            new_row['quadra kills'] = sum(quadra_kills_per_account)
+            new_row['penta kills'] = sum(penta_kills_per_account)
+
+            # average game duration
+            new_row['average game duration'] = average_game_duration_per_account[0] # calculate later, for now just use the first account
+
+            # role
+            new_row['role'] = role_per_account[0] # calculate later, for now just use the first account
+
+            # Add the new row series to the updated_player_champ_pool_df
+            updated_player_champ_pool_df = pd.concat([updated_player_champ_pool_df, new_row.to_frame().T], ignore_index=True)
+            
+            # updated_player_champ_pool_df = updated_player_champ_pool_df.append(new_row, ignore_index=True)
+            # updated_player_champ_pool_df = pd.concat([updated_player_champ_pool_df, new_row], axis=0)
+            
+            ###################
+            ### FINAL STATS ###
+            ###################
+            if in_depth_print:
+                print(f"\n----------------")
+                print(f"[Combined Stats] {champ_name}")
+                print(f"----------------")
+                print(f"[1] Total Games: {new_row['total games']}")
+                print(f"[2] Wins: {new_row['wins']}")
+                print(f"[3] Losses: {new_row['losses']}")
+                print(f"[4] Winrate: {new_row['winrate']}")
+                print(f"[5] Total KDA: {new_row['total KDA']}")
+                print(f"[6] Average KDA ±SD: {new_row['average KDA ±SD']}")
+                print(f"[7] K / D / A (per game): {new_row['per game K / D / A']}")
+                print(f"[8] Total KD: {new_row['total KD']}")
+                print(f"[9] Average KD: {new_row['average KD']}")
+                print(f"[10] Average KP: {new_row['average KP']}")
+                print(f"[11] First Blood Rate: {new_row['first blood rate']}")
+                print(f"[12] Triple Kills: {new_row['triple kills']}")
+                print(f"[13] Quadra Kills: {new_row['quadra kills']}")
+                print(f"[14] Penta Kills: {new_row['penta kills']}")
+                print(f"[15] Average Game Duration: {new_row['average game duration']}")
+                print(f"[16] Role: {new_row['role']}")
+                print(f"----------------")
+            
+        if champ_pool_was_combined:
+            # print(f"{ColorPrint.GREEN}Printing Combined Champion Stats for {player_accounts} in {pos}{ColorPrint.RESET}")
+            # print(updated_player_champ_pool_df)
+            # input("Press Enter to Continue...")
+            pass
+        else:
+            print(f"{ColorPrint.RED}>> No Champion Stats Combined for {player_accounts} in {pos}{ColorPrint.RESET}!")
+            input("Press Enter to Continue...")
+
+        return updated_player_champ_pool_df
+
+
 ###################
 ### DRIVER CODE ###
 ###################
-
-team_id = "07"
-input_riot_ids, input_team_positions = LeagueChampScraper.retrieve_team_roster(team_id)
-LeagueChampScraper.update_team_champ_history(team_id, input_riot_ids, run_update = False)
-LeagueChampScraper.access_team_champ_pool(team_id, input_riot_ids, input_team_positions)
 
 # MATCHA: combining multi-accounts into first Riot ID Acccount (useful fields, performing combine operations)
 # ... instead of using rewind.lol ... use riot API for player champ pools
 # ... do a role priority breakdown by role for everyone on a team...
 # ... auto create profile on rewind.lol if not exist && auto update profile past a certain date (limit 5 for rate limiting)
-
 
 

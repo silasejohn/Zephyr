@@ -146,7 +146,11 @@ def identify_new_player_puuid(roster_json):
             if "|" in player_riot_id:
                 player_riot_id_list = player_riot_id.split("|")
             else:
-                player_riot_id_list = player_riot_id
+                # if its str
+                if type(player_riot_id) == str:
+                    player_riot_id_list = [player_riot_id]
+                else:
+                    player_riot_id_list = player_riot_id # if its alr a list
 
             print(f"Raw Player Riot IDs: {player_riot_id}")
             print(f"Player Riot IDs: {player_riot_id_list}")
@@ -299,4 +303,4 @@ def update_player_summoner_and_account_ids(roster_json):
             player["player_encrypted_account_id"] = new_player_summoner_id_list
     return riot_summmoner_id_updates, riot_account_id_updates, roster_json
 
-update_team_roster_info("07")
+update_team_roster_info("WOW")
