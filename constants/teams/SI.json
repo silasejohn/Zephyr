@@ -1,0 +1,179 @@
+{
+    "team_id": "SI",
+    "team_name": "Subtly Inting",
+    "pool_id": "1",
+    "rosters": [
+        {
+            "player_riot_id": [
+                "DavidEdge#NA1"
+            ],
+            "player_pos": "CAPTAIN|SUP",
+            "rank_score": "15",
+            "peak_rank": "Diamond 2",
+            "current_rank": "Unranked",
+            "player_puuid": [
+                "QIngB6ohLr8H-uVH5II4_ddACPv5mlXGznNVS6DhPW9mh4eBh_v3c1cHI1NaVvcxuB4NujTnfZGGcw"
+            ],
+            "player_encrypted_summoner_id": [
+                "nb5LfEgRX9cMn9beVBSNy-lgdYNL3U7yiVgnbC2VoB6ZcQvW"
+            ],
+            "player_encrypted_account_id": [
+                "39xAZytvflslrVrE5A5kLjYdXOozb-czjI_1Rmbx8hxDiuOBp8Bp3XuR"
+            ]
+        },
+        {
+            "player_riot_id": [
+                "ticofighter#NA1",
+                "Tico#TAHM"
+            ],
+            "player_pos": "TOP",
+            "rank_score": "11",
+            "peak_rank": "Grandmaster 722 LP",
+            "current_rank": "Diamond 4 15 LP",
+            "player_puuid": [
+                "Hz7X7x5UKydjPwsdSSXEzHcUXIfYmRioUrjyNBoB22X6tR8_afMJgBxEVnWJ12JFtG-Fr9q1mXB3qw",
+                "3PpieMJwl_-JtwN3zC4rUlrgmTRzWhhX6rZzI88ZHnYDUBFy0I1fhLchi8lCxgMgcYzduzEf5UEJYA"
+            ],
+            "player_encrypted_summoner_id": [
+                "iAmQp7SHHyob2SIgYUi_qwJXSgitbxJUucHWahJVXfsnTxs",
+                "8zs_Pf8t_7eaSSUSTToswCoGYAJs2GNOrN3aaURUR8QWDVdxTTj89ryB3w"
+            ],
+            "player_encrypted_account_id": [
+                "MMXzbWirAXLzti7f8O97h_Ewimmxns0SJ0fg-QuT56UxvrOQtGqNVn14",
+                "8hgaSIg5OMlGXMYWUsvrCcqrOTOzm3gexlxUhw6X86Lf_jig-8jCiOYs"
+            ]
+        },
+        {
+            "player_riot_id": [
+                "Pyrosis#NA1",
+                "Lost in a river#NA1",
+                "CuteLittleSiren#NA1",
+                "BabyBlankers#NA1"
+            ],
+            "player_pos": "MID",
+            "rank_score": "12",
+            "peak_rank": "Masters 178 LP",
+            "current_rank": "Diamond 4 86 LP",
+            "player_puuid": [
+                "gTffgF9US7NYD40LgVXgxmEDAmgP1GKZP6CIgYTafhMmK7vgUol-g0NvFPxgqSBxOKR-huqWRo5JTw",
+                "uLApefyxE86ph2NHyVkEX0sa9JQue-jQypjPt3abNGRrcZHQJv9DJqN-Rabw9PONLlvImXobEci5Gg",
+                "mDxWNcgsffeSRcx1ApQrQG74SqPahjixltJqt5CVzePg-G5sEPg6odiDwX8z_9IUsYfsEAxn-I0Kjg",
+                "CkD-aASpBMMgTsDUoosAg-yJACTn6jvfdlujXFPR6sGxTYfEhKKQVWLKRBwBjZjEVPnB2r0NxwqxWg"
+            ],
+            "player_encrypted_summoner_id": [
+                "AlT7iRjWysGrU5Yzp3dLxYocTxqdumm19qNUg3kLF_YYw6Y",
+                "dCQEli85aHAWMTIPaW_XhI2Uw3ewNU_es1D5PX9vg-h87ZU",
+                "G_tows34HEKmx5ncC_epKYL_cpgqSTX7wGOCInFDeCdyNlC3",
+                "pVr0r9lPNGu_AOrJAbKN1exF_eTTnHpLvGn_E2LhfPBkQt33"
+            ],
+            "player_encrypted_account_id": [
+                "c7eVBm8n0lLAYHZniN4DyDLDFlFpVtJr0qBEVgiUbkXgGQ",
+                "ihCQ1hutx3fQJwUUqVfQng3i4KjoPpaootV-woEoXfhpTcM",
+                "ns5FpBete-qQhT7M2NoylNtO28S3ZUUI_qHWHD-LaUYfuIWGinveOCMp",
+                "fF7DSgpZRXiax4jL_ywEN5WXvStfqA1bkxfqo5KmVl4H-maD8kogtDdw"
+            ]
+        },
+        {
+            "player_riot_id": [
+                "6 foot 1  Jacked#Gojo",
+                "KrisPlaysKled#HXH"
+            ],
+            "player_pos": "JGL|TOP",
+            "rank_score": "18",
+            "peak_rank": "Diamond 1",
+            "current_rank": "Emerald 2 5 LP",
+            "player_puuid": [
+                "JyGgY11t_99x0twAMCzTcDeszRVnozL1rIcVkOpGrA-G95YSeRedCCM6nhCKbhr_Px0ggH7D4OM1FA",
+                "4g3KsizCQY8gFlyJ1g17g72yHTKMQnKS53ZyL80vK_A1gpWjzB9BhObvbDR3wIQny3AVGqQ5ZsBGkw"
+            ],
+            "player_encrypted_summoner_id": [
+                "L_yWYif958xBJesvnyf5DVT2zy7I6dk0Lw1O8fmnrAK_ZGvp-AZBKfNaHQ",
+                "_cB-J454SMb31NGb-BEVn4zW5dG6yd-aU0TlvUw9EDDYYd6OOBQ1jNwj8g"
+            ],
+            "player_encrypted_account_id": [
+                "7h8AOL10wQgh-Pmvep0TsSyzPt9J77hndJn90aNqPiX5oai81zCU_ZwS",
+                "3e1INKD8v4WQ0uYSolobKU5bp9qtMSmuzmzkdgvO7UWjgTOerIqQubAx"
+            ]
+        },
+        {
+            "player_riot_id": [
+                "Domina Luminis#NA1",
+                "ShadowPoga#NA1"
+            ],
+            "player_pos": "BOT",
+            "rank_score": "23",
+            "peak_rank": "Diamond 3",
+            "current_rank": "Emerald 4 45 LP",
+            "player_puuid": [
+                "Znw4QBoDYIKFvEu4h_jX_3A9AyEkxeXOfln7hkW4cEswrS8ireOD4XfNbEoyScm4S4spApDmE9Q7oA",
+                "AlXmhKy50fyDyPn0JaVjokVORNU5g7eGxh-Ul0nY9YebFa1n3C2T1QljiAYfdGgtmJrdXa6majibXw"
+            ],
+            "player_encrypted_summoner_id": [
+                "jp5J-47xbwQxcBq3O4kvkyGduohOfwrrFR7wZerLV_aC0S8",
+                "fm4QvZTSKCbGdciCkpK33BJ2_P22WLuUjUFUdkiCF_TYUEE"
+            ],
+            "player_encrypted_account_id": [
+                "Ha-pileDbK-I59XbDCmDnhBwSDCmdf-78soTqprCYMGyqhY",
+                "YElwMVHo_71r9rP3nETHkOSE3MvH2Y9NT2sHRiSVWj_jJA"
+            ]
+        },
+        {
+            "player_riot_id": [
+                "Esper#wisp"
+            ],
+            "player_pos": "ADC|SUP",
+            "rank_score": "31",
+            "peak_rank": "Platinum 1",
+            "current_rank": "Platinum 2 52 LP",
+            "player_puuid": [
+                "hggHoj7WRezL3VaiZ38XTl6buDkwdvKkyHaaY-gap1GvG9RRX-7VHLTNguuyBvTPmzJUlIpeQlG4VQ"
+            ],
+            "player_encrypted_summoner_id": [
+                "Rjho54XojkomngCIZsariUK3hgnxeaf4yEnTRbJOrh8FNihu"
+            ],
+            "player_encrypted_account_id": [
+                "0mj2LiKh0QSeBnaPlv2MQdV0sd-DkSBtS8YLzQHPRswLpW9rCinP0aRc"
+            ]
+        },
+        {
+            "player_riot_id": [
+                "DESTROYXXXL#NA1",
+                "DESTROYXXXXL#NA1"
+            ],
+            "player_pos": "TOP",
+            "rank_score": "32",
+            "peak_rank": "Emerald 3",
+            "current_rank": "Gold 1 71 LP",
+            "player_puuid": [
+                "baKGYmaYr_P8LNkN4H1SCU4oYmKrM1QOgthaWuXocGpb-Eo82WzVaKAp7e5SmE0htOXcy7pt7VIzPQ",
+                "OG5J7aov6byP9oP9Nb-Q1N0CBOdXDzWoyOiRoh8HQldbUbzPB9GIxe7-m1Jkj8XsKErY85YQuJrjlg"
+            ],
+            "player_encrypted_summoner_id": [
+                "ijpsg41IsLm2pj4859ChFdlh-Rubp-yaxXdu_9owGA-wFx4BrdaizCFIJA",
+                "ryct8ZSTS_iGm5f-L9hxR35fDbKyOBsEVZfhs846M3fh5qP9fssyWk37gQ"
+            ],
+            "player_encrypted_account_id": [
+                "rpI_Qa-5py6QN3r1h2pF3G1IN_eScAj2VN0aiymBEmV0VWmvhWcwLdDP",
+                "fx7tHCJqwLJjgqaqWQhcOy1oYVXWz9BzTHYhgHgJ4lPyjXMByg543qSX"
+            ]
+        },
+        {
+            "player_riot_id": [
+                "Tiger58#SDC"
+            ],
+            "player_pos": "SUP",
+            "rank_score": "39",
+            "peak_rank": "Emerald 4",
+            "current_rank": "Gold 4 59 LP",
+            "player_puuid": [
+                "eRv3nBgo5PTdbehd6S0cqgjev1sTDfGBqf-3DaZthD9F7bjdxNEvZaYiTdmZAGpOWZg-5_M5LK7gsA"
+            ],
+            "player_encrypted_summoner_id": [
+                "NQ9X33KPKiMJAzO4zoaC5an0aqtVOPgtpcUyq5dKz4lPO-8"
+            ],
+            "player_encrypted_account_id": [
+                "BpjSluujH8Ia6HYEsCNoWptZX5-ZD7_nw1f5XGj6yJyHgtY"
+            ]
+        }
+    ]
+}

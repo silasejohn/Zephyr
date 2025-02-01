@@ -1,0 +1,171 @@
+{
+    "team_id": "FF",
+    "team_name": "Floppa's Freaks",
+    "pool_id": "2",
+    "rosters": [
+        {
+            "player_riot_id": [
+                "BronzeCena#Blind"
+            ],
+            "player_pos": "CAPTAIN|TOP",
+            "rank_score": "24",
+            "peak_rank": "Platinum 3",
+            "current_rank": "Unranked",
+            "player_puuid": [
+                "ape0SGHkuRS_mGW2ocw-28QyhTL5xRkWorwKL5sEhd_kn5XG5YD4bIZn6myyR5LZl6czU76TPYe1kA"
+            ],
+            "player_encrypted_summoner_id": [
+                "dbX_kmj1JDP3gG65PG8lk01l_J2Zb_gB62TJ6OKpdos3wak"
+            ],
+            "player_encrypted_account_id": [
+                "dbX_kmj1JDP3gG65PG8lk01l_J2Zb_gB62TJ6OKpdos3wak"
+            ]
+        },
+        {
+            "player_riot_id": [
+                "Pony#gafo"
+            ],
+            "player_pos": "SUP",
+            "rank_score": "12",
+            "peak_rank": "Diamond 4",
+            "current_rank": "Unranked",
+            "player_puuid": [
+                "d2qXbubSjX80gNAlwzgcdPrLEJO4efNV4De8MQWbuR9U7dKPz-CxXUjy3CxQ7RARD2g_W1HYbCyomA"
+            ],
+            "player_encrypted_summoner_id": [
+                "_kpS2OuF7R1A7bV9HjrVbr6W4CMxePawqBvpFB5QDpwxJhQ"
+            ],
+            "player_encrypted_account_id": [
+                "_kpS2OuF7R1A7bV9HjrVbr6W4CMxePawqBvpFB5QDpwxJhQ"
+            ]
+        },
+        {
+            "player_riot_id": [
+                "Krall#000",
+                "BBQ Ribs#saucy",
+                "BBQ Ribs#juicy",
+                "Sultan#2002"
+            ],
+            "player_pos": "JGL",
+            "rank_score": "14",
+            "peak_rank": "Masters 59 LP",
+            "current_rank": "Diamond 3",
+            "player_puuid": [
+                "CyQHYMid9lcgpbBmX8-7gth_xnJnB3kOcoUajhlCJSsVc8nig9P7PmaCYU4Dzd_-NGHHh-slXf4tGA",
+                "yDkDj2Uke8e-ISAwDSoObfaf3CkhiJkpYsxcpkiFEDDB79tKnr40jPgrAC9MHBoJwyFhC6a3Rd77hA",
+                "o8PLaOua8h7YyyBPvjJm7bW5BUJB--wzZ-0DqymqxkaK4BaHw-FCBSieQMYYd7Fsp2qVm275qiheCw",
+                "A6-yV6fsgEaYIC2gxV5aGA8W1eYCcZI4BYsbv5XL03xkQ3kUOc_XLxyJ8fLQFKR1g8Tht5T_rQ3Skg"
+            ],
+            "player_encrypted_summoner_id": [
+                "EG3f0KMQeQx2KLoOGOfbDFdzexEUelX8WE9UjNKtTrvyBcjUXjOxWO8zJg",
+                "oPFqQbhlKnVbfA-uXvQ6VEzk8sgQmorMldHGhJyvIEu2xCk5-HalxdKAyQ",
+                "Af51XM-yWSz-ua2DLMlfABJjClnkEiX2WyTxcWj6v9wX6yZfhfiES-yQWA",
+                "F-uUhpIlpLoB5ksKDCQ9wY8sbh9kfRLvzAtTBEtvo1rpuvg"
+            ],
+            "player_encrypted_account_id": [
+                "EG3f0KMQeQx2KLoOGOfbDFdzexEUelX8WE9UjNKtTrvyBcjUXjOxWO8zJg",
+                "oPFqQbhlKnVbfA-uXvQ6VEzk8sgQmorMldHGhJyvIEu2xCk5-HalxdKAyQ",
+                "Af51XM-yWSz-ua2DLMlfABJjClnkEiX2WyTxcWj6v9wX6yZfhfiES-yQWA",
+                "F-uUhpIlpLoB5ksKDCQ9wY8sbh9kfRLvzAtTBEtvo1rpuvg"
+            ]
+        },
+        {
+            "player_riot_id": [
+                "Number Zer0#NA1",
+                "Number 0n3#NA1"
+            ],
+            "player_pos": "CAPTAIN|MID",
+            "rank_score": "21",
+            "peak_rank": "Diamond 3",
+            "current_rank": "Emerald 4 91 LP",
+            "player_puuid": [
+                "xvM7-otJtiSW2wn_W9z7wxn97cH3ixV8qwEf8mO8sNHOM4dfgjvh4o8zZArH437JG_pEdYvUJBh2Fg",
+                "jI_3_cHNPJaAO8T6Oy7-8e1j9l0bUOl9u4esMPgSvoVh86svr8tggERAk-iqF38sqrKWijlLnI-Qxw"
+            ],
+            "player_encrypted_summoner_id": [
+                "U6nCPVN4HHEflixH91DPRzW-rfdE5FO9EvWTkW_B9I00mBo",
+                "sTuaMgGuexMRQ0d6pLxePqtzLhvGZdqXXvDOQXYTE4mkP7RJ"
+            ],
+            "player_encrypted_account_id": [
+                "U6nCPVN4HHEflixH91DPRzW-rfdE5FO9EvWTkW_B9I00mBo",
+                "sTuaMgGuexMRQ0d6pLxePqtzLhvGZdqXXvDOQXYTE4mkP7RJ"
+            ]
+        },
+        {
+            "player_riot_id": [
+                "BirdP3Rson#37114",
+                "Li Lwhiteotisto#7265"
+            ],
+            "player_pos": "BOT",
+            "rank_score": "26",
+            "peak_rank": "Emerald 1",
+            "current_rank": "Gold 4 40 LP",
+            "player_puuid": [
+                "QWpuClry-Br7qIcHb1Nwg0YYbY5ZNpa0maJ7qzLSx3x2JZCFX8f9nlzVtmf-UpbbtzLG9mB_IWifXA",
+                "-gaYpaRk652zDs1VPx_xw0OoGlmgRbKqhX9jLccNGqbDICDrqwb68pkbQWHpv5xvRLu-4zezFZy7kA"
+            ],
+            "player_encrypted_summoner_id": [
+                "cHsAKqCkAZYt48N3JcolwCgpRRVIfOruKrd0ixGkkO8viu0",
+                "XQ1iDBy-Xs5Rwt4EruM-9j6f0uEdbvYgMi2VRLsvXNet59cmTT3KlT-6lg"
+            ],
+            "player_encrypted_account_id": [
+                "cHsAKqCkAZYt48N3JcolwCgpRRVIfOruKrd0ixGkkO8viu0",
+                "XQ1iDBy-Xs5Rwt4EruM-9j6f0uEdbvYgMi2VRLsvXNet59cmTT3KlT-6lg"
+            ]
+        },
+        {
+            "player_riot_id": [
+                "Newdled#NA1"
+            ],
+            "player_pos": "JGL",
+            "rank_score": "27",
+            "peak_rank": "Emerald 4",
+            "current_rank": "Platinum 4 40 LP",
+            "player_puuid": [
+                "4I00-0R3iBWAJXZ39C2b_STl6U9oTnW9IKW1_UCTpLJrBYpc9Rslqtf6__LcCt5H8ZYEIth-88xGgg"
+            ],
+            "player_encrypted_summoner_id": [
+                "6LmwDj5tNhSSRzR5ea2FtqrIBfsmUxBNf_C1eXR8fzcdZc0"
+            ],
+            "player_encrypted_account_id": [
+                "6LmwDj5tNhSSRzR5ea2FtqrIBfsmUxBNf_C1eXR8fzcdZc0"
+            ]
+        },
+        {
+            "player_riot_id": [
+                "GumbaStomp69#NA1"
+            ],
+            "player_pos": "BOT|SUP",
+            "rank_score": "28",
+            "peak_rank": "Emerald 4",
+            "current_rank": "Platinum 4 52 LP",
+            "player_puuid": [
+                "8ioedlKxPEF8ODu3kDS0HyVk7-L2TvNFoVr-3Arr6MR5zT-6wexzAqSCwwsORXFqhOBBXxkWp_e-lA"
+            ],
+            "player_encrypted_summoner_id": [
+                "WodjAWNijgZ17lJbHeN3HTFuLAk8rQeNwqCHWzkcHkiagXWDGY7Wtt5b2g"
+            ],
+            "player_encrypted_account_id": [
+                "WodjAWNijgZ17lJbHeN3HTFuLAk8rQeNwqCHWzkcHkiagXWDGY7Wtt5b2g"
+            ]
+        },
+        {
+            "player_riot_id": [
+                "Sixg\u00e8\u00e9s#0001"
+            ],
+            "player_pos": "TOP|MID",
+            "rank_score": "28",
+            "peak_rank": "Emerald 4",
+            "current_rank": "Gold 1 46 LP",
+            "player_puuid": [
+                "eEtAEbh9FVjUkWBMTYeBlGqOkSPVauDomNzSy-i6T5MmkJWLjTlAMniGvHkySFjm5cytaIulxllWVA"
+            ],
+            "player_encrypted_summoner_id": [
+                "9szAd2YkJaPTNRErBdM9GsJz78Z147a4D9Z_DFY9ciUO0Rs"
+            ],
+            "player_encrypted_account_id": [
+                "9szAd2YkJaPTNRErBdM9GsJz78Z147a4D9Z_DFY9ciUO0Rs"
+            ]
+        }
+    ]
+}

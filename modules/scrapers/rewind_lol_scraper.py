@@ -221,6 +221,7 @@ class LeagueChampScraper:
             # return role_prio_list
         except Exception as e:
             print(f"{ColorPrint.RED}[ERROR] Error accessing player champion history table: {e}{ColorPrint.RESET}")
+            input("Press Enter to Continue...")
             # return role_prio_list
 
     @staticmethod
@@ -513,7 +514,7 @@ class LeagueChampScraper:
     # combine appropriate stats for the champ df per each player account
     def combine_champ_stats(player_champ_pool_df, player_accounts, pos):
         champ_pool_was_combined = False
-        in_depth_print = False
+        in_depth_print = True
 
         print(f"{ColorPrint.YELLOW}>> Attempting to Combine Champion Stats for {player_accounts} in {pos}{ColorPrint.RESET}")
 

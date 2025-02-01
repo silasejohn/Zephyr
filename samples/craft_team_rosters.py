@@ -303,4 +303,4 @@ def update_player_summoner_and_account_ids(roster_json):
             player["player_encrypted_account_id"] = new_player_summoner_id_list
     return riot_summmoner_id_updates, riot_account_id_updates, roster_json
 
-update_team_roster_info("WOW")
+update_team_roster_info("SI")

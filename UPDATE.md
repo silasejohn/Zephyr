@@ -1,4 +1,4 @@
-1. [constants/gcsTeams.json] Update <team_id> Team Rosters Info
+1. [constants/gcsTeams.json] Update <team_id> Team Rosters Info && Draft Analysis Spreadsheet
 2. [craft_team_rosters.py] Change <team_id> and generate <team_id>.json (updates puuids, riot ids, etc)
 3. Update rewind.lol profiles manually for all profiles on team
 4. [access_team_champ_pool.py] change <team_id> and retrieve all known information
