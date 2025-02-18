@@ -1,0 +1,109 @@
+{
+    "team_id": "NS",
+    "team_name": "Nova Crystallis",
+    "pool_id": "1",
+    "rosters": [
+        {
+            "player_riot_id": [
+                "BILLYBILLYBILLY#FATAF"
+            ],
+            "player_pos": "JGL",
+            "rank_score": "%",
+            "peak_rank": "%",
+            "current_rank": "%",
+            "player_puuid": [
+                "paqDkmEC2uXKy9pdzYaoAOwtHR754rPlUT60s3euIDPJdlNLEP6V2bdhkdQf3RL0GtRefaDbs8RkMw"
+            ],
+            "player_encrypted_summoner_id": [
+                "EZ7S9DCw94zRg3bb7hidE18m4AbP11UuAByGJe0YXQ5bTo4"
+            ],
+            "player_encrypted_account_id": [
+                "RoN1J8dasXkQaXc7HxgpgAUknckj3PdevhDtC-vu9NF3VgM"
+            ]
+        },
+        {
+            "player_riot_id": [
+                "BioMatrix#Dead"
+            ],
+            "player_pos": "BOT",
+            "rank_score": "%",
+            "peak_rank": "%",
+            "current_rank": "%",
+            "player_puuid": [
+                "j2yZ5AKEwA_uCTY8SVf-kCAc_7n25ylZg8C9adi2aKc1fIhD2BmDc_2q0FTQAN6Ud9hi_i68xgMgiw"
+            ],
+            "player_encrypted_summoner_id": [
+                "ixP4Kgpi25841uBBlpsfnrVS3Lyq0_TCwtgrZmroEHF1k58"
+            ],
+            "player_encrypted_account_id": [
+                "R_cJ9hrVSvZkpnGsBwmKuOdaFpZviWbodQxo_v8rJCNLosI"
+            ]
+        },
+        {
+            "player_riot_id": [
+                "BoyHoleBuccaneer#Boom",
+                "GourmetCookies#NA1"
+            ],
+            "player_pos": "SUP",
+            "rank_score": "%",
+            "peak_rank": "%",
+            "current_rank": "%",
+            "player_puuid": [
+                "CH91-1UZCJtifS2nJvWwY7pIX53MiInJ3R160-krBi7tGRZ5dMpZxGx9SYSd4n7MrAW3F2Cks9UPpQ",
+                "h4EO7PzTYCyuuTgy8Nv6suhGNHx7bwU9rp4Ut-yxUcPUkdP2MSW_fjm-E_7ymqk8WxJbIBIeTMlMag"
+            ],
+            "player_encrypted_summoner_id": [
+                "033RlDizctD9gBhAUlN5P6LzPuMC_fvhSZqBTqOrA9YirLz0L_QB8JHa2w",
+                "iljUoUg5AWVyUH51TUiJKmT_iDekAj1GFRBIC9e4pe8sLEs"
+            ],
+            "player_encrypted_account_id": [
+                "h0tuIPC5iqOF0j8BPbRYggqBcubM3JYU2Tmanc89S6pzxhe0nq29BZCq",
+                "QixQINaZzaMPwOg02vDwJsalFpkNd8vbaLy3oYTo_P_tJCg"
+            ]
+        },
+        {
+            "player_riot_id": [
+                "Railleyacil#79810",
+                "Darkll#1024",
+                "pEwHdKOlive#NA1"
+            ],
+            "player_pos": "MID",
+            "rank_score": "%",
+            "peak_rank": "%",
+            "current_rank": "%",
+            "player_puuid": [
+                "TIDZKJkI9a2u2YDrcoTlkHAV1bOdGxs6vORNkvrVQ46JbnzWhG97DWIun9UPx3ZPLyOsbeE0vx85wg",
+                "DxPOoYhMsP3ojn6yZg4ZqVJNwTFlBAWw_5RKxxiReuuf12VCOuTubw0Ly9SddmshHdtnH-_2SC3F_w",
+                "AAk83LJwzA9Nu2GHNMAw7O5EmGpdboY-NkIf-sQydb4gRq1SCzEYCpD612xBkcSx6LB2duRNDc5w7Q"
+            ],
+            "player_encrypted_summoner_id": [
+                "tRUSYgs-YzUoVNlMiyWEdVo8F_UFW3FRB6Qh0EUR5sO1f-yMCop90NKLbw",
+                "Khep1hTwrXMIT86GdWQI8gSVwD9DXhntOeYqc0cJR4taIb6S0XKfedzmYQ",
+                "TlewbBA-mH9Q0dFVa0b10jM0cygWuwNaNpQEUS2PAGr0jL2V"
+            ],
+            "player_encrypted_account_id": [
+                "8DrvNBOkwuRPGV7IYTogdFFsypyoznzlPCpsONy74ig8MKqIbHsM8Spp",
+                "FYgjHuaY9xMdeasTQqDUPBPuoXv1tfjLZAfLnakT40IPJnWb0pKcucnU",
+                "kCeCKT7IwOrppFEfrftaaRJ8Ig7ODCAk-hMFx_No9MDH6t5nS4hos7xn"
+            ]
+        },
+        {
+            "player_riot_id": [
+                "OkNowImTilted#Aim"
+            ],
+            "player_pos": "TOP",
+            "rank_score": "%",
+            "peak_rank": "%",
+            "current_rank": "%",
+            "player_puuid": [
+                "8x2HOOKqgVmY6d8envaQGqIL_7LkQH3M7UG9SaJmq0DvfZDxomYD2TN6Vw1lzQdvIUn3YDG2_E044g"
+            ],
+            "player_encrypted_summoner_id": [
+                "GBVdLZHXITmrMmt8UkGQs9GU4b3MEitcNu5rH8cBJJVcxPCG"
+            ],
+            "player_encrypted_account_id": [
+                "mTWrEjfstC1Jw6Ryzf4pn31By2aU9dGr1VpyyH10LN1MSgQDOLZdu-Bz"
+            ]
+        }
+    ]
+}

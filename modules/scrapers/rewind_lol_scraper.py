@@ -492,7 +492,7 @@ class LeagueChampScraper:
             return
 
         # print the df but combined stats
-        print(f"{ColorPrint.GREEN}<{player_accounts}> [{pos}] Combined Champion Stats{ColorPrint.RESET}")
+        print(f"{ColorPrint.GREEN}[{pos}] <{player_accounts}> Combined Champion Stats{ColorPrint.RESET}")
 
         # drop columns 'triple kills', 'quadra kills', 'penta kills', 'role', 'average game duration'
         sorted_player_champ_pool_df = player_champ_pool_df.sort_values(by='total games', ascending=False)
