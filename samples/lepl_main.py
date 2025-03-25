@@ -20,23 +20,34 @@ processed_df = import_processed_roster_csv_info(stage_1_output_file)
 # - Process Discord Username
 processed_df = process_lepl_discord_username(form_response_df, processed_df)
 
-# - Process Player Riot ID
+# (1) Process Player Riot ID
 processed_df = process_lepl_player_riot_id(form_response_df, processed_df)
 
-# - Team Name
-# - Player Position
-# - Rank Score
-# - Stated Rank
-# - True Peak Rank
-# - Current Ego Rank
-# - S2024 S3 Peak
-# - S2024 S2 Peak
-# - S2024 S1 Peak
-# - S2023 S2 Peak
-# - S2023 S1 Peak
-# - Player PUUID
-# - Player Encrypted Summoner ID
-# - Player Encrypted Account ID
+# (2) Process Team Name
+### NO NEED
+
+# (3) Process Stated Player Position
+processed_df = process_lepl_stated_player_position(form_response_df, processed_df)
+
+# (4) Process Rank Score
+### NO NEED
+
+# (5) Process Stated Current / Peak Rank
+processed_df = process_lepl_stated_rank(form_response_df, processed_df)
+
+# (6) Process True Peak Rank
+### ... IN PROGRESS
+
+# (7) Process Current Ego Rank
+### ... IN PROGRESS
+
+# (8) Process Peak Rank for S2024 S3, S2024 S2, S2024 S1, S2023 S2, S2023 S1
+### ... IN PROGRESS
+
+# (9) Process Player PUUID, Encrypted Summoner ID, Encrypted Account ID
+### ... IN PROGRESS
+
+export_processed_roster_csv_info(stage_1_output_file, processed_df)
 
 ############################################
 ### LEPL Player Scouting / Data Scraping ###
