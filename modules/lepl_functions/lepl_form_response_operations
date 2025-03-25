@@ -1,0 +1,89 @@
+# input_file = 'data/raw/lepl_draft_info.csv'
+
+# global imports
+import pandas as pd
+
+# local imports
+from __init__ import update_sys_path
+update_sys_path()
+
+def create_df_lepl_form_responses(input_file):
+    df = pd.read_csv(input_file)
+    return df
+
+def create_lepl_roster_csv_from_df(input_df, output_file):
+    input_df.to_csv(output_file, index=False)
+
+    
+def create_lepl_roster_json(input_df, output_file):
+
+    # JSON Structure
+    # {
+    #     "discord_username": %,
+    #     "player_riot_id": [],
+    #     "team_name": [],
+    #     "player_pos": []
+    #     "rank_score": "%",
+    #     "stated_rank": "%",   
+    #     "true_peak_rank": "% LP",
+    #     "current_ego_rank": "% LP",
+    #     "S2024 S3 Peak": "% LP",
+    #     "S2024 S2 Peak": "% LP",
+    #     "S2024 S1 Peak": "% LP",
+    #     "S2023 S2 Peak": "% LP",
+    #     "S2023 S1 Peak": "% LP",
+    #     "player_puuid": [],
+    #     "player_encrypted_summoner_id": [],
+    #     "player_encrypted_account_id": []
+    # },
+    
+    # create JSON
+    roster_json = []
+
+    # iterate through the DF
+
+    for index, row in input_df.iterrows():
+        roster_json.append({
+            "discord_username": row['Discord Username'],
+            "player_riot_id": row['Player Riot ID'],
+            "team_name": row['Team Name'],
+            "player_pos": row['Player Position'],
+            "rank_score": row['Rank Score'],
+            "stated_rank": row['Stated Rank'],
+            "true_peak_rank": row['True Peak Rank'],
+            "current_ego_rank": row['Current Ego Rank'],
+            "S2024 S3 Peak": row['S2024 S3 Peak'],
+            "S2024 S2 Peak": row['S2024 S2 Peak'],
+            "S2024 S1 Peak": row['S2024 S1 Peak'],
+            "S2023 S2 Peak": row['S2023 S2 Peak'],
+            "S2023 S1 Peak": row['S2023 S1 Peak'],
+            "player_puuid": row['Player PUUID'],
+            "player_encrypted_summoner_id": row['Player Encrypted Summoner ID'],
+            "player_encrypted_account_id": row['Player Encrypted Account ID']
+        })
+
+
+    # if no DF, load single with default values
+    if df is None:
+        df = pd.DataFrame({
+            'IGN': [''],
+            'Position': [''],
+            'Champion Pool': ['']
+        })
+
+
+
+    # clean up the DF
+    df = df.dropna()
+    df = df.drop_duplicates()
+    df = df.reset_index(drop=True)
+    df = df.to_json(orient='records')
+    return df
+
+
+### Workflow
+### (1) Read CSV into DF
+### (2) Clean up DF
+### (3) Output DF as JSON
+
+
