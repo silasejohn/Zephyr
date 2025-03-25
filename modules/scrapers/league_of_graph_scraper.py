@@ -379,6 +379,20 @@ class LeagueOfGraphsScraper:
         # Load a new instance of LeagueOfGraphs in new tab
         LeagueOfGraphsScraper.DRIVER.execute_script(f"window.open('{url}', '_blank');")
 
+    @staticmethod
+    def exportable_update_player_rank(profile_ign_list):
+        # expects a list of profile_igns in list form 
+        setup = False
+        profile_ign_list = [ign.strip() for ign in profile_ign_list]
+
+        if not setup:
+            LeagueOfGraphsScraper.set_up_rewind_lol()
+            status = LeagueOfGraphsScraper.switch_to_dark_mode()
+            setup = True
+
+
+
+
 ###################
 ### DRIVER CODE ###
 ###################

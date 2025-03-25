@@ -63,7 +63,7 @@
             "player_riot_id": [
                 "James Sunderland#KLLR7"
             ],
-            "player_pos": "SUP|BOT",
+            "player_pos": "SUP",
             "rank_score": "26",
             "peak_rank": "Emerald 3",
             "current_rank": "Platinum 3",
@@ -77,7 +77,7 @@
             "player_riot_id": [
                 "bubbles101012#NA1"
             ],
-            "player_pos": "MID|BOT",
+            "player_pos": "MID",
             "rank_score": "28",
             "peak_rank": "Emerald 4",
             "current_rank": "Gold 1",
@@ -91,7 +91,7 @@
             "player_riot_id": [
                 "OWLBIRD#NA1"
             ],
-            "player_pos": "MID|TOP|SUP",
+            "player_pos": "MID|TOP",
             "rank_score": "32",
             "peak_rank": "Platinum 4",
             "current_rank": "Gold 3",
@@ -106,7 +106,7 @@
                 "Geek\u00e8\u00e9#0001",
                 "Geek\u00e8\u00e9#GCS"
             ],
-            "player_pos": "SUP|BOT",
+            "player_pos": "SUP",
             "rank_score": "35",
             "peak_rank": "Gold 2",
             "current_rank": "Gold 4",

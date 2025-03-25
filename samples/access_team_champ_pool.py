@@ -13,16 +13,16 @@ from modules.scrapers.rewind_lol_scraper import LeagueChampScraper
 position_list = ["top", "jng", "mid", "bot", "sup"]
 ##########################
 
-team_id = "NS"
+team_id = "V8"
 update_rewind_profile = True
 
 #### TEAM FETCH ###
 input_riot_ids, input_team_positions = LeagueChampScraper.retrieve_team_roster(team_id)
 
-input_riot_ids = [["BoyHoleBuccaneer#Boom", "GourmetCookies#NA1"]]
-input_team_positions = [["sup"]]
+# input_riot_ids = [["BoyHoleBuccaneer#Boom", "GourmetCookies#NA1"]]
+# input_team_positions = [["sup"]]
 
-input("Press Enter to continue...")
+# input("Press Enter to continue...")
 
 if update_rewind_profile:
     LeagueChampScraper.update_team_champ_history(team_id, input_riot_ids, run_update = False)

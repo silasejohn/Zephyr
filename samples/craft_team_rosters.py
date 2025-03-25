@@ -106,7 +106,33 @@ def update_team_roster_info(team_id: str = None):
     else:
         print(f"\nNo SUMMONER / ACCOUNT id updates needed for team: {team_id}")
 
-    # MATCHA: Why does ACCOUNT_ID change on every run?
+    ### [STEP 4] Update Player Peak / Current Ranks (if higher / changed from previous iteration) ###
+    # updatedPeakRanks, updatedCurrentRanks, roster = update_player_current_and_peak_ranks(roster) 
+
+    # for updatedRanks in updatedPeakRanks:
+    #     if updatedRanks == "":
+    #         continue
+    #     print(f"Player Peak Rank updated: {updatedRanks}")
+    #     # wait for user input
+    #     input("Press Enter to continue...")
+    
+    # for updatedRanks in updatedCurrentRanks:
+    #     if updatedRanks == "":
+    #         continue
+    #     print(f"Player Current Rank updated: {updatedRanks}")
+    #     # wait for user input
+    #     input("Press Enter to continue...")
+    
+    # # update teams json, new copy of roster to use
+    # teams["rosters"] = roster 
+    # roster = teams["rosters"] 
+
+    # if updatedPeakRanks or updatedCurrentRanks: # update original json too if needed
+    #     print(f"Updating original json for CURRENT && PEAK RANKS for team: {team_id}")
+    #     constants.GCS_TEAMS[team_id] = teams
+    #     constants.update_original_json("GCS_TEAMS")
+    # else:
+    #     print(f"\nNo CURRENT && PEAK RANKS updates needed for team: {team_id}")
 
     # MATCHA: code that AUTO pulls their peak rank & current rank (games, roles, champs played those seasons)
 
@@ -352,4 +378,73 @@ def update_player_summoner_and_account_ids(roster_json):
             player["player_encrypted_account_id"] = new_player_summoner_id_list
     return riot_summmoner_id_updates, riot_account_id_updates, roster_json
 
+# def update_player_current_and_peak_ranks(roster_json):
+#     print("\n\n[STEP 4] Update Player Peak && Current Ranks")
+
+#     # Update Peak / Current Ranks (if higher / changed from previous iteration)
+#     peak_rank_updates = []
+#     current_rank_updates = []
+
+#     for player in roster_json:
+#         print("\n-------------------------------------")
+#         print (f"Updating Peak && Current Ranks for Player: {player['player_riot_id']}")
+#         print("-------------------------------------")
+
+#         # stores 1 to X puuids per player in a list
+#         player_puuid_list = player["player_puuid"]
+#         if type(player_puuid_list) == str:
+#             player_puuid_list = [player_puuid_list]
+
+#         player_riot_id_list = player["player_riot_id"]
+
+#         player_existing_peak_rank = player["player_peak_rank"]
+#         player_existing_current_rank = player["player_current_rank"]
+
+#         # calculate new peak / current ranks for given player
+#         for account_idx in range(len(player_puuid_list)):
+#             print(f"Accessing Current / Peak Ranks for Account {account_idx + 1} of {len(player_puuid_list)}")
+
+
+
+
+#         ##########################
+#         ### PEAK RANK UPDATES ###
+#         ##########################
+#         # if Peak Rank doesn't previously exist ... update with new peak ranks
+#         if old_player_peak_rank_list == "%" or old_player_peak_rank_list == "" or old_player_peak_rank_list[0] == "":
+#             # update peak rank in json
+#             player["player_peak_rank"] = new_player_peak_rank_list
+
+#             # store updated information
+#             new_rank_msg = ""
+#             for account_idx in range(len(player_puuid_list)):
+#                 print(f"[Account {account_idx + 1}] % ~> {new_player_peak_rank_list[account_idx]}")
+#                 new_rank_msg += "{" + f"% -> {str(new_player_peak_rank_list[account_idx])}" + "}"
+#             peak_rank_updates.append(new_rank_msg)
+
+#         else:
+
+
+
 update_team_roster_info("V8")
+
+
+# player_riot_id format 
+# >>> ["riot_id1#TAG", "riot_id2#TAG"]
+# >>> "riot_id1#TAG"
+# >>> "riot_id1#TAG|riot_id2#TAG"
+
+# player_pos format
+# >>> "TOP|JGL|MID|BOT|SUP"
+
+# peak_rank / current_rank format
+# >>> Iron 1
+# >>> Bronze 4 45 LP
+# >>> Master 200 LP
+# >>> GrandMaster 1000 LP
+# >>> Diamond 3
+
+# player_puuid / player_encrypted_account_id / player_encrypted_summoner_id format
+# >>> (first time) "%" or ""
+# >>> "puuid1"
+# >>> ["puuid1", "puuid2"]
