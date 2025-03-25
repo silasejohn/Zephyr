@@ -20,3 +20,14 @@
 - In House MMR
 - In House WR
 ... outlined to Kris, GP, Gepetto
+
+## Plan of Action
+(1) LEPL Form Response Processing / Cleaning
+... input: form response spreadsheet
+... output: running "conglomerate" of cleaned form response (periodically updated based on changing input) spreadsheet 
+(2) LEPL Player Scouting / Data Scraping
+... input: cleaned form response data 
+... output: lepl_roster.json (static info) + folder per person (champ mastery) + lepl_roster.csv (stats)
+(3) LEPL PV Generation
+... input: lepl_roster.json ... etc
+... output: rank scores into lepl_roster.json 

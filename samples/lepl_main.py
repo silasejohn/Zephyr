@@ -14,15 +14,15 @@ stage_1_output_file = 'data/processed/lepl_draft_info.csv'
 ### LEPL Form Response Processing / Cleaning ###
 ################################################
 
+form_response_df = import_raw_form_response_csv_info(stage_1_input_file)
+processed_df = import_processed_roster_csv_info(stage_1_output_file)
 
+# - Process Discord Username
+processed_df = process_lepl_discord_username(form_response_df, processed_df)
 
-df = create_df_lepl_form_responses(input_file)
+# - Process Player Riot ID
+processed_df = process_lepl_player_riot_id(form_response_df, processed_df)
 
-# process each column of the draft_info CSV file
-
-# - Discord Username
-
-# - Player Riot ID
 # - Team Name
 # - Player Position
 # - Rank Score
@@ -50,8 +50,6 @@ df = create_df_lepl_form_responses(input_file)
 
 
 # output updated CSV file to data/processed
-create_lepl_roster_csv_from_df(df, output_file)
-
 
 # store as JSON file (for now)
 
