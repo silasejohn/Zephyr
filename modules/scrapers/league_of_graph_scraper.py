@@ -108,7 +108,7 @@ class LeagueOfGraphsScraper:
 
             # check for this element, if it exists, then reload the site via another method, else continue
             error_element = LeagueOfGraphsScraper.DRIVER.find_element(By.XPATH, "//*[@id='mainContent']/div/div[2]/div/h3")
-            print(f"{ColorPrint.YELLOW}Error Element: {error_element.text}{ColorPrint.RESET}")
+            # print(f"{ColorPrint.YELLOW}Error Element: {error_element.text}{ColorPrint.RESET}")
 
             if error_element:
                 # replace all spaces in player_ign with dashes
@@ -393,217 +393,217 @@ class LeagueOfGraphsScraper:
 
 
 
-###################
-### DRIVER CODE ###
-###################
+# ###################
+# ### DRIVER CODE ###
+# ###################
 
-input_data_file = 'data/raw/gcs_roster_info.csv'
-output_data_file = 'data/synthesized/gcs_roster_info_additive.csv'
-gcs_roster = create_data_df(input_data_file)
+# input_data_file = 'data/raw/gcs_roster_info.csv'
+# output_data_file = 'data/synthesized/gcs_roster_info_additive.csv'
+# gcs_roster = create_data_df(input_data_file)
 
-# create copy of gcs_roster
-gcs_roster_additive = gcs_roster.copy()
+# # create copy of gcs_roster
+# gcs_roster_additive = gcs_roster.copy()
 
-# iterate through each row in the gcs_roster
-setup = False
-counter = 1
-execute = False
+# # iterate through each row in the gcs_roster
+# setup = False
+# counter = 1
+# execute = False
 
-for index, row in gcs_roster.iterrows():
+# for index, row in gcs_roster.iterrows():
 
-    team_name = row['Team Name']
+#     team_name = row['Team Name']
 
-    # # if player is not on a team, don't scrape info on them
-    if team_name == "" or pd.isna(team_name):
-        continue
+#     # # if player is not on a team, don't scrape info on them
+#     if team_name == "" or pd.isna(team_name):
+#         continue
 
-    # if not team_name == "MDFC":
-    #     continue
+#     # if not team_name == "MDFC":
+#     #     continue
 
-    # obtain clean profile_igns
-    profile_ign = row['Summoner IGN']
+#     # obtain clean profile_igns
+#     profile_ign = row['Summoner IGN']
     
-    if profile_ign == "" or pd.isna(profile_ign):
-        continue # skip if profile_ign is empty
+#     if profile_ign == "" or pd.isna(profile_ign):
+#         continue # skip if profile_ign is empty
 
-    print(f"{ColorPrint.YELLOW}\n[{profile_ign}]\nRow:\n{row}{ColorPrint.RESET}")
-    print(f"{ColorPrint.YELLOW}[Counter] {counter}{ColorPrint.RESET}")
+#     print(f"{ColorPrint.YELLOW}\n[{profile_ign}]\nRow:\n{row}{ColorPrint.RESET}")
+#     print(f"{ColorPrint.YELLOW}[Counter] {counter}{ColorPrint.RESET}")
 
-    # if "Brandis#0704" in profile_ign:
-    #     execute = True
+#     # if "Brandis#0704" in profile_ign:
+#     #     execute = True
 
-    # if not execute:
-    #     continue 
+#     # if not execute:
+#     #     continue 
 
-    # if not profile_ign == "hackzorzzzz#NA1|Bengar#6969|UNC is Gapped#LUL|WATCH ME PLAYING#NA2" and not profile_ign == "PeepaTheHound#Molly|Doublethink#Orew|GeppettosPuppet#3671|PositiveEV#1111|Winston The Pooh#Win|ZUPER ZA1YAN#NA1":
-    #     continue
+#     # if not profile_ign == "hackzorzzzz#NA1|Bengar#6969|UNC is Gapped#LUL|WATCH ME PLAYING#NA2" and not profile_ign == "PeepaTheHound#Molly|Doublethink#Orew|GeppettosPuppet#3671|PositiveEV#1111|Winston The Pooh#Win|ZUPER ZA1YAN#NA1":
+#     #     continue
     
-    # make a copy of the 'row'
-    profile_max_output = row.copy()
-    profile_max_output['Current Ego Rank'] = ""
-    profile_max_output['Peak Ego Rank'] = ""
-    profile_max_output['True Peak Rank'] = ""
-    profile_max_output['Peak Ego Rank'] = ""
-    profile_max_output['S2024 S3 Peak'] = ""
-    profile_max_output['S2024 S2 Peak'] = ""
-    profile_max_output['S2024 S1 Peak'] = ""
-    profile_max_output['S2023 S2 Peak'] = ""
-    profile_max_output['S2023 S1 Peak'] = ""
+#     # make a copy of the 'row'
+#     profile_max_output = row.copy()
+#     profile_max_output['Current Ego Rank'] = ""
+#     profile_max_output['Peak Ego Rank'] = ""
+#     profile_max_output['True Peak Rank'] = ""
+#     profile_max_output['Peak Ego Rank'] = ""
+#     profile_max_output['S2024 S3 Peak'] = ""
+#     profile_max_output['S2024 S2 Peak'] = ""
+#     profile_max_output['S2024 S1 Peak'] = ""
+#     profile_max_output['S2023 S2 Peak'] = ""
+#     profile_max_output['S2023 S1 Peak'] = ""
 
-    print(f"{ColorPrint.YELLOW}\n[{profile_max_output['Summoner IGN']}]\nMax Output:\n{profile_max_output}{ColorPrint.RESET}")
+#     print(f"{ColorPrint.YELLOW}\n[{profile_max_output['Summoner IGN']}]\nMax Output:\n{profile_max_output}{ColorPrint.RESET}")
 
-    # if multiple profiles, splice into a profile list
-    profile_ign_list = []
-    problem_profiles = []
-    if "|" in profile_ign:
-        profile_ign_list = profile_ign.split("|")
-    else:
-        profile_ign_list.append(profile_ign)
-    profile_ign_list = [ign.strip() for ign in profile_ign_list]
+#     # if multiple profiles, splice into a profile list
+#     profile_ign_list = []
+#     problem_profiles = []
+#     if "|" in profile_ign:
+#         profile_ign_list = profile_ign.split("|")
+#     else:
+#         profile_ign_list.append(profile_ign)
+#     profile_ign_list = [ign.strip() for ign in profile_ign_list]
 
-    # setup the LeagueOfGraphs website for scraping as needed
-    if not setup:
-        LeagueOfGraphsScraper.set_up_rewind_lol()
-        status = LeagueOfGraphsScraper.switch_to_dark_mode()
-        setup = True
+#     # setup the LeagueOfGraphs website for scraping as needed
+#     if not setup:
+#         LeagueOfGraphsScraper.set_up_rewind_lol()
+#         status = LeagueOfGraphsScraper.switch_to_dark_mode()
+#         setup = True
 
-    # iterate through each profile_ign in the list
-    # profile_ign_list = ["Haumea#GCS, BioMatrix#Dead"]
-    for profile_ign in profile_ign_list:
-        status = LeagueOfGraphsScraper.load_player_profile(profile_ign)
-        if status == profile_ign:
-            problem_profiles.append(profile_ign)
-            # store a copy of problem profiles into the output txt file at data/synthesized/problem_profiles.txt
-            with open('data/synthesized/problem_profiles.txt', 'a') as f:
-                f.write(f"{profile_ign}\n")            
-            continue
-        zephyr_print(f"Scraping {profile_ign} Current Ego Rank, Wins, Losses, and Winrate")
-        current_ego_rank, current_ego_rank_wins, current_ego_rank_losses, current_ego_rank_wr = LeagueOfGraphsScraper.scrape_player_current_rank()
+#     # iterate through each profile_ign in the list
+#     # profile_ign_list = ["Haumea#GCS, BioMatrix#Dead"]
+#     for profile_ign in profile_ign_list:
+#         status = LeagueOfGraphsScraper.load_player_profile(profile_ign)
+#         if status == profile_ign:
+#             problem_profiles.append(profile_ign)
+#             # store a copy of problem profiles into the output txt file at data/synthesized/problem_profiles.txt
+#             with open('data/synthesized/problem_profiles.txt', 'a') as f:
+#                 f.write(f"{profile_ign}\n")            
+#             continue
+#         zephyr_print(f"Scraping {profile_ign} Current Ego Rank, Wins, Losses, and Winrate")
+#         current_ego_rank, current_ego_rank_wins, current_ego_rank_losses, current_ego_rank_wr = LeagueOfGraphsScraper.scrape_player_current_rank()
 
-        # if there is no current ego rank, wait for user input then move on
-        if current_ego_rank == -1:
-            print(f"{ColorPrint.RED}[ERROR] Error accessing player current rank: {profile_ign}{ColorPrint.RESET}")
-            input("Press Enter to Quit...")
-            sys.exit()
+#         # if there is no current ego rank, wait for user input then move on
+#         if current_ego_rank == -1:
+#             print(f"{ColorPrint.RED}[ERROR] Error accessing player current rank: {profile_ign}{ColorPrint.RESET}")
+#             input("Press Enter to Quit...")
+#             sys.exit()
 
-        # save a copy of the last profile "Current Ego Rank" if needed
-        old_current_ego_rank = profile_max_output['Current Ego Rank']
+#         # save a copy of the last profile "Current Ego Rank" if needed
+#         old_current_ego_rank = profile_max_output['Current Ego Rank']
 
-        # if peak ego rank is not initialized, initialize to current_ego_rank
-        if profile_max_output['Peak Ego Rank'] == "":
-            profile_max_output['Peak Ego Rank'] = old_current_ego_rank
-            print(f"{ColorPrint.CYAN}Created Peak Ego Rank for {ColorPrint.GREEN}{profile_ign}{ColorPrint.CYAN} to {ColorPrint.GREEN}{old_current_ego_rank}{ColorPrint.RESET}")
+#         # if peak ego rank is not initialized, initialize to current_ego_rank
+#         if profile_max_output['Peak Ego Rank'] == "":
+#             profile_max_output['Peak Ego Rank'] = old_current_ego_rank
+#             print(f"{ColorPrint.CYAN}Created Peak Ego Rank for {ColorPrint.GREEN}{profile_ign}{ColorPrint.CYAN} to {ColorPrint.GREEN}{old_current_ego_rank}{ColorPrint.RESET}")
 
-        # if the current_ego_rank is empty, update the current_ego_rank
-        if old_current_ego_rank == "":
-            if current_ego_rank == "UNRANKED":
-                profile_max_output['Current Ego Rank'] = ""
-                profile_max_output['Peak Ego Rank'] = ""
-                print(f"{ColorPrint.CYAN}Created Current Ego Rank for {ColorPrint.GREEN}{profile_ign}{ColorPrint.CYAN} to {ColorPrint.RED}UNRANKED{ColorPrint.RESET}")
-            else:
-                profile_max_output['Current Ego Rank'] = current_ego_rank
-                profile_max_output['Peak Ego Rank'] = current_ego_rank
-                print(f"{ColorPrint.CYAN}\nCreated Current & Peak Ego Rank for {ColorPrint.GREEN}{profile_ign}{ColorPrint.CYAN} to {ColorPrint.GREEN}{current_ego_rank}{ColorPrint.RESET}")
-        # if another profile has a current ego rank that is lower, update the current_ego_rank
-        elif profile_max_output['Current Ego Rank'] != current_ego_rank:
+#         # if the current_ego_rank is empty, update the current_ego_rank
+#         if old_current_ego_rank == "":
+#             if current_ego_rank == "UNRANKED":
+#                 profile_max_output['Current Ego Rank'] = ""
+#                 profile_max_output['Peak Ego Rank'] = ""
+#                 print(f"{ColorPrint.CYAN}Created Current Ego Rank for {ColorPrint.GREEN}{profile_ign}{ColorPrint.CYAN} to {ColorPrint.RED}UNRANKED{ColorPrint.RESET}")
+#             else:
+#                 profile_max_output['Current Ego Rank'] = current_ego_rank
+#                 profile_max_output['Peak Ego Rank'] = current_ego_rank
+#                 print(f"{ColorPrint.CYAN}\nCreated Current & Peak Ego Rank for {ColorPrint.GREEN}{profile_ign}{ColorPrint.CYAN} to {ColorPrint.GREEN}{current_ego_rank}{ColorPrint.RESET}")
+#         # if another profile has a current ego rank that is lower, update the current_ego_rank
+#         elif profile_max_output['Current Ego Rank'] != current_ego_rank:
             
-            if current_ego_rank == "UNRANKED":
-                print(f"{ColorPrint.CYAN}\nKept (EXISTING) Ego Rank ({profile_max_output['Current Ego Rank']}) of {ColorPrint.GREEN}{profile_ign}{ColorPrint.CYAN} instead of shifting to {ColorPrint.RED}UNRANKED{ColorPrint.RESET}")
-            else:
-                old_current_ego_rank_value = LeagueOfGraphsScraper.calculate_rank_score(old_current_ego_rank)
-                new_current_ego_rank_value = LeagueOfGraphsScraper.calculate_rank_score(current_ego_rank)
-                peak_ego_rank_value = LeagueOfGraphsScraper.calculate_rank_score(profile_max_output['Peak Ego Rank'])
+#             if current_ego_rank == "UNRANKED":
+#                 print(f"{ColorPrint.CYAN}\nKept (EXISTING) Ego Rank ({profile_max_output['Current Ego Rank']}) of {ColorPrint.GREEN}{profile_ign}{ColorPrint.CYAN} instead of shifting to {ColorPrint.RED}UNRANKED{ColorPrint.RESET}")
+#             else:
+#                 old_current_ego_rank_value = LeagueOfGraphsScraper.calculate_rank_score(old_current_ego_rank)
+#                 new_current_ego_rank_value = LeagueOfGraphsScraper.calculate_rank_score(current_ego_rank)
+#                 peak_ego_rank_value = LeagueOfGraphsScraper.calculate_rank_score(profile_max_output['Peak Ego Rank'])
 
-                # update the current_ego_rank if the current_ego_rank_value is higher than the old_current_ego_rank_value
-                if new_current_ego_rank_value > old_current_ego_rank_value:
-                    profile_max_output['Current Ego Rank'] = current_ego_rank
-                    print(f"{ColorPrint.GREEN}\nUpdated Current Ego Rank for {ColorPrint.CYAN}{profile_ign}{ColorPrint.GREEN} to {ColorPrint.CYAN}{current_ego_rank}{ColorPrint.RESET}")
-                else:
-                    print(f"{ColorPrint.RED}\nCurrent Ego Rank {ColorPrint.GREEN}{old_current_ego_rank}{ColorPrint.RED} for {ColorPrint.GREEN}{profile_ign}{ColorPrint.RED} is already higher than {ColorPrint.YELLOW}{current_ego_rank}{ColorPrint.RESET}")
+#                 # update the current_ego_rank if the current_ego_rank_value is higher than the old_current_ego_rank_value
+#                 if new_current_ego_rank_value > old_current_ego_rank_value:
+#                     profile_max_output['Current Ego Rank'] = current_ego_rank
+#                     print(f"{ColorPrint.GREEN}\nUpdated Current Ego Rank for {ColorPrint.CYAN}{profile_ign}{ColorPrint.GREEN} to {ColorPrint.CYAN}{current_ego_rank}{ColorPrint.RESET}")
+#                 else:
+#                     print(f"{ColorPrint.RED}\nCurrent Ego Rank {ColorPrint.GREEN}{old_current_ego_rank}{ColorPrint.RED} for {ColorPrint.GREEN}{profile_ign}{ColorPrint.RED} is already higher than {ColorPrint.YELLOW}{current_ego_rank}{ColorPrint.RESET}")
 
-                # update the peak_ego_rank if the current_ego_rank_value is higher than the peak_ego_rank_value
-                if new_current_ego_rank_value > peak_ego_rank_value:
-                    profile_max_output['Peak Ego Rank'] = current_ego_rank
-                    print(f"{ColorPrint.GREEN}Updated Peak Ego Rank for {ColorPrint.CYAN}{profile_ign}{ColorPrint.GREEN} to {ColorPrint.CYAN}{current_ego_rank}{ColorPrint.RESET}")
+#                 # update the peak_ego_rank if the current_ego_rank_value is higher than the peak_ego_rank_value
+#                 if new_current_ego_rank_value > peak_ego_rank_value:
+#                     profile_max_output['Peak Ego Rank'] = current_ego_rank
+#                     print(f"{ColorPrint.GREEN}Updated Peak Ego Rank for {ColorPrint.CYAN}{profile_ign}{ColorPrint.GREEN} to {ColorPrint.CYAN}{current_ego_rank}{ColorPrint.RESET}")
 
-        zephyr_print(f"Scraping {profile_ign} Previous Peak Rank, Wins, Losses, and Winrate")
-        previous_peak_rank, previous_rank_wins, previous_rank_losses, previous_rank_wr = LeagueOfGraphsScraper.scrape_player_past_peak_ranks()
+#         zephyr_print(f"Scraping {profile_ign} Previous Peak Rank, Wins, Losses, and Winrate")
+#         previous_peak_rank, previous_rank_wins, previous_rank_losses, previous_rank_wr = LeagueOfGraphsScraper.scrape_player_past_peak_ranks()
         
-        # if previous_peak_rank is and empty dict 
-        if previous_peak_rank == -1: # this signifies that the dict is empty
-            print(f"{ColorPrint.RED}[ERROR] Error accessing player past peak ranks: {profile_ign}{ColorPrint.RESET}")
-            input("Press Enter to Quit...")
-            sys.exit()
+#         # if previous_peak_rank is and empty dict 
+#         if previous_peak_rank == -1: # this signifies that the dict is empty
+#             print(f"{ColorPrint.RED}[ERROR] Error accessing player past peak ranks: {profile_ign}{ColorPrint.RESET}")
+#             input("Press Enter to Quit...")
+#             sys.exit()
 
-        # update split ranks & true peak ranks as needed 
-        for key, item in previous_peak_rank.items():
-            # print(f"\n{ColorPrint.CYAN}[SPLIT] {ColorPrint.GREEN}{key}{ColorPrint.RESET}")
-            # print(f"\t{ColorPrint.YELLOW}[PEAK RANK] {item}{ColorPrint.RESET}")
-            item_rank_score = LeagueOfGraphsScraper.calculate_rank_score(item)
-            prior_true_peak_rank_value = LeagueOfGraphsScraper.calculate_rank_score(profile_max_output['True Peak Rank'])
-            if item_rank_score > prior_true_peak_rank_value:
-                profile_max_output['True Peak Rank'] = item
-                print(f"\n{ColorPrint.CYAN}>>> Updated True Peak Rank to {ColorPrint.GREEN}{item}{ColorPrint.RESET}")
-            match (key):
-                case ("S13 (Split 1)"):
-                    s13_split1_rank_score = LeagueOfGraphsScraper.calculate_rank_score(profile_max_output['S2023 S1 Peak'])
-                    if item_rank_score > s13_split1_rank_score:
-                        profile_max_output['S2023 S1 Peak'] = item
-                        print(f"\n{ColorPrint.CYAN}>>> Updated S2023 S1 Peak to {ColorPrint.GREEN}{item}{ColorPrint.RESET}")
-                    else:
-                        print(f"\n{ColorPrint.RED}S2023 S1 Peak {ColorPrint.GREEN}{profile_max_output['S2023 S1 Peak']}{ColorPrint.RED} is already higher than {ColorPrint.YELLOW}{item}{ColorPrint.RESET}")
-                case ("S13 (Split 2)"):
-                    s13_split2_rank_score = LeagueOfGraphsScraper.calculate_rank_score(profile_max_output['S2023 S2 Peak'])
-                    if item_rank_score > s13_split2_rank_score:
-                        profile_max_output['S2023 S2 Peak'] = item
-                        print(f"\n{ColorPrint.CYAN}>>> Updated S2023 S2 Peak to {ColorPrint.GREEN}{item}{ColorPrint.RESET}")
-                    else:
-                        print(f"\n{ColorPrint.RED}S2023 S2 Peak {ColorPrint.GREEN}{profile_max_output['S2023 S2 Peak']}{ColorPrint.RED} is already higher than {ColorPrint.YELLOW}{item}{ColorPrint.RESET}")
-                case ("S14 (Split 1)"):
-                    s14_split1_rank_score = LeagueOfGraphsScraper.calculate_rank_score(profile_max_output['S2024 S1 Peak'])
-                    if item_rank_score > s14_split1_rank_score:
-                        profile_max_output['S2024 S1 Peak'] = item
-                        print(f"\n{ColorPrint.CYAN}>>> Updated S2024 S1 Peak to {ColorPrint.GREEN}{item}{ColorPrint.RESET}")
-                    else:
-                        print(f"\n{ColorPrint.RED}S2024 S1 Peak {ColorPrint.GREEN}{profile_max_output['S2024 S1 Peak']}{ColorPrint.RED} is already higher than {ColorPrint.YELLOW}{item}{ColorPrint.RESET}")
-                case ("S14 (Split 2)"):
-                    s14_split2_rank_score = LeagueOfGraphsScraper.calculate_rank_score(profile_max_output['S2024 S2 Peak'])
-                    if item_rank_score > s14_split2_rank_score:
-                        profile_max_output['S2024 S2 Peak'] = item
-                        print(f"\n{ColorPrint.CYAN}>>> Updated S2024 S2 Peak to {ColorPrint.GREEN}{item}{ColorPrint.RESET}")
-                    else:
-                        print(f"\n{ColorPrint.RED}S2024 S2 Peak {ColorPrint.GREEN}{profile_max_output['S2024 S2 Peak']}{ColorPrint.RED} is already higher than {ColorPrint.YELLOW}{item}{ColorPrint.RESET}")
-                case ("S14 (Split 3)"):
-                    s14_split3_rank_score = LeagueOfGraphsScraper.calculate_rank_score(profile_max_output['S2024 S3 Peak'])
-                    if item_rank_score > s14_split3_rank_score:
-                        profile_max_output['S2024 S3 Peak'] = item
-                        print(f"\n{ColorPrint.CYAN}>>> Updated S2024 S3 Peak to {ColorPrint.GREEN}{item}{ColorPrint.RESET}")
-                    else:
-                        print(f"\n{ColorPrint.RED}S2024 S3 Peak {ColorPrint.GREEN}{profile_max_output['S2024 S3 Peak']}{ColorPrint.RED} is already higher than {ColorPrint.YELLOW}{item}{ColorPrint.RESET}")
+#         # update split ranks & true peak ranks as needed 
+#         for key, item in previous_peak_rank.items():
+#             # print(f"\n{ColorPrint.CYAN}[SPLIT] {ColorPrint.GREEN}{key}{ColorPrint.RESET}")
+#             # print(f"\t{ColorPrint.YELLOW}[PEAK RANK] {item}{ColorPrint.RESET}")
+#             item_rank_score = LeagueOfGraphsScraper.calculate_rank_score(item)
+#             prior_true_peak_rank_value = LeagueOfGraphsScraper.calculate_rank_score(profile_max_output['True Peak Rank'])
+#             if item_rank_score > prior_true_peak_rank_value:
+#                 profile_max_output['True Peak Rank'] = item
+#                 print(f"\n{ColorPrint.CYAN}>>> Updated True Peak Rank to {ColorPrint.GREEN}{item}{ColorPrint.RESET}")
+#             match (key):
+#                 case ("S13 (Split 1)"):
+#                     s13_split1_rank_score = LeagueOfGraphsScraper.calculate_rank_score(profile_max_output['S2023 S1 Peak'])
+#                     if item_rank_score > s13_split1_rank_score:
+#                         profile_max_output['S2023 S1 Peak'] = item
+#                         print(f"\n{ColorPrint.CYAN}>>> Updated S2023 S1 Peak to {ColorPrint.GREEN}{item}{ColorPrint.RESET}")
+#                     else:
+#                         print(f"\n{ColorPrint.RED}S2023 S1 Peak {ColorPrint.GREEN}{profile_max_output['S2023 S1 Peak']}{ColorPrint.RED} is already higher than {ColorPrint.YELLOW}{item}{ColorPrint.RESET}")
+#                 case ("S13 (Split 2)"):
+#                     s13_split2_rank_score = LeagueOfGraphsScraper.calculate_rank_score(profile_max_output['S2023 S2 Peak'])
+#                     if item_rank_score > s13_split2_rank_score:
+#                         profile_max_output['S2023 S2 Peak'] = item
+#                         print(f"\n{ColorPrint.CYAN}>>> Updated S2023 S2 Peak to {ColorPrint.GREEN}{item}{ColorPrint.RESET}")
+#                     else:
+#                         print(f"\n{ColorPrint.RED}S2023 S2 Peak {ColorPrint.GREEN}{profile_max_output['S2023 S2 Peak']}{ColorPrint.RED} is already higher than {ColorPrint.YELLOW}{item}{ColorPrint.RESET}")
+#                 case ("S14 (Split 1)"):
+#                     s14_split1_rank_score = LeagueOfGraphsScraper.calculate_rank_score(profile_max_output['S2024 S1 Peak'])
+#                     if item_rank_score > s14_split1_rank_score:
+#                         profile_max_output['S2024 S1 Peak'] = item
+#                         print(f"\n{ColorPrint.CYAN}>>> Updated S2024 S1 Peak to {ColorPrint.GREEN}{item}{ColorPrint.RESET}")
+#                     else:
+#                         print(f"\n{ColorPrint.RED}S2024 S1 Peak {ColorPrint.GREEN}{profile_max_output['S2024 S1 Peak']}{ColorPrint.RED} is already higher than {ColorPrint.YELLOW}{item}{ColorPrint.RESET}")
+#                 case ("S14 (Split 2)"):
+#                     s14_split2_rank_score = LeagueOfGraphsScraper.calculate_rank_score(profile_max_output['S2024 S2 Peak'])
+#                     if item_rank_score > s14_split2_rank_score:
+#                         profile_max_output['S2024 S2 Peak'] = item
+#                         print(f"\n{ColorPrint.CYAN}>>> Updated S2024 S2 Peak to {ColorPrint.GREEN}{item}{ColorPrint.RESET}")
+#                     else:
+#                         print(f"\n{ColorPrint.RED}S2024 S2 Peak {ColorPrint.GREEN}{profile_max_output['S2024 S2 Peak']}{ColorPrint.RED} is already higher than {ColorPrint.YELLOW}{item}{ColorPrint.RESET}")
+#                 case ("S14 (Split 3)"):
+#                     s14_split3_rank_score = LeagueOfGraphsScraper.calculate_rank_score(profile_max_output['S2024 S3 Peak'])
+#                     if item_rank_score > s14_split3_rank_score:
+#                         profile_max_output['S2024 S3 Peak'] = item
+#                         print(f"\n{ColorPrint.CYAN}>>> Updated S2024 S3 Peak to {ColorPrint.GREEN}{item}{ColorPrint.RESET}")
+#                     else:
+#                         print(f"\n{ColorPrint.RED}S2024 S3 Peak {ColorPrint.GREEN}{profile_max_output['S2024 S3 Peak']}{ColorPrint.RED} is already higher than {ColorPrint.YELLOW}{item}{ColorPrint.RESET}")
 
-        print(f"{ColorPrint.CYAN}\n[{profile_ign}]\nMax Output:\n{profile_max_output}{ColorPrint.RESET}")
-        LeagueOfGraphsScraper.buffer()
-        LeagueOfGraphsScraper.create_new_tab()
-        LeagueOfGraphsScraper.close_previous_tab()
+#         print(f"{ColorPrint.CYAN}\n[{profile_ign}]\nMax Output:\n{profile_max_output}{ColorPrint.RESET}")
+#         LeagueOfGraphsScraper.buffer()
+#         LeagueOfGraphsScraper.create_new_tab()
+#         LeagueOfGraphsScraper.close_previous_tab()
     
-    # print profile_max_output
-    print(f"{ColorPrint.CYAN}\n[{profile_max_output['Summoner IGN']}]\nMax Output:\n{profile_max_output}{ColorPrint.RESET}")
+#     # print profile_max_output
+#     print(f"{ColorPrint.CYAN}\n[{profile_max_output['Summoner IGN']}]\nMax Output:\n{profile_max_output}{ColorPrint.RESET}")
 
-    # apply the changes in data we made to profile_max_output to the gcs_roster and gcs_roster_additive
-    gcs_roster.loc[index] = profile_max_output
-    gcs_roster_additive.loc[index] = profile_max_output
+#     # apply the changes in data we made to profile_max_output to the gcs_roster and gcs_roster_additive
+#     gcs_roster.loc[index] = profile_max_output
+#     gcs_roster_additive.loc[index] = profile_max_output
 
-    # store temp copy of gcs roster and gcs_roster_additive into the csv file
-    # gcs_roster.to_csv(input_data_file, index=False)
-    # gcs_roster_additive.to_csv(output_data_file, index=False)
+#     # store temp copy of gcs roster and gcs_roster_additive into the csv file
+#     # gcs_roster.to_csv(input_data_file, index=False)
+#     # gcs_roster_additive.to_csv(output_data_file, index=False)
 
-    # # wait for user input
-    input("Press Enter to continue...")
-    counter += 1
+#     # # wait for user input
+#     input("Press Enter to continue...")
+#     counter += 1
 
-LeagueOfGraphsScraper.close()
+# LeagueOfGraphsScraper.close()
 
-# TODO
-# take previous_peak_ranks ~> add to the the df
-# add wr or # of total games / champs played per season in parentheses
+# # TODO
+# # take previous_peak_ranks ~> add to the the df
+# # add wr or # of total games / champs played per season in parentheses
 
