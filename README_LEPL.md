@@ -31,3 +31,9 @@
 (3) LEPL PV Generation
 ... input: lepl_roster.json ... etc
 ... output: rank scores into lepl_roster.json 
+
+
+TODO
+> add 1-2 points per player who has NOT participated in inhouses 
+> true peak rank should always equal current ego rank if current ego rank is the peak
+> use op.gg to get the current PEAK ego rank??? 

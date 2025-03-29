@@ -91,7 +91,9 @@ def process_lepl_player_riot_id(form_response_df, processed_df, stage_1_output_f
                 startProcess = True
 
         if not startProcess:
+            startProcess = False
             continue
+        
 
         info_print(f"Querying OP.GG for {row['Player OP.GG']}")
         if pd.isnull(row['Player OP.GG']):
@@ -99,13 +101,14 @@ def process_lepl_player_riot_id(form_response_df, processed_df, stage_1_output_f
             # input_opgg = input(f"Enter OP.GG for {row['Discord Username']}: ")
             # if input_opgg == "":
             warning_print(f"OP.GG is empty for {row['Discord Username']}. Skipping.")
+            startProcess = False
             continue
-            search_results = OPGGScraper.query_summoner_stats(input_opgg)
         else:
             search_results = OPGGScraper.query_summoner_stats(row['Player OP.GG'])
 
         # if search results is -1, then continue to the next row
         if search_results == -1:
+            startProcess = False
             continue
 
         # if search_results is a list, then join the list with "|"
@@ -116,13 +119,10 @@ def process_lepl_player_riot_id(form_response_df, processed_df, stage_1_output_f
         processed_df.loc[processed_df['Discord Username'] == row['Discord Username'], 'Player Riot ID'] = search_results
         export_processed_roster_csv_info(stage_1_output_file, processed_df)
 
-        # counter += 1
-        # if counter >= 5:
-        #     break
         startProcess = False
     
     OPGGScraper.DRIVER.quit()  # Close the browser
-    success_print(f"Driver Quit {search_results}")
+    success_print(f"Driver Quit!")
 
     return processed_df
 
@@ -238,11 +238,20 @@ def process_lepl_true_rank(form_response_df, processed_df, stage_1_output_file, 
     setup = False
     counter = 1
 
+    startProcess = False; 
     for index, row in processed_df.iterrows():
 
         # if no valid Riot ID ... skip this player
         if pd.isnull(row['Player Riot ID']) or row['Player Riot ID'] == "":
             warning_print(f"Player Riot ID is null for {row['Discord Username']}. Skipping.")
+            continue
+
+        # if in processed_df, the corresponding discord username doesn't have a player riot id, then start processing
+        if row['Discord Username'] in processed_df['Discord Username'].values:
+            if pd.isnull(processed_df.loc[processed_df['Discord Username'] == row['Discord Username'], 'Current Ego Rank'].values[0]):
+                startProcess = True
+
+        if not startProcess:
             continue
 
         # obtain clean profile data
@@ -292,7 +301,7 @@ def process_lepl_true_rank(form_response_df, processed_df, stage_1_output_file, 
             if status == profile_ign:
                 problem_profiles.append(profile_ign)
                 # store a copy of problem profiles into the output txt file at data/synthesized/problem_profiles.txt
-                with open('data/synthesized/problem_profiles.txt', 'a') as f:
+                with open('data/processed/lepl_problem_profiles.txt', 'a') as f:
                     f.write(f"{profile_ign}\n")            
                 continue
             info_print(f"Scraping {profile_ign} Current Ego Rank, Wins, Losses, and Winrate")
@@ -416,6 +425,7 @@ def process_lepl_true_rank(form_response_df, processed_df, stage_1_output_file, 
         # # wait for user input
         # input("Press Enter to continue...")
         counter += 1
+        startProcess = False
 
     # close the browser once all profiles are scraped
     LeagueOfGraphsScraper.close()

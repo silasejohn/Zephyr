@@ -15,6 +15,9 @@ from modules.utils.color_utils import warning_print, error_print, info_print, su
 ### LEPL PV Generation ###
 ##########################
 
+DISCORD_USERNAMES_INHOUSE_MODIFIER = ["honeynutwoomy", "dirtycupbandit", "k6vin"] # replace with actual usernames
+
+
 RANK_POINTS = {
     "Iron 4": 45,       "Iron 3": 44,      "Iron 2": 43,       "Iron 1": 42,
     "Bronze 4": 41,     "Bronze 3": 40,    "Bronze 2": 39,     "Bronze 1": 38,
@@ -92,9 +95,19 @@ def calculate_peak_rank_points(peak_rank):
     
 def calculate_point_value(row, cols):
     values = [row[col] for col in cols]  # obtain values from columns
-    filtered_values = [v for v in values if v != -1 and not pd.isna(v)] # skip -1 and NaN values
     
-    # return the average of the values or -1
+    # multiple the 0th index by 1.5 ... will place more emphasis on current season rank points
+    if values[0] != -1 and not pd.isna(values[0]):
+        values[0] = values[0] * 1.5
+
+        # divide the 1st index by 2 ... will place less emphasis on previous split rank points
+        if values[1] != -1 and not pd.isna(values[1]):
+            values[1] = values[1] / 2
+
+    # filter values of -1 and NaN
+    filtered_values = [v for v in values if v != -1 and not pd.isna(v)] # skip -1 and NaN values
+
+    # calculate the point value
     return np.mean(filtered_values) if filtered_values else -1
 
 def generate_lepl_rank_points_stats(processed_df, stage_3_output_file):
@@ -165,21 +178,28 @@ def generate_lepl_rank_points_stats(processed_df, stage_3_output_file):
     
     # calculate "point value" of each plaeyr
     finalized_df.replace('', np.nan, inplace=True) # replace all empty strings with NaN
-    finalized_df["Point Value"] = finalized_df.apply(
-        lambda row: calculate_point_value(row, ['current_season_rank_points', 'peak_rank_points', 'prev_split_rank_points', 'past_year_avg_rank_points', 'past_2_years_avg_rank_points']), axis=1
+    finalized_df["Point Value (only rank)"] = finalized_df.apply(
+        lambda row: calculate_point_value(row, ['current_season_rank_points', 'prev_split_rank_points', 'peak_rank_points', 'past_year_avg_rank_points', 'past_2_years_avg_rank_points']), axis=1
     )
+    finalized_df["Point Value (only rank)"] = finalized_df["Point Value (only rank)"].round(2)
+
+    # make a new column "InHouse Point Modifier" and set it to 0
+    finalized_df["InHouse Point Modifier"] = 0
+
+    # given a list of discord usernames, set their InHouse Point Modifier to 2
+    finalized_df.loc[finalized_df["Discord Username"].isin(DISCORD_USERNAMES_INHOUSE_MODIFIER), "InHouse Point Modifier"] = -2
+
+    # calculate point value 
+    finalized_df["Point Value"] = finalized_df["Point Value (only rank)"] + finalized_df["InHouse Point Modifier"]
+
+    # round point value to nearest whole number
+    finalized_df["Point Value"] = finalized_df["Point Value"].round(0)
+
+    # if value "-1" exists in the "Point Value" column, set it to 9999
+    finalized_df["Point Value"] = finalized_df["Point Value"].replace(-1, 9999)
+    finalized_df["Point Value"] = finalized_df["Point Value"].replace(np.nan, 9999)
 
     # return the finalized dataframe
     processed_df = finalized_df.copy()
-
-    return processed_df
-    
-
-
-
-
-
-
-
 
     return processed_df
