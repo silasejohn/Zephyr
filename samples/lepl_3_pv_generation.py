@@ -19,16 +19,16 @@ DISCORD_USERNAMES_INHOUSE_MODIFIER = ["honeynutwoomy", "dirtycupbandit", "k6vin"
 
 
 RANK_POINTS = {
-    "Iron 4": 45,       "Iron 3": 44,      "Iron 2": 43,       "Iron 1": 42,
-    "Bronze 4": 41,     "Bronze 3": 40,    "Bronze 2": 39,     "Bronze 1": 38,
-    "Silver 4": 37,     "Silver 3": 36,    "Silver 2": 35,    "Silver 1": 34,
-    "Gold 4": 33,      "Gold 3": 32,     "Gold 2": 31,      "Gold 1": 30,
-    "Platinum 4": 29,  "Platinum 3": 28, "Platinum 2": 27,  "Platinum 1": 26,
-    "Emerald 4": 25,   "Emerald 3": 24,  "Emerald 2": 23,   "Emerald 1": 22,
-    "Diamond 4": 21,   "Diamond 3": 20,  "Diamond 2": 19,   "Diamond 1": 18,
-    "Master": 17,      "Grandmaster": 11,  "Challenger": 5,
-    "Iron": 43.5, "Bronze": 39.5, "Silver": 9.5, "Gold": 31.5, "Platinum": 27.5 # metal rank averages
-}
+    "Iron 4": 62,       "Iron 3": 59,      "Iron 2": 56,       "Iron 1": 53,
+    "Bronze 4": 50,     "Bronze 3": 47,    "Bronze 2": 44,     "Bronze 1": 42,
+    "Silver 4": 40,     "Silver 3": 38,    "Silver 2": 36,    "Silver 1": 34,
+    "Gold 4": 32,      "Gold 3": 30,     "Gold 2": 28,      "Gold 1": 26,
+    "Platinum 4": 24,  "Platinum 3": 22, "Platinum 2": 20,  "Platinum 1": 18,
+    "Emerald 4": 16,   "Emerald 3": 14,  "Emerald 2": 12,   "Emerald 1": 11,
+    "Diamond 4": 10,   "Diamond 3": 9,  "Diamond 2": 8,   "Diamond 1": 7,
+    "Master": 6,      "Grandmaster": 3,  "Challenger": 0,                       # apex rank averages
+    "Iron": 57.5, "Bronze": 45.5, "Silver": 37, "Gold": 29, "Platinum": 21      # metal rank averages
+} # Gold - Plat = 25
 
 APEX_RANKS = ["Master", "Grandmaster", "Challenger"]
 
@@ -97,12 +97,22 @@ def calculate_point_value(row, cols):
     values = [row[col] for col in cols]  # obtain values from columns
     
     # multiple the 0th index by 1.5 ... will place more emphasis on current season rank points
-    if values[0] != -1 and not pd.isna(values[0]):
-        values[0] = values[0] * 1.5
+    
+    rank_exists = 3
+    if values[2] != -1 and not pd.isna(values[2]):
+        rank_exists -=1 
+    if values[3] != -1 and not pd.isna(values[3]):
+        rank_exists -=1
+    if values[4] != -1 and not pd.isna(values[4]):
+        rank_exists -=1
 
-        # divide the 1st index by 2 ... will place less emphasis on previous split rank points
-        if values[1] != -1 and not pd.isna(values[1]):
-            values[1] = values[1] / 2
+    if rank_exists > 0:
+        if values[0] != -1 and not pd.isna(values[0]):
+            values[0] = values[0] * 1.5
+
+            # divide the 1st index by 2 ... will place less emphasis on previous split rank points
+            if values[1] != -1 and not pd.isna(values[1]):
+                values[1] = values[1] / 2
 
     # filter values of -1 and NaN
     filtered_values = [v for v in values if v != -1 and not pd.isna(v)] # skip -1 and NaN values
@@ -193,7 +203,7 @@ def generate_lepl_rank_points_stats(processed_df, stage_3_output_file):
     finalized_df["Point Value"] = finalized_df["Point Value (only rank)"] + finalized_df["InHouse Point Modifier"]
 
     # round point value to nearest whole number
-    finalized_df["Point Value"] = finalized_df["Point Value"].round(0)
+    finalized_df["Point Value"] = finalized_df["Point Value"].round(0) + 10
 
     # if value "-1" exists in the "Point Value" column, set it to 9999
     finalized_df["Point Value"] = finalized_df["Point Value"].replace(-1, 9999)
