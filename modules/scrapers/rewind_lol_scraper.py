@@ -119,6 +119,8 @@ class LeagueChampScraper:
     def access_player_champion_history_table(player_ign, file_name):
         print(f"{ColorPrint.YELLOW}>> Accessing Player Champion History Table{ColorPrint.RESET}")
         try:
+            # role_prio_list = [] # initialize list for storing role priority entries
+
             # Test: Find the Champion History Table
             LeagueChampScraper.wait_for_element_to_load(By.XPATH, "//*[text()='Champions Played and stats for PvP games']")
             champ_history_header = LeagueChampScraper.DRIVER.find_element(By.XPATH, "//*[text()='Champions Played and stats for PvP games']")
@@ -181,8 +183,7 @@ class LeagueChampScraper:
                             else:
                                 row_data.append(cell.text.strip())
                         writer.writerow(row_data)
-                role_prio_msg = f"Role Priority List (past 2 years): {role_prio_entry}"
-                # role_prio_list.append(role_prio_msg)
+                role_prio_msg = f"Player Role Priorities (past 2 years): {role_prio_entry}"
                 print(f"{ColorPrint.GREEN}{role_prio_msg}{ColorPrint.RESET}")
 
             # import the csv back into a dataframe
@@ -330,7 +331,7 @@ class LeagueChampScraper:
 
     @staticmethod
     # update team champion history
-    def update_team_champ_history(team_id: str, player_riot_ids: list[str], run_update: bool = False):
+    def update_team_champ_history(tournament_id: str, team_id: str, player_riot_ids: list[str], run_update: bool = False):
             
         # setup the rewind.lol website for scraping
         LeagueChampScraper.set_up_rewind_lol()
@@ -372,11 +373,11 @@ class LeagueChampScraper:
             LeagueChampScraper.access_player_champion_history()
 
             # create directory {team_id} if it doesn't exist
-            if not os.path.exists(f"data/processed/champ_mastery/{team_id}"):
-                os.makedirs(f"data/processed/champ_mastery/{team_id}")
+            if not os.path.exists(f"data/processed/champ_mastery/{tournament_id}/{team_id}"):
+                os.makedirs(f"data/processed/champ_mastery/{tournament_id}/{team_id}")
 
             # output csv file
-            champ_history_output = f"data/processed/champ_mastery/{team_id}/{profile}_raw.csv"
+            champ_history_output = f"data/processed/champ_mastery/{tournament_id}/{team_id}/{profile}_raw.csv"
 
             LeagueChampScraper.access_player_champion_history_table(profile, champ_history_output)
 
@@ -453,10 +454,14 @@ class LeagueChampScraper:
         input("Press Enter to Continue...")
 
         return team_roster_riot_ids, team_roster_positions
+    
+    @staticmethod
+    def weighted_average(series, weights):
+        return (series * weights).sum() / weights.sum()
 
     @staticmethod
     # output player (multi account) champion mastery (in last 2 years)
-    def access_player_champ_pool(team_id, player_accounts, pos):
+    def access_player_champ_pool(tournament_id, team_id, player_accounts, pos):
 
         # set up empty df for storing player champ pool
         player_champ_pool_df = pd.DataFrame()
@@ -468,26 +473,95 @@ class LeagueChampScraper:
         zephyr_print(f"Accessing Player Champion Pool for {player_accounts[0]} in {pos}")
         potential_accounts_for_combining = player_accounts.copy()
 
+        # create empty df for storing combined role stats for each player account
+        role_dist_df = pd.read_csv(f"data/processed/champ_mastery/{tournament_id}/{team_id}/{player_accounts[0]}_role_distribution.csv")
+        # drop columns "average game duration", "role"
+        role_dist_df = role_dist_df.drop(columns=["average game duration", "role", "triple kills", "quadra kills", "penta kills", "per game K / D / A", "total KD", "average KD", "average KDA ±SD", "total KDA"])
+        role_dist_flag = False
+
+
         for player_ign in player_accounts:
+            
+            # simple boolean flag to only df concentate if not the first player in player_accounts
+            if role_dist_flag:
+                file = f"data/processed/champ_mastery/{tournament_id}/{team_id}/{player_ign}_role_distribution.csv"
+                new_role_dist_df = pd.read_csv(file)
+                new_role_dist_df = new_role_dist_df.drop(columns=["average game duration", "role", "triple kills", "quadra kills", "penta kills", "per game K / D / A", "total KD", "average KD", "average KDA ±SD", "total KDA"])
+                role_dist_df = pd.concat([role_dist_df, new_role_dist_df], axis=0) # append contents of file to role_dist_df
+            else: 
+                role_dist_flag = True
+
             does_file_exist = False
-            for file in os.listdir(f"data/processed/champ_mastery/{team_id}"):
+            for file in os.listdir(f"data/processed/champ_mastery/{tournament_id}/{team_id}"):
                 if file.startswith(player_ign) and file.endswith(pos + ".csv"):
                     print(f">> {ColorPrint.YELLOW}Processing {player_ign} champ pool for {pos}{ColorPrint.RESET}")
-                    player_account_champ_pool_df = pd.read_csv(f"data/processed/champ_mastery/{team_id}/" + file)
+                    player_account_champ_pool_df = pd.read_csv(f"data/processed/champ_mastery/{tournament_id}/{team_id}/" + file)
                     player_champ_pool_df = pd.concat([player_champ_pool_df, player_account_champ_pool_df], axis=0)
                     does_file_exist = True
                     break
             if not does_file_exist:
-                print(f"{ColorPrint.RED}Error: File Not Found for Team {team_id} and player account {player_ign} in role {pos}{ColorPrint.RESET}")
+                filepath = f"data/processed/champ_mastery/{tournament_id}/{team_id}/problem_profiles.txt"
+                problem_text = "[" + team_id + "] - " + player_ign + " " + pos + "\n"
+
+                # check if file exists, append if it does 
+                if os.path.exists(filepath):
+                    with open(filepath, 'a') as f:
+                        f.write(problem_text)
+                else:
+                    with open(filepath, 'w') as f:
+                        f.write(problem_text)
+                
+                print(f"{ColorPrint.RED}Error: File Not Found for Team {team_id} in Tournament {tournament_id} and player account {player_ign} in role {pos}{ColorPrint.RESET}")
                 potential_accounts_for_combining.remove(player_ign)
         
+        """ combine role distribution stats for each player account """
+        # strip % from winrate, average KP, first blood rate
+        for col in ["winrate", "average KP", "first blood rate"]:
+            role_dist_df[col] = role_dist_df[col].str.rstrip('%').astype(float)
+
+        # groupby similar rows with unique aggregation
+        aggregated_role_df = role_dist_df.groupby("champion").apply(lambda group: pd.Series({
+            "total games": group["total games"].sum(),
+            "wins": group["wins"].sum(),
+            "losses": group["losses"].sum(),
+            "average KP": LeagueChampScraper.weighted_average(group["average KP"], group["total games"]),
+            "first blood rate": LeagueChampScraper.weighted_average(group["first blood rate"], group["total games"]),
+        })).reset_index()
+
+        # calculate winrate again based on aggregated wins/games
+        aggregated_role_df["winrate"] = (aggregated_role_df["wins"] / aggregated_role_df["total games"]) * 100
+
+        # format percentage columns
+        for col in ["winrate", "average KP", "first blood rate"]:
+            aggregated_role_df[col] = aggregated_role_df[col].map(lambda x: f"{x:.2f}%")
+
+        # change "total games", "wins", "losses" to int
+        aggregated_role_df["total games"] = aggregated_role_df["total games"].astype(int)
+
+        # replace "[Role]" with player_ign[0] in "champion" column
+        player_ign = player_accounts[0].split("#")[0]
+        aggregated_role_df["champion"] = aggregated_role_df["champion"].str.replace("[Role]", f"[{player_ign}]")
+
+        # output aggregate role distribution stats 
+        print(f"{ColorPrint.YELLOW}>> Aggregated Role Distribution Stats for {player_accounts} in {pos}{ColorPrint.RESET}")
+        print (aggregated_role_df)
+
+        # save to team_id role distribution csv (check if file exists first)
+        file_path = f"data/processed/champ_mastery/{tournament_id}/{team_id}/{team_id}_role_distribution.csv"
+        if os.path.exists(file_path):
+            # append to existing file
+            aggregated_role_df.to_csv(file_path, mode='a', header=False, index=False)
+        else:
+            # create new file
+            aggregated_role_df.to_csv(file_path, index=False)
+
         # before printing the df, combine the stats for each player account
         if len(potential_accounts_for_combining) > 1:
             player_champ_pool_df = LeagueChampScraper.combine_champ_stats(player_champ_pool_df, potential_accounts_for_combining, pos)
         elif len(potential_accounts_for_combining) == 1:
             print(f"{ColorPrint.RED}>> [Single Account] No Need to Combine Champion Stats for {potential_accounts_for_combining[0]} in {pos}!{ColorPrint.RESET}")
         else:
-            print(f"{ColorPrint.RED}Error: In {pos} position... No Player Accounts {player_accounts} Found for {team_id}{ColorPrint.RESET}")
+            print(f"{ColorPrint.RED}Error: In {pos} position... No Player Accounts {player_accounts} Found for {team_id} in {tournament_id}{ColorPrint.RESET}")
             input("Press Enter to Continue...")
             return
 
@@ -502,13 +576,40 @@ class LeagueChampScraper:
         input("Press Enter to Continue...")
 
     @staticmethod
-    def access_team_champ_pool(team_id: str, team_roster, team_pos_list):
-        zephyr_print(f"Accessing Team Champion Pool for Team ID: {team_id}")
-        for i in range(len(team_roster)):
-            pos_list = team_pos_list[i] # get the positions for the player / player accounts
-            for pos in pos_list:
-                zephyr_print(f"Pulling champ pool for {team_roster[i]} in {pos}")
-                LeagueChampScraper.access_player_champ_pool(team_id, team_roster[i], pos)
+    def access_team_champ_pool(tournament_id: str, team_id: str, team_roster, team_pos_list):
+        # empty the team role dist file if it exists
+        file_path = f"data/processed/champ_mastery/{tournament_id}/{team_id}/{team_id}_role_distribution.csv"
+        if os.path.exists(file_path):
+            # remove the file
+            os.remove(file_path)
+            print(f"{ColorPrint.YELLOW}>> Removed Existing Team Role Distribution File: {file_path}{ColorPrint.RESET}")
+        else:
+            print(f"{ColorPrint.YELLOW}>> No Existing Team Role Distribution File Found: {file_path}{ColorPrint.RESET}")
+
+        # input user wait
+        input("Press Enter to Continue...")
+
+        position_list = ["top", "jng", "mid", "bot", "sup"]
+        zephyr_print(f"Accessing Team Champion Pool for Team ID [{team_id}] from [{tournament_id}]")
+        for role in position_list:
+            for i in range(len(team_roster)):
+                if role in team_pos_list[i]:
+                # pos_list = team_pos_list[i] # get the positions for the player / player accounts
+                # for pos in pos_list:
+                    zephyr_print(f"Pulling champ pool for {team_roster[i]} in {role}")
+                    LeagueChampScraper.access_player_champ_pool(tournament_id, team_id, team_roster[i], role)
+        
+        # sort the team wide role distribution pool by "total games" in descending order
+        team_role_dist_df = pd.read_csv(f"data/processed/champ_mastery/{tournament_id}/{team_id}/{team_id}_role_distribution.csv")
+        # eliminate duplicate rows
+        team_role_dist_df = team_role_dist_df.drop_duplicates(subset=['champion'], keep='first')
+        team_role_dist_df = team_role_dist_df.sort_values(by='total games', ascending=False)
+        print(f"{ColorPrint.YELLOW}>> Team Role Distribution Stats for {team_id} in {tournament_id}{ColorPrint.RESET}")
+        print(team_role_dist_df)
+
+        # store the team role distribution stats in a csv file
+        team_role_dist_df.to_csv(f"data/processed/champ_mastery/{tournament_id}/{team_id}/{team_id}_role_distribution.csv", index=False)
+        
 
     @staticmethod
     # combine appropriate stats for the champ df per each player account

@@ -16,6 +16,7 @@ from modules.utils.color_utils import warning_print, error_print, info_print, su
 ##########################
 
 DISCORD_USERNAMES_INHOUSE_MODIFIER = ["honeynutwoomy", "dirtycupbandit", "k6vin"] # replace with actual usernames
+DISCORD_USERNAMES_INHOUSE_MODIFIER_WR = ["Sexy shawarma", "bluewu.", "ktian", "_Casey", "beifengpageenjoyer", "Iateyosushi"] # replace with actual usernames
 
 
 RANK_POINTS = {
@@ -198,6 +199,7 @@ def generate_lepl_rank_points_stats(processed_df, stage_3_output_file):
 
     # given a list of discord usernames, set their InHouse Point Modifier to 2
     finalized_df.loc[finalized_df["Discord Username"].isin(DISCORD_USERNAMES_INHOUSE_MODIFIER), "InHouse Point Modifier"] = -2
+    finalized_df.loc[finalized_df["Discord Username"].isin(DISCORD_USERNAMES_INHOUSE_MODIFIER_WR), "InHouse Point Modifier"] = -1
 
     # calculate point value 
     finalized_df["Point Value"] = finalized_df["Point Value (only rank)"] + finalized_df["InHouse Point Modifier"]
