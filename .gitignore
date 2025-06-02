@@ -16,3 +16,4 @@ modules/scrapers/__pycache__/*
 modules/utils/__pycache__/*
 data/processed/*
 samples/__pycache__/*
+modules/api_clients/google_client/__pycache__/*
