@@ -50,24 +50,74 @@ def get_sheet_snapshot_basic(service, spreadsheet_id, sheet_name_range):
     else: 
         print("Sheet snapshot retrieved successfully")
         return sheet_snapshot
+    
+# given an updated section of a dataframe, update the original dataframe
+def update_df(original_df, updated_df_section):
+    # replace the columns of sheet_df with columns from sheet_hyperlinks_df if the column names match
+    for col in updated_df_section.columns:
+      if col in original_df.columns:
+        original_df[col] = updated_df_section[col]  # replace the column in sheet_df with the one from sheet_hyperlinks_df
+    
+# *textformatruns* indicates a cell contains 2+ text parts with different formatting
+# normalize_cell_parts() will combine these parts into a single part if there are no hyperlinks
+def normalize_cell_parts(cell_parts):
+    """Collapse text parts if there are no hyperlinks."""
+    if all(part.get('hyperlink') is None for part in cell_parts):
+        # No hyperlinks at all, so combine into one part
+        return [{'text': ''.join(part['text'] for part in cell_parts), 'hyperlink': None}]
+    else:
+        return cell_parts
+    
+# applies normalize_cell_parts() to every cell in the sheet snapshot
+def normalize_cell_parts_entire_sheet(sheet_snapshot):
+    for row in sheet_snapshot:
+      for i, cell_parts in enumerate(row):
+          row[i] = normalize_cell_parts(cell_parts)
+    return sheet_snapshot
 
-def get_sheet_snapshot_with_hyperlinks(service, spreadsheet_id, sheet_name_range):
-    # call Google Sheets API
+def get_sheet_snapshot_with_rich_hyperlinks(service, spreadsheet_id, sheet_name_range):
     sheet = service.spreadsheets()
-    result_w_hyperlinks = service.spreadsheets().get(
+    result = sheet.get(
         spreadsheetId=spreadsheet_id,
-        ranges=sheet_name_range,
-        fields='sheets.data.rowData.values.hyperlink,sheets.data.rowData.values.formattedValue'
+        ranges=[sheet_name_range],
+        includeGridData=True,
+        fields='sheets.data.rowData.values(formattedValue,hyperlink,textFormatRuns)'
     ).execute()
-    sheet_snapshot = result_w_hyperlinks.get("values", [])
 
-    if not sheet_snapshot:
-        print("No data found in sheet snapshot")
+    rows = result['sheets'][0]['data'][0]['rowData']
+    snapshot = []
+
+    for row in rows:
+        snapshot_row = []
+        for cell in row.get('values', []):
+            cell_value = cell.get('formattedValue', '')
+            rich_links = []
+            runs = cell.get('textFormatRuns', []) # runs is a list of text format runs
+            hyperlink = cell.get('hyperlink') # if the entire cell has a hyperlink
+
+            if runs:
+                # Parse multiple formatted spans
+                for i, run in enumerate(runs):
+                    start_index = run.get('startIndex', 0)
+                    end_index = runs[i + 1]['startIndex'] if i + 1 < len(runs) else len(cell_value)
+                    text_slice = cell_value[start_index:end_index]
+                    uri = run.get('format', {}).get('link', {}).get('uri')
+                    rich_links.append({'text': text_slice, 'hyperlink': uri})
+                snapshot_row.append(rich_links)
+            elif hyperlink:
+                # Single full-cell hyperlink
+                snapshot_row.append([{'text': cell_value, 'hyperlink': hyperlink}])
+            else:
+                # Plain cell with no hyperlink
+                snapshot_row.append([{'text': cell_value, 'hyperlink': None}])
+        snapshot.append(snapshot_row)
+
+    if not snapshot:
+        print("No data found in combined hyperlink snapshot")
         return None
-    else: 
-        print("Sheet snapshot retrieved successfully")
-        return sheet_snapshot
-
+    else:
+        print("Combined hyperlink snapshot retrieved successfully")
+        return snapshot
 
 def print_sheet_snapshot(sheet_snapshot):
     if not sheet_snapshot:
@@ -94,6 +144,31 @@ def create_df_from_snapshot(sheet_snapshot):
 
     return df
 
+def create_df_from_snapshot_hyperlinks(sheet_snapshot):
+    if not sheet_snapshot:
+        print("Creating Empty DataFrame (no snapshot)...")
+        return pd.DataFrame()
+
+    print("Creating DataFrame from snapshot with hyperlinks...")
+
+    # Extract column headers
+    headers = [''.join(part['text'] for part in cell) for cell in sheet_snapshot[0]]
+
+    data_rows = []
+    for row in sheet_snapshot[1:]:
+        formatted_row = []
+        for cell in row:
+            parts = []
+            for part in cell:
+                text = part['text'].replace('\n', '').strip()
+                hyperlink = part['hyperlink'] if part['hyperlink'] else ""
+                parts.append(f"{text}{{{hyperlink}}}")
+            cell_str = '|'.join(parts)
+            formatted_row.append(cell_str)
+        data_rows.append(formatted_row)
+
+    return pd.DataFrame(data_rows, columns=headers)
+
 def drop_sheet_df_columns(sheet_df, columns_to_drop=None):
     
     if columns_to_drop is None: 
@@ -118,3 +193,5 @@ def extract_team_id(sheet_df):
     if sheet_df.empty:
         return None
     return sheet_df.iloc[0, 0]  # return the first cell value as team ID
+
+
