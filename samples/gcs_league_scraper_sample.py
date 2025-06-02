@@ -177,11 +177,11 @@ for player_info in player_dict_temp.values():
     player_tourney_match_history_container = GCSLeagueScraper.DRIVER.find_element(By.XPATH, "/html/body/main/div/div/div[2]/div/ol")
     player_tourney_match_history_list = player_tourney_match_history_container.find_elements(By.TAG_NAME, "li")
     
-    # keep track of player champion names and positions played  
-    player_champ_names = []
-    player_positions_played = []
+    # keep track of player champion names and positions played (but both are related per match)  
+    player_pos_champ_dict = {}  # dictionary to store champion names and positions played
 
     # iterate through each match & player match info
+    match_counter = 0
     for match_container in player_tourney_match_history_list:
         match_container_a_tag = match_container.find_element(By.TAG_NAME, "a")
         match_champ_name_container = match_container_a_tag.find_element(By.TAG_NAME, "img").get_attribute("alt").strip()
@@ -196,16 +196,13 @@ for player_info in player_dict_temp.values():
             continue
 
         # store the champion name and position played   
-        player_champ_names.append(match_champ_name)
-        player_positions_played.append(match_position)
+        player_pos_champ_dict[match_counter] = f"{match_position}_{match_champ_name}"
+        match_counter += 1
         print(f"Champion Name: {match_champ_name}")
         print(f"Player Position: {match_position}")
 
-    # store the player champion names and positions played in the player_dict
-    player_dict[discord_tag]['champions_played'] = player_champ_names
-    player_dict[discord_tag]['positions_played'] = player_positions_played
-
-
+    # store the player_pos_champ_dict in the player_info dictionary
+    player_dict[discord_tag]['player_pos_champ_history'] = player_pos_champ_dict
 
 print("\nPlayer Dictionary:")
 for discord_tag, player_info in player_dict.items():
@@ -213,12 +210,23 @@ for discord_tag, player_info in player_dict.items():
     print(f"\tPlayer Temp ID: {player_info['player_temp_id']}")
     print(f"\tDeclared Positions: {', '.join(player_info['declared_positions'])}")
     print(f"\tHREF: {player_info['href']}")
-    # print(f"\tChampions Played: {', '.join(player_info['champions_played'])}")
-    # print(f"\tPositions Played: {', '.join(player_info['positions_played'])}\n")
+
+    champ_list = []
+    pos_list = []
 
     # do some aggregate stats (how much of each champ played, how many of each position played)
-    champion_count = Counter(player_info['champions_played'])
-    position_count = Counter(player_info['positions_played'])
+    print(player_info)
+    for pos_champ in player_info['player_pos_champ_history'].values():
+        pos, champ = pos_champ.split("_")
+        champ_list.append(champ)
+        pos_list.append(pos)
+        
+    champion_count = Counter(champ_list)
+    position_count = Counter(pos_list)
+    # sort the counts decreasing in value
+    champion_count = dict(sorted(champion_count.items(), key=lambda item: item[1], reverse=True))
+    position_count = dict(sorted(position_count.items(), key=lambda item: item[1], reverse=True))
+
     print("\tChampion Count:\t", end="")
     for champ, count in champion_count.items():
         print(f"{champ} ({count})", end=", ")
@@ -228,6 +236,8 @@ for discord_tag, player_info in player_dict.items():
     print("\n\n")  
 
     # MATCHA: TODO if in last X games (variable based on tourney, give a x2 bonus count to those champ played)
+    # MATCHA: TODO ... upload this info to spreadsheet
+    # MATCHA: create json for every team with new fields!
 
 input("Press Enter to continue...")
 
