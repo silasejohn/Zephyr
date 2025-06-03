@@ -238,6 +238,9 @@ for discord_tag, player_info in player_dict.items():
     # MATCHA: TODO if in last X games (variable based on tourney, give a x2 bonus count to those champ played)
     # MATCHA: TODO ... upload this info to spreadsheet
     # MATCHA: create json for every team with new fields!
+    # MATCHA: create_new_tab, close_old_tab functions, delete bad functions from GCS_SCRAPER.py bc not using it, offload some of these functions to that file as well
+    # MATCHA: update FF.CSV with this information. ultimately this inforamtion should be processed then go to the spreadsheet!
+    # MATCHA: pull more information (like (first time initial) user riot id tags) from the GCS website as well
 
 input("Press Enter to continue...")
 
