@@ -16,6 +16,8 @@ from __init__ import update_sys_path
 update_sys_path()
 from modules.utils.color_utils import warning_print, error_print, info_print, success_print
 
+READ_SCOPE = ["https://www.googleapis.com/auth/spreadsheets.readonly"]
+WRITE_SCOPE = ["https://www.googleapis.com/auth/spreadsheets"]
 
 
 #############################
@@ -24,6 +26,7 @@ from modules.utils.color_utils import warning_print, error_print, info_print, su
 class SPREADSHEET_OPS:
     TOKEN_JSON_PATH = "config/token.json"
     CREDENTIALS_JSON_PATH = "config/credentials.json"
+    SHEET_SNAPSHOT_DF_CSV_PATH = "data/processed/gcs_s2_roster_snapshot/"
     SERVICE = None
     SPREADSHEET_ID = None
 
@@ -90,6 +93,33 @@ class SPREADSHEET_OPS:
     ##################################################
     ###  STATIC METHODS FOR SPREADSHEET OPERATIONS ###
     ##################################################
+    
+    @staticmethod
+    def initialize(scopes, spreadsheet_id):
+        if scopes == "READ": 
+            scopes = READ_SCOPE
+        elif scopes == "WRITE":
+            scopes = WRITE_SCOPE
+        else:
+            warning_print("Defaulting to READ_SCOPE. Remember to delete config/token.json if you change scopes.")
+            scopes = READ_SCOPE  # default to read scope if not specified
+            input("Press [ENTER] to continue...")  # wait for user input to continue
+
+        try: # establish client credentials, sheets service, initialize the spreadsheet operations class
+            # establish client credentials 
+            creds = SPREADSHEET_OPS.establish_credentials(scopes)
+            sheets_svc = build("sheets", "v4", credentials=creds)
+            SPREADSHEET_OPS.set_service(sheets_svc)  # set the service for the spreadsheet operations
+            SPREADSHEET_OPS.set_spreadsheet_id(spreadsheet_id)
+            SPREADSHEET_OPS.initialize_sheet_titles()  # initialize the Google Spreadsheet API operations
+            SPREADSHEET_OPS.initialize_sheet_data_ranges()  # initialize the data ranges for the sheets
+
+            print("\n")
+            SPREADSHEET_OPS.print_sheet_info_dictionary()  # print the sheet info dictionary
+            success_print("SPREADSHEET_OPS class initialized successfully. [ENTER] to continue...")
+            input("") 
+        except HttpError as err:
+            print(err)
 
     @staticmethod
     def update_spreadsheet_static_info():
@@ -109,7 +139,6 @@ class SPREADSHEET_OPS:
         print(f"Initialized sheet titles: {sheet_titles}")  # print the initialized sheet title
 
         sheet_team_ids = [title.split("]")[0].split("[")[1] for title in sheet_titles] # splice out team IDs from sheet titles
-        print(f"Initialized Sheet Team IDs: {sheet_team_ids}")  # print the extracted team IDs from sheet titles
 
         # set up a dict to track info per each sheet
         SPREADSHEET_OPS.SHEET_INFO = {
@@ -121,8 +150,7 @@ class SPREADSHEET_OPS:
             for team_id, title in zip(sheet_team_ids, sheet_titles)
         }
 
-        SPREADSHEET_OPS.print_sheet_info_dictionary()  # print the sheet info dictionary
-        input("Press Enter to continue...")  # wait for user input to continue
+        print("\n")
 
     @staticmethod
     def establish_credentials(SCOPES):
@@ -206,18 +234,28 @@ class SPREADSHEET_OPS:
                 error_print(f"Failed to get operating range for sheet '{sheet_name}'.")
                 info["READY?"] = False
         
-        info_print("Initialized sheet data ranges!")
-        SPREADSHEET_OPS.print_sheet_info_dictionary()  # print the sheet info dictionary
-
     @staticmethod
-    def get_sheet_snapshot_basic(sheet_name_range):
+    def get_sheet_snapshot_basic(team_id, range_limiter=None):
         """
         Retrieve a basic snapshot of a Google Sheet.
         [param] service: Google Sheets API service object.
         [param] spreadsheet_id: ID of the Google Sheet.
-        [param] sheet_name_range: Range of the sheet to retrieve (e.g., "Sheet1!A1:C10").
+        [param] team_id: The ID of the team to get the sheet snapshot for.
         [return] sheet_snapshot: List of lists representing the sheet data.
         """
+
+        if range_limiter is None:
+            # get the sheet name and range for the team ID
+            if team_id not in SPREADSHEET_OPS.SHEET_INFO:
+                error_print(f"Team ID '{team_id}' does not exist in the sheet info dictionary.")
+                return None
+            sheet_name_range = SPREADSHEET_OPS.SHEET_INFO[team_id]["OPERATING_RANGE"]
+        else: 
+            # use the provided range_limiter to get the sheet name and range
+            sheet_name_range = f"{SPREADSHEET_OPS.SHEET_INFO[team_id]['NAME']}!{range_limiter}"
+            
+        info_print(f"Retrieving sheet snapshot for team ID '{team_id}' with range '{sheet_name_range}'...")
+
         sheet = SPREADSHEET_OPS.SERVICE.spreadsheets()
         result = (
             sheet.values()
@@ -271,7 +309,7 @@ class SPREADSHEET_OPS:
         return sheet_snapshot
 
     @staticmethod
-    def get_sheet_snapshot_with_rich_hyperlinks(sheet_name_range):
+    def get_sheet_snapshot_with_rich_hyperlinks(team_id, range_limiter=None):
         """
         Retrieve a snapshot of a Google Sheet with rich hyperlinks.
         [param] service: Google Sheets API service object.
@@ -279,6 +317,19 @@ class SPREADSHEET_OPS:
         [param] sheet_name_range: Range of the sheet to retrieve (e.g., "Sheet1!A1:C10").
         [return] snapshot: List of lists representing the sheet data with hyperlinks.
         """
+
+        if range_limiter is None:
+            # get the sheet name and range for the team ID
+            if team_id not in SPREADSHEET_OPS.SHEET_INFO:
+                error_print(f"Team ID '{team_id}' does not exist in the sheet info dictionary.")
+                return None
+            sheet_name_range = SPREADSHEET_OPS.SHEET_INFO[team_id]["OPERATING_RANGE"]
+        else: 
+            # use the provided range_limiter to get the sheet name and range
+            sheet_name_range = f"{SPREADSHEET_OPS.SHEET_INFO[team_id]['NAME']}!{range_limiter}"
+            
+        info_print(f"Retrieving sheet snapshot for team ID '{team_id}' with range '{sheet_name_range}'...")
+
         sheet = SPREADSHEET_OPS.SERVICE.spreadsheets()
         result = sheet.get(
             spreadsheetId=SPREADSHEET_OPS.SPREADSHEET_ID,
@@ -320,6 +371,7 @@ class SPREADSHEET_OPS:
             print("No data found in combined hyperlink snapshot")
             return None
         else:
+            snapshot = SPREADSHEET_OPS.normalize_cell_parts_entire_sheet(snapshot)  # normalize the cell parts in the snapshot
             print("Combined hyperlink snapshot retrieved successfully")
             return snapshot
 
@@ -338,8 +390,9 @@ class SPREADSHEET_OPS:
 
     @staticmethod
     def print_sheet_info_dictionary():
+        info_print("\n***[SHEET INFO DICTIONARY]***")
         for sheet_name, info in SPREADSHEET_OPS.SHEET_INFO.items():
-            info_print(f"Sheet Name: {sheet_name}, Info: {info}")
+            print(f"Sheet Name: {sheet_name}, Info: {info}")
 
     @staticmethod
     def create_df_from_snapshot(sheet_snapshot):
@@ -408,7 +461,7 @@ class SPREADSHEET_OPS:
         return sheet_df
 
     @staticmethod
-    def store_sheet_df_to_csv(sheet_df, csv_file_path):
+    def store_sheet_df_to_csv(sheet_df, team_id):
         """
         Store a DataFrame to a CSV file.
         [param] sheet_df: DataFrame to be stored.
@@ -420,6 +473,7 @@ class SPREADSHEET_OPS:
             return
 
         try:
+            csv_file_path = SPREADSHEET_OPS.SHEET_SNAPSHOT_DF_CSV_PATH + f"{team_id}.csv"
             sheet_df.to_csv(csv_file_path, index=False)
             print(f"DataFrame successfully stored to {csv_file_path}")
         except Exception as e:
@@ -464,8 +518,6 @@ class SPREADSHEET_OPS:
     def create_sheet_for_team(team_id, team_name):
         """
         Create a new sheet in a Google Spreadsheet for a specific team.
-        [param] service: Google Sheets API service object.
-        [param] spreadsheet_id: ID of the Google Spreadsheet.
         [param] team_id: ID of the team for which the sheet is being created.
         [param] team_name: Name of the team for which the sheet is being created.
         [return] NEW_SHEET_NAME: The name of the newly created sheet, or None if an error occurs.
@@ -499,6 +551,9 @@ class SPREADSHEET_OPS:
             ).execute()
             
             success_print(f"Sheet '{NEW_SHEET_NAME}' created successfully.")
+
+            # Add Header Row 
+            SPREADSHEET_OPS.create_GCS_scout_sheet_roster_section_header_row(NEW_SHEET_NAME, "B4")
 
             # update the SHEET_INFO dictionary with the new sheet info
             SPREADSHEET_OPS.update_spreadsheet_static_info()  # update the static info after creating the new sheet
@@ -544,15 +599,60 @@ class SPREADSHEET_OPS:
             return []
     
     @staticmethod
-    def create_GCS_scout_sheet_roster_section_header_row(cell_id):
+    def create_GCS_scout_sheet_roster_section_header_row(sheet_name, cell_id):
         """
         Create a header row for the team roster section in a Google Sheet.
-        [param] service: Google Sheets API service object.
-        [param] spreadsheet_id: ID of the Google Spreadsheet.
         [param] cell_id: ID of the cell where the header row will be created (e.g., "A1").
         [return] None: The header row is created in the specified cell.
         """
+        header_values = [["Discord Username", "Rank Score", "Role Priority", "Profile (OP.GG)", "Profile (LOG)", "Current Rank", "Peak Rank"]]
+        range_ = f"{sheet_name}!{cell_id}"
+        body = {'values': header_values}
 
+        try:
+            SPREADSHEET_OPS.SERVICE.spreadsheets().values().update(
+                spreadsheetId=SPREADSHEET_OPS.SPREADSHEET_ID,
+                range=range_,
+                valueInputOption='RAW',
+                body=body
+            ).execute()
+            print(f"Roster header row written to {range_}")
+        except HttpError as err:
+            print(f"An error occurred while writing header row: {err}")
+
+    @staticmethod
+    def delete_sheet(sheet_name):
+        """
+        Delete a sheet from the Google Spreadsheet.
+        [param] sheet_name: Name of the sheet to be deleted.
+        [return] None: The specified sheet is deleted from the spreadsheet.
+        """
+        try:
+            # Get the sheet ID for the specified sheet name
+            spreadsheet = SPREADSHEET_OPS.SERVICE.spreadsheets().get(spreadsheetId=SPREADSHEET_OPS.SPREADSHEET_ID).execute()
+            sheets = spreadsheet.get('sheets', [])
+            sheet_id = next((sheet['properties']['sheetId'] for sheet in sheets if sheet['properties']['title'] == sheet_name), None)
+
+            if not sheet_id:
+                warning_print(f"Sheet '{sheet_name}' does not exist. No deletion performed.")
+                return
+
+            # Prepare the request to delete the sheet
+            requests = [{
+                'deleteSheet': {
+                    'sheetId': sheet_id
+                }
+            }]
+
+            body = {'requests': requests}
+            SPREADSHEET_OPS.SERVICE.spreadsheets().batchUpdate(
+                spreadsheetId=SPREADSHEET_OPS.SPREADSHEET_ID,
+                body=body
+            ).execute()
+
+            success_print(f"Sheet '{sheet_name}' deleted successfully.")
+        except HttpError as err:
+            print(f"An error occurred while deleting the sheet: {err}")
     #########################
     ### UTILITY FUNCTIONS ### 
     #########################
