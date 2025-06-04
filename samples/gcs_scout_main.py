@@ -1,5 +1,6 @@
 ### Global Imports
 import sys
+from collections import defaultdict
 
 ### Local Imports
 from __init__ import update_sys_path
@@ -12,8 +13,8 @@ from modules.utils.color_utils import warning_print, error_print, info_print, su
 ##############################
 SPREADSHEET_ID = "1uvQafCH4xmiKDgW0lE84AvL1x5n385MU2bIYEaTTR1A"
   # ... get this from the URL of the Google Sheet
-TEAM_ID = "3V"  # Team ID 
-TEAM_NAME = "Veni Vidi Vici"  # Team Name 
+TEAM_ID = "WG"  # Team ID 
+TEAM_NAME = "Wrap Gods"  # Team Name 
 
 # Initialize the Google Sheets API client
 SPREADSHEET_OPS.initialize("WRITE", SPREADSHEET_ID)
@@ -70,66 +71,105 @@ for player_disc, player_info in player_dict.items():
 
     player_current_rank = max_rank  # set the player's current rank to the highest current rank
 
-    # determine player's champs played in tourney by role
-    top_champs = [v for v in player_info["player_pos_champ_history"].values() if v.startswith("TOP_")]
-    jgl_champs = [v for v in player_info["player_pos_champ_history"].values() if v.startswith("JGL_")]
-    mid_champs = [v for v in player_info["player_pos_champ_history"].values() if v.startswith("MID_")]
-    bot_champs = [v for v in player_info["player_pos_champ_history"].values() if v.startswith("BOT_")]
-    sup_champs = [v for v in player_info["player_pos_champ_history"].values() if v.startswith("SUP_")]
+    def format_champ_history(player_pos_champ_history):
+        role_champ_count = defaultdict(lambda: defaultdict(int))
 
-    # sort the champs played by frequency in each list 
-    top_champs.sort(key=lambda x: player_info["player_pos_champ_history"].get(x, 0), reverse=True)
-    jgl_champs.sort(key=lambda x: player_info["player_pos_champ_history"].get(x, 0), reverse=True)
-    mid_champs.sort(key=lambda x: player_info["player_pos_champ_history"].get(x, 0), reverse=True)
-    bot_champs.sort(key=lambda x: player_info["player_pos_champ_history"].get(x, 0), reverse=True)
-    sup_champs.sort(key=lambda x: player_info["player_pos_champ_history"].get(x, 0), reverse=True)
+        # Count how many times each champ is played per role
+        for entry in player_pos_champ_history.values():
+            role, champ = entry.split("_", 1)
+            role_champ_count[role][champ] += 1
+
+        roles_order = ["TOP", "JGL", "MID", "BOT", "SUP"]
+        result_strings = ""
+
+        for role in roles_order:
+            if role in role_champ_count:
+                champs = role_champ_count[role]
+
+                # Calculate total games for this role
+                total_games = sum(champs.values())
+
+                # Group champs by game count
+                count_groups = defaultdict(list)
+                for champ, count in champs.items():
+                    count_groups[count].append(champ)
+
+                # Sort and format grouped output
+                grouped_output = []
+                for count in sorted(count_groups.keys(), reverse=True):
+                    champ_list = sorted(count_groups[count])  # alphabetical within group
+                    group_str = ", ".join(champ_list) + f" ({count}g)"
+                    grouped_output.append(group_str)
+
+                role_str = f"[Tourney - ({role} ~ {total_games}g)] " + " | ".join(grouped_output)
+                result_strings += role_str + "\n"
+
+        return result_strings.rstrip()  # remove final newline
     
-    tourney_champs_played = ""
-    top_champs_played = ""
-    jgl_champs_played = ""
-    mid_champs_played = ""
-    bot_champs_played = ""
-    sup_champs_played = ""
-    if top_champs: 
-        top_champs_played += f"[Tourney - TOP] "
-        for champ in top_champs:
-            top_champs_played += f"{champ[4:]}, "  # remove the "TOP_" prefix from the champ name
-        top_champs_played = top_champs_played[:-2]  # remove the last comma and space
-        if top_champs_played != "":
-            top_champs_played += "\n"
-    if jgl_champs:
-        jgl_champs_played += f"[Tourney - JGL] "
-        for champ in jgl_champs:
-            jgl_champs_played += f"{champ[4:]}, "
-        jgl_champs_played = jgl_champs_played[:-2]  # remove the last comma and space
-        if jgl_champs_played != "":
-            jgl_champs_played += "\n"
-    if mid_champs:
-        mid_champs_played += f"[Tourney - MID] "
-        for champ in mid_champs:
-            mid_champs_played += f"{champ[4:]}, "
-        mid_champs_player = mid_champs_played[:-2]  # remove the last comma and space
-        if mid_champs_played != "":
-            mid_champs_played += "\n"
-    if bot_champs:
-        bot_champs_played += f"[Tourney - BOT] "
-        for champ in bot_champs:
-            bot_champs_played += f"{champ[4:]}, "
-        bot_champs_played = bot_champs_played[:-2]  # remove the last comma and space
-        if bot_champs_played != "":
-            bot_champs_played += "\n"
-    if sup_champs:
-        sup_champs_played += f"[Tourney - SUP] "
-        for champ in sup_champs:
-            sup_champs_played += f"{champ[4:]}, "
-        sup_champs_played = sup_champs_played[:-2]  # remove the last comma and space
+    tourney_champs_played = format_champ_history(player_info["player_pos_champ_history"]) # .values())
 
-    tourney_champs_played = top_champs_played + jgl_champs_played + mid_champs_played + bot_champs_played + sup_champs_played
 
-    if tourney_champs_played.endswith("\n"):
-        tourney_champs_played = tourney_champs_played[:-1]  # remove the last newline character
+    # # determine player's champs played in tourney by role
+    # top_champs = [v for v in player_info["player_pos_champ_history"].values() if v.startswith("TOP_")]
+    # jgl_champs = [v for v in player_info["player_pos_champ_history"].values() if v.startswith("JGL_")]
+    # mid_champs = [v for v in player_info["player_pos_champ_history"].values() if v.startswith("MID_")]
+    # bot_champs = [v for v in player_info["player_pos_champ_history"].values() if v.startswith("BOT_")]
+    # sup_champs = [v for v in player_info["player_pos_champ_history"].values() if v.startswith("SUP_")]
+
+    # # sort the champs played by frequency in each list 
+    # top_champs.sort(key=lambda x: player_info["player_pos_champ_history"].get(x, 0), reverse=True)
+    # jgl_champs.sort(key=lambda x: player_info["player_pos_champ_history"].get(x, 0), reverse=True)
+    # mid_champs.sort(key=lambda x: player_info["player_pos_champ_history"].get(x, 0), reverse=True)
+    # bot_champs.sort(key=lambda x: player_info["player_pos_champ_history"].get(x, 0), reverse=True)
+    # sup_champs.sort(key=lambda x: player_info["player_pos_champ_history"].get(x, 0), reverse=True)
+    
+    # tourney_champs_played = ""
+    # top_champs_played = ""
+    # jgl_champs_played = ""
+    # mid_champs_played = ""
+    # bot_champs_played = ""
+    # sup_champs_played = ""
+    # if top_champs: 
+    #     top_champs_played += f"[Tourney - TOP] "
+    #     for champ in top_champs:
+    #         top_champs_played += f"{champ[4:]}, "  # remove the "TOP_" prefix from the champ name
+    #     top_champs_played = top_champs_played[:-2]  # remove the last comma and space
+    #     if top_champs_played != "":
+    #         top_champs_played += "\n"
+    # if jgl_champs:
+    #     jgl_champs_played += f"[Tourney - JGL] "
+    #     for champ in jgl_champs:
+    #         jgl_champs_played += f"{champ[4:]}, "
+    #     jgl_champs_played = jgl_champs_played[:-2]  # remove the last comma and space
+    #     if jgl_champs_played != "":
+    #         jgl_champs_played += "\n"
+    # if mid_champs:
+    #     mid_champs_played += f"[Tourney - MID] "
+    #     for champ in mid_champs:
+    #         mid_champs_played += f"{champ[4:]}, "
+    #     mid_champs_player = mid_champs_played[:-2]  # remove the last comma and space
+    #     if mid_champs_played != "":
+    #         mid_champs_played += "\n"
+    # if bot_champs:
+    #     bot_champs_played += f"[Tourney - BOT] "
+    #     for champ in bot_champs:
+    #         bot_champs_played += f"{champ[4:]}, "
+    #     bot_champs_played = bot_champs_played[:-2]  # remove the last comma and space
+    #     if bot_champs_played != "":
+    #         bot_champs_played += "\n"
+    # if sup_champs:
+    #     sup_champs_played += f"[Tourney - SUP] "
+    #     for champ in sup_champs:
+    #         sup_champs_played += f"{champ[4:]}, "
+    #     sup_champs_played = sup_champs_played[:-2]  # remove the last comma and space
+
+    # tourney_champs_played = top_champs_played + jgl_champs_played + mid_champs_played + bot_champs_played + sup_champs_played
+
+    # if tourney_champs_played.endswith("\n"):
+    #     tourney_champs_played = tourney_champs_played[:-1]  # remove the last newline character
 
     # MATCHA: bold / () / [] various positions + order it from most likely to least likely based on 50 - 25 - 12.5 rule on games played
+    # --- above 25% play rate && 5 games = chance for playing a that secondary role. _ if a role has been played in the past 5-10 tourney games to indicate it is possible!
     # MATCHA: add hyperlinks for player IGNs on OP.GG and LOG
     # MATCHA: some method of a custom player rank score
     # MATCHA: some method of sorting the rows by "RANK SCORE" to prioritize players with higher rank scores first 
