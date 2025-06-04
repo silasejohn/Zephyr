@@ -516,13 +516,20 @@ class SPREADSHEET_OPS:
             print(f"An error occurred: {err}")
 
     @staticmethod
-    def create_sheet_for_team(team_id, team_name):
+    def create_sheet_for_team(team_id, team_name, mode="normal"):
         """
         Create a new sheet in a Google Spreadsheet for a specific team.
         [param] team_id: ID of the team for which the sheet is being created.
         [param] team_name: Name of the team for which the sheet is being created.
         [return] NEW_SHEET_NAME: The name of the newly created sheet, or None if an error occurs.
         """
+
+        if mode == "reset":
+            # delete the existing sheet for the team if it exists
+            existing_sheet_name = f"[{team_id}] {team_name}"
+            if SPREADSHEET_OPS.check_sheet_exists(existing_sheet_name):
+                SPREADSHEET_OPS.delete_sheet(existing_sheet_name)
+                warning_print(f"Deleted existing sheet '{existing_sheet_name}' before creating a new one.")
 
         NEW_SHEET_NAME = f"[{team_id}] {team_name}"  # format the new sheet name
 
@@ -608,7 +615,7 @@ class SPREADSHEET_OPS:
         [param] cell_id: ID of the cell where the header row will be created (e.g., "A1").
         [return] None: The header row is created in the specified cell.
         """
-        header_values = [["Discord Username", "Rank Score", "Role Priority", "Profile (OP.GG)", "Profile (LOG)", "Current Rank", "Peak Rank"]]
+        header_values = [["Discord Username", "Rank Score", "Role Priority", "Profile (OP.GG)", "Profile (LOG)", "Current Rank", "Peak Rank", "Recent Champs Played"]]
         range_ = f"{sheet_name}!{cell_id}"
         body = {'values': header_values}
 

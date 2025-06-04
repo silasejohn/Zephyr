@@ -12,17 +12,17 @@ from modules.utils.color_utils import warning_print, error_print, info_print, su
 ##############################
 SPREADSHEET_ID = "1uvQafCH4xmiKDgW0lE84AvL1x5n385MU2bIYEaTTR1A"
   # ... get this from the URL of the Google Sheet
-TEAM_ID = "WG"  # Team ID 
-TEAM_NAME = "Wrap Gods"  # Team Name 
+TEAM_ID = "3V"  # Team ID 
+TEAM_NAME = "Veni Vidi Vici"  # Team Name 
 
 # Initialize the Google Sheets API client
 SPREADSHEET_OPS.initialize("WRITE", SPREADSHEET_ID)
 
 # Delete Sheet for Team WG
-SPREADSHEET_OPS.delete_sheet("[WG] Wrap Gods")  # delete the sheet for the team if it exists
+# SPREADSHEET_OPS.delete_sheet("[WG] Wrap Gods")  # delete the sheet for the team if it exists
 
 # Create Sheet for TEAM WG
-SHEET_NAME = SPREADSHEET_OPS.create_sheet_for_team(TEAM_ID, TEAM_NAME)  # create a new sheet for the team
+SHEET_NAME = SPREADSHEET_OPS.create_sheet_for_team(TEAM_ID, TEAM_NAME, mode="reset")  # create a new sheet for the team
 
 # access json file with team data
 TEAM_DATA_JSON = f"data/processed/gcs_s2_tourney_scout_info/{TEAM_ID}.json"
@@ -39,11 +39,7 @@ input("Press Enter to continue...")  # wait for user input to continue
 for player_disc, player_info in player_dict.items():
     player_discord_username = player_disc
     print(f"Processing player: {player_discord_username}")
-    player_rank_score = "UNKNOWN"  # default value if rank is not available
-    print(player_info["declared_positions"])
-
-    # input("Press Enter to continue...")  # wait for user input to continue
-    
+    print(player_info["declared_positions"])    
 
     player_declared_roles = "|".join(player_info["declared_positions"])  # join the declared positions with a comma
     player_tourney_roles = player_info["tourney_positions_played_count"]
@@ -74,23 +70,91 @@ for player_disc, player_info in player_dict.items():
 
     player_current_rank = max_rank  # set the player's current rank to the highest current rank
 
+    # determine player's champs played in tourney by role
+    top_champs = [v for v in player_info["player_pos_champ_history"].values() if v.startswith("TOP_")]
+    jgl_champs = [v for v in player_info["player_pos_champ_history"].values() if v.startswith("JGL_")]
+    mid_champs = [v for v in player_info["player_pos_champ_history"].values() if v.startswith("MID_")]
+    bot_champs = [v for v in player_info["player_pos_champ_history"].values() if v.startswith("BOT_")]
+    sup_champs = [v for v in player_info["player_pos_champ_history"].values() if v.startswith("SUP_")]
+
+    # sort the champs played by frequency in each list 
+    top_champs.sort(key=lambda x: player_info["player_pos_champ_history"].get(x, 0), reverse=True)
+    jgl_champs.sort(key=lambda x: player_info["player_pos_champ_history"].get(x, 0), reverse=True)
+    mid_champs.sort(key=lambda x: player_info["player_pos_champ_history"].get(x, 0), reverse=True)
+    bot_champs.sort(key=lambda x: player_info["player_pos_champ_history"].get(x, 0), reverse=True)
+    sup_champs.sort(key=lambda x: player_info["player_pos_champ_history"].get(x, 0), reverse=True)
+    
+    tourney_champs_played = ""
+    top_champs_played = ""
+    jgl_champs_played = ""
+    mid_champs_played = ""
+    bot_champs_played = ""
+    sup_champs_played = ""
+    if top_champs: 
+        top_champs_played += f"[Tourney - TOP] "
+        for champ in top_champs:
+            top_champs_played += f"{champ[4:]}, "  # remove the "TOP_" prefix from the champ name
+        top_champs_played = top_champs_played[:-2]  # remove the last comma and space
+        if top_champs_played != "":
+            top_champs_played += "\n"
+    if jgl_champs:
+        jgl_champs_played += f"[Tourney - JGL] "
+        for champ in jgl_champs:
+            jgl_champs_played += f"{champ[4:]}, "
+        jgl_champs_played = jgl_champs_played[:-2]  # remove the last comma and space
+        if jgl_champs_played != "":
+            jgl_champs_played += "\n"
+    if mid_champs:
+        mid_champs_played += f"[Tourney - MID] "
+        for champ in mid_champs:
+            mid_champs_played += f"{champ[4:]}, "
+        mid_champs_player = mid_champs_played[:-2]  # remove the last comma and space
+        if mid_champs_played != "":
+            mid_champs_played += "\n"
+    if bot_champs:
+        bot_champs_played += f"[Tourney - BOT] "
+        for champ in bot_champs:
+            bot_champs_played += f"{champ[4:]}, "
+        bot_champs_played = bot_champs_played[:-2]  # remove the last comma and space
+        if bot_champs_played != "":
+            bot_champs_played += "\n"
+    if sup_champs:
+        sup_champs_played += f"[Tourney - SUP] "
+        for champ in sup_champs:
+            sup_champs_played += f"{champ[4:]}, "
+        sup_champs_played = sup_champs_played[:-2]  # remove the last comma and space
+
+    tourney_champs_played = top_champs_played + jgl_champs_played + mid_champs_played + bot_champs_played + sup_champs_played
+
+    if tourney_champs_played.endswith("\n"):
+        tourney_champs_played = tourney_champs_played[:-1]  # remove the last newline character
+
+    # MATCHA: bold / () / [] various positions + order it from most likely to least likely based on 50 - 25 - 12.5 rule on games played
+    # MATCHA: add hyperlinks for player IGNs on OP.GG and LOG
+    # MATCHA: some method of a custom player rank score
+    # MATCHA: some method of sorting the rows by "RANK SCORE" to prioritize players with higher rank scores first 
+    # MATCHA: some format of highlighting 5 rows which are the main players for roster for a game
+    # MATCHA: peak rank (from OP.GG / LOG) and display it in the sheet
+
     player_data.append([
         player_discord_username,  # Player Discord Username
-        player_rank_score,         # Player Rank Score
+        "...",         # Player Rank Score
         player_declared_roles,     # Player Declared Roles
         profile_opgg,  # Profile OP.GG
         profile_log,  # Profile LOG
         player_current_rank,  # Current Rank
-        "..."   # Peak Rank
+        "...",   # Peak Rank
+        tourney_champs_played,   # Tourney Champs Played
     ])
 
 for player in player_data:
     SPREADSHEET_OPS.insert_player_data(TEAM_ID, header_row_num=4, payload=player, start_col_letter="B")  # insert player data into the sheet
 
 ### STYLING ###
-SPREADSHEET_OPS.make_range_bold_underline(TEAM_ID, "B4", "H4")
-SPREADSHEET_OPS.auto_resize_columns_to_fit_text(TEAM_ID, "B4", "H20", extra_pixels=10)  
+SPREADSHEET_OPS.make_range_bold_underline(TEAM_ID, "B4", "I4")
+SPREADSHEET_OPS.auto_resize_columns_to_fit_text(TEAM_ID, "B4", "I20", extra_pixels=10)  
 SPREADSHEET_OPS.apply_horizontal_alignment(TEAM_ID, "B4", "H20", alignment="CENTER")
-SPREADSHEET_OPS.apply_vertical_alignment(TEAM_ID, "B4", "H20", alignment="MIDDLE")  # vertically center the text in the cells
+SPREADSHEET_OPS.apply_vertical_alignment(TEAM_ID, "B4", "I20", alignment="MIDDLE")  # vertically center the text in the cells
+SPREADSHEET_OPS.make_range_bold(TEAM_ID, "I5", "H20")
 
 sys.exit(0)  # exit the script after editing the cell

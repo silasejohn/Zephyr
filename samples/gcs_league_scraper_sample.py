@@ -14,8 +14,8 @@ from modules.scrapers.gcs_league_scraper import GCSLeagueScraper
 #####################################
 
 setup = False
-TEAM_NAME = "Wrap Gods"  # Team Name for GCS League Season 2
-TEAM_ID = "WG"  # Team ID for GCS League Season 2
+TEAM_NAME = "Veni Vidi Vici"  # Team Name for GCS League Season 2
+TEAM_ID = "3V"  # Team ID for GCS League Season 2
 GCS_TEAM_PAGE = ""
 
 #####################################
