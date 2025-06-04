@@ -2,7 +2,7 @@
 import sys        
 import os.path
 import pandas as pd
-import string
+import string, json
 
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
@@ -555,6 +555,8 @@ class SPREADSHEET_OPS:
             # Add Header Row 
             SPREADSHEET_OPS.create_GCS_scout_sheet_roster_section_header_row(NEW_SHEET_NAME, "B4")
 
+            # Add Data for Each Column
+
             # update the SHEET_INFO dictionary with the new sheet info
             SPREADSHEET_OPS.update_spreadsheet_static_info()  # update the static info after creating the new sheet
         
@@ -621,6 +623,73 @@ class SPREADSHEET_OPS:
             print(f"An error occurred while writing header row: {err}")
 
     @staticmethod
+    def insert_player_data(team_id, header_row_num, payload, start_col_letter="A"):
+        """
+        Inserts a new row of player data under the first empty row below the header row.
+        :param team_id: Key to look up the sheet name.
+        :param header_row_num: String number of the row containing headers (e.g., "4").
+        :param payload: List of values to insert (length must match number of headers).
+        :param start_col_letter: Letter of the first column containing a header (e.g., "B").
+        """
+
+        # Get sheet name from team ID
+        if team_id not in SPREADSHEET_OPS.SHEET_INFO:
+            raise ValueError(f"Team ID '{team_id}' does not exist in the spreadsheet.")
+        sheet_name = SPREADSHEET_OPS.SHEET_INFO[team_id]["NAME"]
+
+        # Compute header range (assume max header width 26 for now)
+        header_range = f"{sheet_name}!{start_col_letter}{header_row_num}:Z{header_row_num}"
+        result = SPREADSHEET_OPS.SERVICE.spreadsheets().values().get(
+            spreadsheetId=SPREADSHEET_OPS.SPREADSHEET_ID,
+            range=header_range
+        ).execute()
+
+        headers = result.get('values', [[]])[0]
+        num_headers = len(headers)
+
+        if num_headers == 0:
+            raise ValueError(f"No headers found in row {header_row_num} starting from column {start_col_letter}.")
+
+        if len(payload) != num_headers:
+            raise ValueError(f"Expected {num_headers} values (based on headers) but got {len(payload)} values in payload.")
+
+        print(f"Headers found: {headers} (Total: {num_headers})")
+
+        # Compute row offset
+        row_offset = int(header_row_num) + 1
+
+        # Check for next available row in first header column (e.g., column B)
+        first_data_col_range = f"{sheet_name}!{start_col_letter}{row_offset}:{start_col_letter}"
+        data = SPREADSHEET_OPS.SERVICE.spreadsheets().values().get(
+            spreadsheetId=SPREADSHEET_OPS.SPREADSHEET_ID,
+            range=first_data_col_range
+        ).execute()
+
+        existing_rows = data.get("values", [])
+        next_row_number = row_offset + len(existing_rows)
+
+        # Calculate ending column letter
+        def col_letter_offset(col, offset):
+            return chr(ord(col.upper()) + offset)
+
+        col_start = start_col_letter.upper()
+        col_end = col_letter_offset(col_start, num_headers - 1)
+
+        target_range = f"{sheet_name}!{col_start}{next_row_number}:{col_end}{next_row_number}"
+
+        body = { "values": [payload] }
+
+        # Update the sheet
+        SPREADSHEET_OPS.SERVICE.spreadsheets().values().update(
+            spreadsheetId=SPREADSHEET_OPS.SPREADSHEET_ID,
+            range=target_range,
+            valueInputOption='RAW',
+            body=body
+        ).execute()
+
+        print(f"Inserted row at {target_range}")
+        
+    @staticmethod
     def delete_sheet(sheet_name):
         """
         Delete a sheet from the Google Spreadsheet.
@@ -653,6 +722,8 @@ class SPREADSHEET_OPS:
             success_print(f"Sheet '{sheet_name}' deleted successfully.")
         except HttpError as err:
             print(f"An error occurred while deleting the sheet: {err}")
+    
+    
     #########################
     ### UTILITY FUNCTIONS ### 
     #########################
@@ -669,7 +740,24 @@ class SPREADSHEET_OPS:
             result = chr(65 + remainder) + result
         return result
 
+    @staticmethod
+    def get_team_data_from_json(json_file_path):
+        """
+        Load team data from a JSON file.
+        [param] json_file_path: Path to the JSON file containing team data.
+        [return] player_dict: Dictionary containing player data.
+        """
+        if not os.path.exists(json_file_path):
+            error_print(f"JSON file '{json_file_path}' does not exist.")
+            return {}
 
+        try:
+            with open(json_file_path, 'r') as file:
+                player_dict = json.load(file)
+            return player_dict
+        except Exception as e:
+            error_print(f"Error reading JSON file: {e}")
+            return {}
 
 
 

@@ -17,14 +17,9 @@ from modules.utils.color_utils import warning_print, error_print, info_print, su
 # [token.json] stores the user's access and refresh tokens
 # ... created automatically when authorization flow completes for the first time
 
-##############
-### SCOPES ###
-##############
-
 ##############################
 ### SPREADSHEET / SHEET ID ###
 ##############################
-# The ID and range of a sample spreadsheet.
 SPREADSHEET_ID = "1uvQafCH4xmiKDgW0lE84AvL1x5n385MU2bIYEaTTR1A"
   # ... get this from the URL of the Google Sheet
 TEAM_ID = "WG"  # Team ID 

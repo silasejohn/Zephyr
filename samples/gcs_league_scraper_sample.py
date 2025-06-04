@@ -14,33 +14,16 @@ from modules.scrapers.gcs_league_scraper import GCSLeagueScraper
 #####################################
 
 setup = False
-TEAM_NAME = "WRAP GODS"  # Team ID for GCS League Season 2
+TEAM_NAME = "Wrap Gods"  # Team Name for GCS League Season 2
+TEAM_ID = "WG"  # Team ID for GCS League Season 2
 GCS_TEAM_PAGE = ""
 
 #####################################
-
-def standardize_position(non_standard_position_name):
-    position_map = {
-        "TOP": "TOP",
-        "JUNGLE": "JGL",
-        "MIDDLE": "MID",
-        "BOTTOM": "BOT",
-        "UTILITY": "SUP"
-    }
-    output = position_map.get(non_standard_position_name.upper(), -1)  # convert to uppercase for matching
-    if output == -1:
-        warning_print(f"Non-standard position name '{non_standard_position_name}' encountered. Returning -1.")
-    return output
-
 
 # setup the GCS_LEAGUE website for scraping as needed
 if not setup:
     GCSLeagueScraper.set_up_gcs_league()
     setup = True
-
-    # transform TEAM_NAME into Camel Case
-    TEAM_NAME = TEAM_NAME.title()
-    info_print(f"Transformed TEAM_NAME to Camel Case: {TEAM_NAME}")
 
 # XPATH to LIST of Teams: /html/body/main/div/div[3]/ol
 GCSLeagueScraper.wait_for_element_to_load(
@@ -101,7 +84,7 @@ player_list_container = GCSLeagueScraper.DRIVER.find_element(By.XPATH, "/html/bo
 # list of players
 player_list = player_list_container.find_elements(By.TAG_NAME, "li")
 
-# iterate through players, scrape their player_temp_id, their declared positions, and their href links
+# iterate through players, scrape their player_display_id, their declared positions, and their href links
 player_dict_temp = {}
 player_dict = {}  # final player dictionary with discord tags as keys
 
@@ -116,22 +99,22 @@ for player in player_list:
     player_h3_tag = player_div_tag.find_element(By.TAG_NAME, "h3")
     player_p_tag = player_div_tag.find_element(By.TAG_NAME, "p")
 
-    player_temp_id = player_h3_tag.text.strip()  # Player Temp ID
+    player_display_id = player_h3_tag.text.strip()  # Player Temp ID
     player_declared_positions = player_p_tag.text.split("/")  # split by comma and space
 
     player_declared_positions = [
-        standardize_position(pos.strip()) for pos in player_declared_positions
-        if standardize_position(pos.strip()) != -1
+        GCSLeagueScraper.standardize_position(pos.strip()) for pos in player_declared_positions
+        if GCSLeagueScraper.standardize_position(pos.strip()) != -1
     ]  # standardize positions and filter out invalid ones
     player_declared_positions = list(set(player_declared_positions))  # remove duplicates
 
-    print(f"Player Temp ID: {player_temp_id}")
+    print(f"Player Temp ID: {player_display_id}")
     print(f"Player Declared Positions: {player_declared_positions}")
     print(f"Player HREF: {player_href}")
 
     # store in player dictionary by player discord tag
-    player_dict_temp[player_temp_id] = {
-        "player_temp_id": player_temp_id,
+    player_dict_temp[player_display_id] = {
+        "player_display_id": player_display_id,
         "declared_positions": player_declared_positions,
         "href": player_href
     }
@@ -145,15 +128,8 @@ for player_info in player_dict_temp.values():
         "/html/body/main/div/header/ul/span",
         timeout=10
     )
-    discord_tag = GCSLeagueScraper.DRIVER.find_element(By.XPATH, "/html/body/main/div/header/ul/span").text.strip()
 
-    # replace the player_temp_id key in the player_dict with the discord_tag
-    if discord_tag not in player_dict:
-        player_dict[discord_tag] = {
-            "player_temp_id": player_info['player_temp_id'],
-            "declared_positions": player_info['declared_positions'],
-            "href": player_info['href']
-        }
+    discord_tag = GCSLeagueScraper.DRIVER.find_element(By.XPATH, "/html/body/main/div/header/ul/span").text.strip()
 
     # click the "update" button" 
     # XPATH: /html/body/main/div/div/div[1]/div/form/p/input
@@ -165,7 +141,36 @@ for player_info in player_dict_temp.values():
         warning_print(f"'Update' button not found for player {discord_tag}.")
     
     # buffer for 1s
-    GCSLeagueScraper.buffer(1)
+    GCSLeagueScraper.buffer(2)
+
+    player_account_container = GCSLeagueScraper.DRIVER.find_element(By.XPATH, "/html/body/main/div/div/div[1]/div/ol")
+    player_account_container_list = player_account_container.find_elements(By.TAG_NAME, "li")
+
+    player_igns = []
+    player_account_current_ranks = []
+
+    # iterate through each player account in the player account container
+    for player_account in player_account_container_list:
+        player_account_a_tag = player_account.find_element(By.TAG_NAME, "a")
+        player_account_div_tag = player_account_a_tag.find_element(By.TAG_NAME, "div")
+        player_account_IGN = player_account_div_tag.find_element(By.TAG_NAME, "h3").text.strip()
+        player_account_IGN_current_rank = player_account_div_tag.find_element(By.TAG_NAME, "p").text.strip()
+
+        # store the player account IGN and current rank
+        player_igns.append(player_account_IGN)
+        if "verify" in player_account_IGN_current_rank:
+            player_account_IGN_current_rank = "Unknown"
+        player_account_current_ranks.append(player_account_IGN_current_rank)
+
+    # replace the player_display_id key in the player_dict with the discord_tag
+    if discord_tag not in player_dict:
+        player_dict[discord_tag] = {
+            "player_display_id": player_info['player_display_id'],
+            "declared_positions": player_info['declared_positions'],
+            "href": player_info['href'],
+            "player_igns": player_igns,
+            "player_account_current_ranks": player_account_current_ranks,
+        }
 
     # pull their tournament match history, wait for it to load
     GCSLeagueScraper.wait_for_element_to_load(
@@ -189,7 +194,7 @@ for player_info in player_dict_temp.values():
         match_container_div_tag = match_container_a_tag.find_element(By.TAG_NAME, "div")
         match_container_p_tag_list = match_container_div_tag.find_elements(By.TAG_NAME, "p")
         match_position = match_container_p_tag_list[3].text.strip().replace("Position: ", "")  # Player Position
-        match_position = standardize_position(match_position)  # standardize the position name
+        match_position = GCSLeagueScraper.standardize_position(match_position)  # standardize the position name
         if match_position == -1:
             error_print(f"Invalid position '{match_position}' for champion '{match_champ_name}'. Skipping...")
             input("Press Enter to continue...")
@@ -207,7 +212,7 @@ for player_info in player_dict_temp.values():
 print("\nPlayer Dictionary:")
 for discord_tag, player_info in player_dict.items():
     print(f"Discord Tag: {discord_tag}")
-    print(f"\tPlayer Temp ID: {player_info['player_temp_id']}")
+    print(f"\tPlayer Temp ID: {player_info['player_display_id']}")
     print(f"\tDeclared Positions: {', '.join(player_info['declared_positions'])}")
     print(f"\tHREF: {player_info['href']}")
 
@@ -227,13 +232,19 @@ for discord_tag, player_info in player_dict.items():
     champion_count = dict(sorted(champion_count.items(), key=lambda item: item[1], reverse=True))
     position_count = dict(sorted(position_count.items(), key=lambda item: item[1], reverse=True))
 
-    print("\tChampion Count:\t", end="")
-    for champ, count in champion_count.items():
-        print(f"{champ} ({count})", end=", ")
-    print("\n\tPosition Count:\t", end="")
-    for pos, count in position_count.items():
-        print(f"{pos} ({count})", end=", ")  
-    print("\n\n")  
+    player_dict[discord_tag]['tourney_champs_played_count'] = champion_count
+    player_dict[discord_tag]['tourney_positions_played_count'] = position_count
+
+    print(champion_count)
+    print(position_count)
+
+# store player_dict as a JSON file for further processing
+import json
+output_file = f"data/processed/gcs_s2_tourney_scout_info/{TEAM_ID}.json"
+with open(output_file, 'w') as f:
+    json.dump(player_dict, f, indent=4)
+# print success message
+success_print(f"Player information saved to {output_file}")
 
     # MATCHA: TODO if in last X games (variable based on tourney, give a x2 bonus count to those champ played)
     # MATCHA: TODO ... upload this info to spreadsheet
