@@ -179,3 +179,21 @@ class GCSLeagueScraper:
         if output == -1:
             warning_print(f"Non-standard position name '{non_standard_position_name}' encountered. Returning -1.")
         return output
+    
+    @staticmethod
+    def standardize_rank(non_standard_rank_name):
+        rank_map = {
+            "IRON IV": "I4", "IRON III": "I3", "IRON II": "I2", "IRON I": "I1",
+            "BRONZE IV": "B4", "BRONZE III": "B3", "BRONZE II": "B2", "BRONZE I": "B1",
+            "SILVER IV": "S4", "SILVER III": "S3", "SILVER II": "S2", "SILVER I": "S1",
+            "GOLD IV": "G4", "GOLD III": "G3", "GOLD II": "G2", "GOLD I": "G1",
+            "PLATINUM IV": "P4", "PLATINUM III": "P3", "PLATINUM II": "P2", "PLATINUM I": "P1",
+            "EMERALD IV": "E4", "EMERALD III": "E3", "EMERALD II": "E2", "EMERALD I": "E1",
+            # Apex Ranks
+            "DIAMOND IV": "D4", "DIAMOND III": "D3", "DIAMOND II": "D2", "DIAMOND I": "D1",
+            "MASTER I": "M", "GRANDMASTER I": "GM", "CHALLENGER": "C", "UNKNOWN": "??"
+        }
+        output = rank_map.get(non_standard_rank_name.upper(), -1)
+        if output == -1:
+            warning_print(f"Non-standard rank name '{non_standard_rank_name}' encountered. Returning -1.")
+        return output

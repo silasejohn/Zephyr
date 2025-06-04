@@ -3,6 +3,7 @@ import sys
 import os.path
 import pandas as pd
 import string, json
+import re               # used in A1 to Grid Coordinate Conversion
 
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
@@ -723,7 +724,335 @@ class SPREADSHEET_OPS:
         except HttpError as err:
             print(f"An error occurred while deleting the sheet: {err}")
     
+    @staticmethod
+    def get_sheet_id_by_name(target_sheet_name):
+        """
+        Get the sheet ID for a given sheet name in a Google Spreadsheet.
+        :param service: Google Sheets API service object.
+        :paramspreadsheet_id: ID of the Google Spreadsheet.
+        :param target_sheet_name: Name of the sheet to find.
+        :return: The sheet ID if found, otherwise raises ValueError.
+        """
+        response = SPREADSHEET_OPS.SERVICE.spreadsheets().get(spreadsheetId=SPREADSHEET_OPS.SPREADSHEET_ID).execute()
+        sheets = response.get("sheets", [])
+        
+        for sheet in sheets:
+            title = sheet.get("properties", {}).get("title")
+            if title == target_sheet_name:
+                return sheet.get("properties", {}).get("sheetId")
+        
+        raise ValueError(f"Sheet name '{target_sheet_name}' not found in spreadsheet.")
     
+    #########################
+    ### STYLING FUNCTIONS ### 
+    #########################
+    @staticmethod
+    def apply_text_style(team_id, start_a1, end_a1, style_dict):
+        """
+        Applies text style to a specified cell range.
+        :param sheet_id: Integer sheet ID (not sheet name!)
+        :param start_a1: Start of the A1 range (e.g. "B4")
+        :param end_a1: End of the A1 range (e.g. "H20")
+        :param style_dict: Dict of text style properties (e.g. {"bold": True})
+        """
+        # given team_id, get the sheet name then sheet id
+        if team_id not in SPREADSHEET_OPS.SHEET_INFO:
+            error_print(f"Team ID '{team_id}' does not exist in the spreadsheet.")
+            return
+        sheet_name = SPREADSHEET_OPS.SHEET_INFO[team_id]["NAME"]
+        sheet_id = SPREADSHEET_OPS.get_sheet_id_by_name(sheet_name)
+
+        start_col, start_row = SPREADSHEET_OPS.a1_to_grid_coords(start_a1)
+        end_col, end_row = SPREADSHEET_OPS.a1_to_grid_coords(end_a1)
+
+        # Google Sheets ranges are exclusive at the end, so add +1
+        end_col += 1
+        end_row += 1
+
+        request_body = {
+            "requests": [
+                {
+                    "repeatCell": {
+                        "range": {
+                            "sheetId": sheet_id,
+                            "startRowIndex": start_row,
+                            "endRowIndex": end_row,
+                            "startColumnIndex": start_col,
+                            "endColumnIndex": end_col,
+                        },
+                        "cell": {
+                            "userEnteredFormat": {
+                                "textFormat": style_dict
+                            }
+                        },
+                        "fields": "userEnteredFormat.textFormat"
+                    }
+                }
+            ]
+        }
+
+        SPREADSHEET_OPS.SERVICE.spreadsheets().batchUpdate(
+            spreadsheetId=SPREADSHEET_OPS.SPREADSHEET_ID,
+            body=request_body
+        ).execute()
+
+    @staticmethod
+    def make_range_bold(team_id, start_a1, end_a1):
+        SPREADSHEET_OPS.apply_text_style(team_id, start_a1, end_a1, {"bold": True})
+
+    @staticmethod
+    def make_range_underline(team_id, start_a1, end_a1):
+        SPREADSHEET_OPS.apply_text_style(team_id, start_a1, end_a1, {"underline": True})
+
+    @staticmethod
+    def make_range_italic(team_id, start_a1, end_a1):
+        SPREADSHEET_OPS.apply_text_style(team_id, start_a1, end_a1, {"italic": True})
+
+    @staticmethod
+    def make_range_strikethrough(team_id, start_a1, end_a1):
+        SPREADSHEET_OPS.apply_text_style(team_id, start_a1, end_a1, {"strikethrough": True})
+
+    @staticmethod
+    def make_range_bold_italic(team_id, start_a1, end_a1):
+        SPREADSHEET_OPS.apply_text_style(team_id, start_a1, end_a1, {"bold": True, "italic": True})
+
+    @staticmethod
+    def make_range_bold_underline(team_id, start_a1, end_a1):
+        SPREADSHEET_OPS.apply_text_style(team_id, start_a1, end_a1, {"bold": True, "underline": True})
+
+    @staticmethod
+    def apply_cell_background_color(team_id, start_a1, end_a1, rgb_color):
+
+        # given team_id, get the sheet name then sheet id
+        if team_id not in SPREADSHEET_OPS.SHEET_INFO:
+            error_print(f"Team ID '{team_id}' does not exist in the spreadsheet.")
+            return
+        sheet_name = SPREADSHEET_OPS.SHEET_INFO[team_id]["NAME"]
+        sheet_id = SPREADSHEET_OPS.get_sheet_id_by_name(sheet_name)
+
+        start_col, start_row = SPREADSHEET_OPS.a1_to_grid_coords(start_a1)
+        end_col, end_row = SPREADSHEET_OPS.a1_to_grid_coords(end_a1)
+        end_col += 1
+        end_row += 1
+
+        request_body = {
+            "requests": [
+                {
+                    "repeatCell": {
+                        "range": {
+                            "sheetId": sheet_id,
+                            "startRowIndex": start_row,
+                            "endRowIndex": end_row,
+                            "startColumnIndex": start_col,
+                            "endColumnIndex": end_col,
+                        },
+                        "cell": {
+                            "userEnteredFormat": {
+                                "backgroundColor": {
+                                    "red": rgb_color[0] / 255.0,
+                                    "green": rgb_color[1] / 255.0,
+                                    "blue": rgb_color[2] / 255.0
+                                }
+                            }
+                        },
+                        "fields": "userEnteredFormat.backgroundColor"
+                    }
+                }
+            ]
+        }
+
+        SPREADSHEET_OPS.SERVICE.spreadsheets().batchUpdate(
+            spreadsheetId=SPREADSHEET_OPS.SPREADSHEET_ID,
+            body=request_body
+        ).execute()
+
+    @staticmethod
+    def apply_horizontal_alignment(team_id, start_a1, end_a1, alignment="CENTER"):
+        """
+        Applies horizontal alignment to a specified cell range.
+        :param alignment: One of 'LEFT', 'CENTER', 'RIGHT'
+        """
+        if team_id not in SPREADSHEET_OPS.SHEET_INFO:
+            error_print(f"Team ID '{team_id}' does not exist in the spreadsheet.")
+            return
+        sheet_name = SPREADSHEET_OPS.SHEET_INFO[team_id]["NAME"]
+        sheet_id = SPREADSHEET_OPS.get_sheet_id_by_name(sheet_name)
+
+        start_col, start_row = SPREADSHEET_OPS.a1_to_grid_coords(start_a1)
+        end_col, end_row = SPREADSHEET_OPS.a1_to_grid_coords(end_a1)
+        end_col += 1
+        end_row += 1
+
+        request_body = {
+            "requests": [
+                {
+                    "repeatCell": {
+                        "range": {
+                            "sheetId": sheet_id,
+                            "startRowIndex": start_row,
+                            "endRowIndex": end_row,
+                            "startColumnIndex": start_col,
+                            "endColumnIndex": end_col,
+                        },
+                        "cell": {
+                            "userEnteredFormat": {
+                                "horizontalAlignment": alignment
+                            }
+                        },
+                        "fields": "userEnteredFormat.horizontalAlignment"
+                    }
+                }
+            ]
+        }
+
+        SPREADSHEET_OPS.SERVICE.spreadsheets().batchUpdate(
+            spreadsheetId=SPREADSHEET_OPS.SPREADSHEET_ID,
+            body=request_body
+        ).execute()
+
+    @staticmethod
+    def apply_vertical_alignment(team_id, start_a1, end_a1, alignment="MIDDLE"):
+        """
+        Applies vertical alignment to a specified cell range.
+        :param alignment: One of 'TOP', 'MIDDLE', 'BOTTOM'
+        """
+        if team_id not in SPREADSHEET_OPS.SHEET_INFO:
+            error_print(f"Team ID '{team_id}' does not exist in the spreadsheet.")
+            return
+        sheet_name = SPREADSHEET_OPS.SHEET_INFO[team_id]["NAME"]
+        sheet_id = SPREADSHEET_OPS.get_sheet_id_by_name(sheet_name)
+
+        start_col, start_row = SPREADSHEET_OPS.a1_to_grid_coords(start_a1)
+        end_col, end_row = SPREADSHEET_OPS.a1_to_grid_coords(end_a1)
+        end_col += 1
+        end_row += 1
+
+        request_body = {
+            "requests": [
+                {
+                    "repeatCell": {
+                        "range": {
+                            "sheetId": sheet_id,
+                            "startRowIndex": start_row,
+                            "endRowIndex": end_row,
+                            "startColumnIndex": start_col,
+                            "endColumnIndex": end_col,
+                        },
+                        "cell": {
+                            "userEnteredFormat": {
+                                "verticalAlignment": alignment
+                            }
+                        },
+                        "fields": "userEnteredFormat.verticalAlignment"
+                    }
+                }
+            ]
+        }
+
+        SPREADSHEET_OPS.SERVICE.spreadsheets().batchUpdate(
+            spreadsheetId=SPREADSHEET_OPS.SPREADSHEET_ID,
+            body=request_body
+        ).execute()
+
+    @staticmethod
+    def auto_resize_columns_to_fit_text(team_id, start_a1, end_a1, extra_pixels=20):
+        """
+        Automatically resizes columns in the given range to fit the text.
+        :param team_id: Identifier used to get sheet name/id
+        :param start_a1: Start cell in A1 notation (e.g., "B4")
+        :param end_a1: End cell in A1 notation (e.g., "F20")
+        """
+        if team_id not in SPREADSHEET_OPS.SHEET_INFO:
+            error_print(f"Team ID '{team_id}' does not exist in the spreadsheet.")
+            return
+
+        sheet_name = SPREADSHEET_OPS.SHEET_INFO[team_id]["NAME"]
+        sheet_id = SPREADSHEET_OPS.get_sheet_id_by_name(sheet_name)
+
+        start_col, _ = SPREADSHEET_OPS.a1_to_grid_coords(start_a1)
+        end_col, _ = SPREADSHEET_OPS.a1_to_grid_coords(end_a1)
+        end_col += 1  # Google Sheets API is exclusive on the upper bound
+
+        request_body = {
+            "requests": [
+                {
+                    "autoResizeDimensions": {
+                        "dimensions": {
+                            "sheetId": sheet_id,
+                            "dimension": "COLUMNS",
+                            "startIndex": start_col,
+                            "endIndex": end_col
+                        }
+                    }
+                }
+            ]
+        }
+
+        SPREADSHEET_OPS.SERVICE.spreadsheets().batchUpdate(
+            spreadsheetId=SPREADSHEET_OPS.SPREADSHEET_ID,
+            body=request_body
+        ).execute()
+
+        SPREADSHEET_OPS.expand_column_widths(team_id, start_a1, end_a1, extra_pixels=20)
+
+    @staticmethod
+    def expand_column_widths(team_id, start_a1, end_a1, extra_pixels=20):
+        """
+        Adds a fixed number of pixels to the current width of each column in the range.
+        :param team_id: ID of the team to locate the correct sheet
+        :param start_a1: Start of the A1 range (e.g. "B4")
+        :param end_a1: End of the A1 range (e.g. "F20")
+        :param extra_pixels: Number of pixels to add to each column (default: 20)
+        """
+        # Resolve sheet ID
+        if team_id not in SPREADSHEET_OPS.SHEET_INFO:
+            error_print(f"Team ID '{team_id}' does not exist in the spreadsheet.")
+            return
+        sheet_name = SPREADSHEET_OPS.SHEET_INFO[team_id]["NAME"]
+        sheet_id = SPREADSHEET_OPS.get_sheet_id_by_name(sheet_name)
+
+        # Convert A1 to grid coordinates
+        start_col, _ = SPREADSHEET_OPS.a1_to_grid_coords(start_a1)
+        end_col, _ = SPREADSHEET_OPS.a1_to_grid_coords(end_a1)
+        end_col += 1
+
+        # Get current spreadsheet metadata for column sizes
+        metadata = SPREADSHEET_OPS.SERVICE.spreadsheets().get(
+            spreadsheetId=SPREADSHEET_OPS.SPREADSHEET_ID,
+            ranges=[f"'{sheet_name}'"],
+            fields="sheets.data.columnMetadata"
+        ).execute()
+
+        column_metadata = metadata["sheets"][0]["data"][0].get("columnMetadata", [])
+
+        requests = []
+        for col in range(start_col, end_col):
+            try:
+                current_width = column_metadata[col].get("pixelSize", 100)
+            except IndexError:
+                current_width = 100  # default fallback
+
+            requests.append({
+                "updateDimensionProperties": {
+                    "range": {
+                        "sheetId": sheet_id,
+                        "dimension": "COLUMNS",
+                        "startIndex": col,
+                        "endIndex": col + 1
+                    },
+                    "properties": {
+                        "pixelSize": current_width + extra_pixels
+                    },
+                    "fields": "pixelSize"
+                }
+            })
+
+        # Send the batch update
+        SPREADSHEET_OPS.SERVICE.spreadsheets().batchUpdate(
+            spreadsheetId=SPREADSHEET_OPS.SPREADSHEET_ID,
+            body={"requests": requests}
+        ).execute()
+
     #########################
     ### UTILITY FUNCTIONS ### 
     #########################
@@ -759,5 +1088,34 @@ class SPREADSHEET_OPS:
             error_print(f"Error reading JSON file: {e}")
             return {}
 
+    @staticmethod
+    def a1_to_grid_coords(a1_notation):
+        """
+        Convert A1 notation (e.g., "A1", "B2", "Z10") to grid coordinates (column, row).
+        [param] a1_notation: A1 notation string to convert.
+        [return] (col, row): Tuple containing the column (0-based index) and row (0-based index).
+        """
+        match = re.match(r"([A-Z]+)(\d+)", a1_notation)
+        if not match:
+            raise ValueError(f"Invalid A1 notation: {a1_notation}")
+        col_letters, row_number = match.groups()
+        col = sum((ord(char) - 64) * (26 ** idx) for idx, char in enumerate(reversed(col_letters))) - 1
+        row = int(row_number) - 1
+        return col, row
+    
+    @staticmethod
+    def generate_rank_score(rank_text):
+        rank_points = {
+            "I4": 0,    "I3": 1,    "I2": 2,    "I1": 3,
+            "B4": 4,    "B3": 5,    "B2": 6,    "B1": 7,
+            "S4": 8,    "S3": 9,    "S2": 10,   "S1": 11,
+            "G4": 12,   "G3": 13,   "G2": 14,   "G1": 15,
+            "P4": 16,   "P3": 17,   "P2": 18,   "P1": 19,
+            "E4": 20,   "E3": 21,   "E2": 22,   "E1": 23,
+            "D4": 24,   "D3": 25,   "D2": 26,   "D1": 27,
+            "M": 28,    "GM": 36,   "C": 42,    "??": -1,          # apex ranks averages
+            "I": 1.5,   "B": 5.5,   "S": 9.5,   "G": 13.5,  "P": 17.5   # metal rank averages
+        }
 
-
+        return rank_points[rank_text]
+    

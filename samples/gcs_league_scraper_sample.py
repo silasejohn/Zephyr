@@ -141,6 +141,7 @@ for player_info in player_dict_temp.values():
         warning_print(f"'Update' button not found for player {discord_tag}.")
     
     # buffer for 1s
+    # MATCHA: when actually use this, increase the buffer (to make sure site updates)
     GCSLeagueScraper.buffer(2)
 
     player_account_container = GCSLeagueScraper.DRIVER.find_element(By.XPATH, "/html/body/main/div/div/div[1]/div/ol")
@@ -160,7 +161,7 @@ for player_info in player_dict_temp.values():
         player_igns.append(player_account_IGN)
         if "verify" in player_account_IGN_current_rank:
             player_account_IGN_current_rank = "Unknown"
-        player_account_current_ranks.append(player_account_IGN_current_rank)
+        player_account_current_ranks.append(GCSLeagueScraper.standardize_rank(player_account_IGN_current_rank))
 
     # replace the player_display_id key in the player_dict with the discord_tag
     if discord_tag not in player_dict:

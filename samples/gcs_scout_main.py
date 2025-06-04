@@ -42,7 +42,7 @@ for player_disc, player_info in player_dict.items():
     player_rank_score = "UNKNOWN"  # default value if rank is not available
     print(player_info["declared_positions"])
 
-    input("Press Enter to continue...")  # wait for user input to continue
+    # input("Press Enter to continue...")  # wait for user input to continue
     
 
     player_declared_roles = "|".join(player_info["declared_positions"])  # join the declared positions with a comma
@@ -52,11 +52,27 @@ for player_disc, player_info in player_dict.items():
         player_declared_roles += f"||{role}({times_played}g)"  # append the role and times played to the declared roles
 
     profile_opgg = "\n".join(player_info["player_igns"])  # join the player IGNs with a newline
-    profile_log = ""
+    profile_log = "LOG"
+    first_log = False
     for ign in player_info["player_igns"]:
-        profile_log += "LOG\n"  # append "LOG" for each IGN in the profile log
-    
-    player_current_rank = "\n".join(player_info["player_account_current_ranks"])  # join the current ranks with a newline
+        if not first_log:
+            first_log = True
+            continue
+        profile_log += "\nLOG"  # append "LOG" for each IGN in the profile log
+    print(player_info["player_account_current_ranks"])
+
+    # determine player's highest of current rank
+    player_current_rank_options = [rank for rank in player_info["player_account_current_ranks"] if rank != "UNKNOWN"]
+    max_rank = "??"  # default value if no rank is available
+
+    # determine player's highest current rank (via rank score)
+    for rank_text in player_current_rank_options:
+        rank_score = SPREADSHEET_OPS.generate_rank_score(rank_text)  # get the rank score from the rank text
+        max_rank_score = SPREADSHEET_OPS.generate_rank_score(max_rank)  # get the rank score from the rank text
+        if max_rank == "??" or rank_score > max_rank_score:
+            max_rank = rank_text
+
+    player_current_rank = max_rank  # set the player's current rank to the highest current rank
 
     player_data.append([
         player_discord_username,  # Player Discord Username
@@ -70,5 +86,11 @@ for player_disc, player_info in player_dict.items():
 
 for player in player_data:
     SPREADSHEET_OPS.insert_player_data(TEAM_ID, header_row_num=4, payload=player, start_col_letter="B")  # insert player data into the sheet
+
+### STYLING ###
+SPREADSHEET_OPS.make_range_bold_underline(TEAM_ID, "B4", "H4")
+SPREADSHEET_OPS.auto_resize_columns_to_fit_text(TEAM_ID, "B4", "H20", extra_pixels=10)  
+SPREADSHEET_OPS.apply_horizontal_alignment(TEAM_ID, "B4", "H20", alignment="CENTER")
+SPREADSHEET_OPS.apply_vertical_alignment(TEAM_ID, "B4", "H20", alignment="MIDDLE")  # vertically center the text in the cells
 
 sys.exit(0)  # exit the script after editing the cell
