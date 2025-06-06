@@ -651,19 +651,17 @@ class SPREADSHEET_OPS:
             spreadsheetId=SPREADSHEET_OPS.SPREADSHEET_ID,
             range=header_range
         ).execute()
-
         headers = result.get('values', [[]])[0]
         num_headers = len(headers)
 
+        # Error Checks if no headers found or payload length mismatch
         if num_headers == 0:
             raise ValueError(f"No headers found in row {header_row_num} starting from column {start_col_letter}.")
 
         if len(payload) != num_headers:
             raise ValueError(f"Expected {num_headers} values (based on headers) but got {len(payload)} values in payload.")
 
-        print(f"Headers found: {headers} (Total: {num_headers})")
-
-        # Compute row offset
+        # Compute row offset for insertion (do not overwrite existing player row data / info)
         row_offset = int(header_row_num) + 1
 
         # Check for next available row in first header column (e.g., column B)
@@ -672,30 +670,55 @@ class SPREADSHEET_OPS:
             spreadsheetId=SPREADSHEET_OPS.SPREADSHEET_ID,
             range=first_data_col_range
         ).execute()
-
         existing_rows = data.get("values", [])
         next_row_number = row_offset + len(existing_rows)
 
-        # Calculate ending column letter
-        def col_letter_offset(col, offset):
-            return chr(ord(col.upper()) + offset)
+        # Compute the target range for insertion
+        # col_start = start_col_letter.upper()
+        start_col_index = ord(start_col_letter.upper()) - ord('A')
+        # col_end = SPREADSHEET_OPS.col_letter_offset(col_start, num_headers - 1)
+        # target_range = f"{sheet_name}!{col_start}{next_row_number}:{col_end}{next_row_number}"
 
-        col_start = start_col_letter.upper()
-        col_end = col_letter_offset(col_start, num_headers - 1)
+        # Build CellData objects (rich text formatting if needed)
+        row_cells = []
+        for value in payload:
+            if isinstance(value, str) and "{" in value:
+                row_cells.append(SPREADSHEET_OPS.build_rich_text_cell(value))
+            else:
+                row_cells.append({
+                    "userEnteredValue": {"stringValue": value}
+                })
 
-        target_range = f"{sheet_name}!{col_start}{next_row_number}:{col_end}{next_row_number}"
+        # Prepare batchUpdate request
+        requests = [{
+            "updateCells": {
+                "rows": [{"values": row_cells}],
+                "fields": "*",
+                "start": {
+                    "sheetId": SPREADSHEET_OPS.get_sheet_id_by_name(sheet_name),
+                    "rowIndex": next_row_number - 1,
+                    "columnIndex": start_col_index
+                }
+            }
+        }]
 
-        body = { "values": [payload] }
-
-        # Update the sheet
-        SPREADSHEET_OPS.SERVICE.spreadsheets().values().update(
+        # Execute the batchUpdate request
+        SPREADSHEET_OPS.SERVICE.spreadsheets().batchUpdate(
             spreadsheetId=SPREADSHEET_OPS.SPREADSHEET_ID,
-            range=target_range,
-            valueInputOption='RAW',
-            body=body
+            body={"requests": requests}
         ).execute()
 
-        print(f"Inserted row at {target_range}")
+        print(f"Inserted rich-text row at {sheet_name}!Row {next_row_number}")
+            
+        # body = { "values": [payload] }
+        # # Update the sheet
+        # SPREADSHEET_OPS.SERVICE.spreadsheets().values().update(
+        #     spreadsheetId=SPREADSHEET_OPS.SPREADSHEET_ID,
+        #     range=target_range,
+        #     valueInputOption='RAW',
+        #     body=body
+        # ).execute()
+        # print(f"Inserted row at {target_range}")
         
     @staticmethod
     def delete_sheet(sheet_name):
@@ -749,6 +772,51 @@ class SPREADSHEET_OPS:
                 return sheet.get("properties", {}).get("sheetId")
         
         raise ValueError(f"Sheet name '{target_sheet_name}' not found in spreadsheet.")
+
+    @staticmethod
+    def build_rich_text_cell(text_with_links):
+        """
+        Build a rich text cell for Google Sheets given cell content with embedded links
+        :param text_with_links: String containing text and links in the format "text{url}|text{url}".
+        :return: Dictionary representing the rich text cell with text and link formatting.
+        """
+        # count the number of "{" in the string to determine if there are links. if there are 2+ print "HIIII"
+        parts = []
+        # if text_with_links.count("{") >= 2:
+        parts = text_with_links.split("|")
+        # elif text_with_links.count("{") >= 1:
+            # parts = [text_with_links]  
+        # else:   
+        #     parts = [text_with_links]
+        
+        full_text = ""
+        text_format_runs = []
+        current_index = 0
+
+        for part in parts:
+            if "{" in part and "}" in part:
+                text, link = part.split("{", 1)
+                link = link.rstrip("}")
+            else:
+                text = part
+                link = None
+
+            text = text.strip() + "\n"
+            full_text += text
+
+            run = {
+                "startIndex": current_index,
+                "format": {
+                    "link": {"uri": link} if link else {}
+                }
+            }
+            text_format_runs.append(run)
+            current_index += len(text)
+
+        return {
+            "userEnteredValue": {"stringValue": full_text.rstrip()},
+            "textFormatRuns": text_format_runs
+        }
     
     #########################
     ### STYLING FUNCTIONS ### 
@@ -1112,6 +1180,12 @@ class SPREADSHEET_OPS:
     
     @staticmethod
     def generate_rank_score(rank_text):
+        # splice first word
+        rank_tier = rank_text.split(" ")[0] 
+        rank_lp = "??" # default LP if not found
+        if len(rank_text.split(" ")) > 2:
+            rank_lp = rank_text.split(" ")[1] + rank_text.split(" ")[2]  # get the last 2 terms as LP
+        
         rank_points = {
             "I4": 0,    "I3": 1,    "I2": 2,    "I1": 3,
             "B4": 4,    "B3": 5,    "B2": 6,    "B1": 7,
@@ -1124,5 +1198,44 @@ class SPREADSHEET_OPS:
             "I": 1.5,   "B": 5.5,   "S": 9.5,   "G": 13.5,  "P": 17.5   # metal rank averages
         }
 
-        return rank_points[rank_text]
-    
+        print(f"Generating rank score for: {rank_text}")
+        print(f"Rank tier: {rank_tier}, LP: {rank_lp}")
+        print(f"Rank points: {rank_points.get(rank_tier, 0)}")
+
+        if rank_lp != "??":
+            # convert to integer and divide by 100
+            rank_lp = int(rank_lp.replace("LP", "").replace("lp", "").strip()) / 100
+            return rank_points[rank_tier] + rank_lp  # return the rank score with LP added (for apex ranks)
+        else:
+            return rank_points[rank_tier]
+
+    @staticmethod
+    def standardize_rank(rank_text):
+        """
+        Standardize the rank text to a common format.
+        [param] rank_text: The rank text to standardize.
+        [return] standardized_rank: The standardized rank text.
+        """
+        # take the first and last letter of the rank text
+        standardized_rank_text = rank_text.strip().upper()
+        standardized_rank = ""
+
+        # check if starts with a letter from a list of given letters
+        print(f"Standardizing rank text: {standardized_rank_text}")
+        if standardized_rank_text.startswith(("IRON", "B", "S", "GOLD", "P", "E", "D")):
+            standardized_rank = standardized_rank_text[0] + standardized_rank_text[-1]
+        elif standardized_rank_text.startswith("M"):# the rest of the rank text is the LP
+            standardized_rank = standardized_rank_text.replace("MASTER", "M", 1)
+        elif standardized_rank_text.startswith("G"):
+            standardized_rank = standardized_rank_text.replace("GRANDMASTER", "GM", 1)
+        elif standardized_rank_text.startswith("C"):
+            standardized_rank = standardized_rank_text.replace("CHALLENGER", "C", 1)
+        else:
+            standardized_rank = "??"
+
+        return standardized_rank
+
+    @staticmethod
+    # Calculate ending column letter
+    def col_letter_offset(col, offset):
+        return chr(ord(col.upper()) + offset)

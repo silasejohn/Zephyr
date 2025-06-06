@@ -5,6 +5,7 @@ from collections import defaultdict
 ### Local Imports
 from __init__ import update_sys_path
 update_sys_path()
+from modules.scrapers.league_of_graph_scraper import LeagueOfGraphsScraper
 from modules.api_clients.google_client.google_spreadsheet_api import SPREADSHEET_OPS
 from modules.utils.color_utils import warning_print, error_print, info_print, success_print
 
@@ -48,17 +49,22 @@ for player_disc, player_info in player_dict.items():
     for role, times_played in player_tourney_roles.items():
         player_declared_roles += f"||{role}({times_played}g)"  # append the role and times played to the declared roles
 
-    profile_opgg = "\n".join(player_info["player_igns"])  # join the player IGNs with a newline
-    profile_log = "LOG"
-    first_log = False
-    for ign in player_info["player_igns"]:
-        if not first_log:
-            first_log = True
-            continue
-        profile_log += "\nLOG"  # append "LOG" for each IGN in the profile log
-    print(player_info["player_account_current_ranks"])
+    # Create Profile_OPGG / Profile_LOG Links
+    player_igns = player_info["player_igns"]
+    player_opgg_string = ""
+    player_log_string = ""
+    for ign in player_igns:
+        player_opgg_string += ign + "{"
+        player_log_string += "LOG" + "{"  # append the "LOG" string for each IGN in the player IGNs"
+        opgg_string = f"https://op.gg/lol/summoners/na/{ign.replace('#', '-')}"  # create the OP.GG link for the player IGN
+        log_string = f"https://www.leagueofgraphs.com/summoner/na/{ign.replace('#', '-')}" # create the LOG link for the player IGN
+        player_opgg_string += opgg_string + "}|"  # append the OP.GG link to the player OP.GG string
+        player_log_string += log_string + "}|"  # append the LOG link to the player LOG string
+    player_opgg = player_opgg_string.rstrip("|")  # remove the trailing pipe character
+    player_log = player_log_string.rstrip("|")  # remove the trailing pipe character
 
     # determine player's highest of current rank
+    print(player_info["player_account_current_ranks"])
     player_current_rank_options = [rank for rank in player_info["player_account_current_ranks"] if rank != "UNKNOWN"]
     max_rank = "??"  # default value if no rank is available
 
@@ -108,85 +114,85 @@ for player_disc, player_info in player_dict.items():
     
     tourney_champs_played = format_champ_history(player_info["player_pos_champ_history"]) # .values())
 
-
-    # # determine player's champs played in tourney by role
-    # top_champs = [v for v in player_info["player_pos_champ_history"].values() if v.startswith("TOP_")]
-    # jgl_champs = [v for v in player_info["player_pos_champ_history"].values() if v.startswith("JGL_")]
-    # mid_champs = [v for v in player_info["player_pos_champ_history"].values() if v.startswith("MID_")]
-    # bot_champs = [v for v in player_info["player_pos_champ_history"].values() if v.startswith("BOT_")]
-    # sup_champs = [v for v in player_info["player_pos_champ_history"].values() if v.startswith("SUP_")]
-
-    # # sort the champs played by frequency in each list 
-    # top_champs.sort(key=lambda x: player_info["player_pos_champ_history"].get(x, 0), reverse=True)
-    # jgl_champs.sort(key=lambda x: player_info["player_pos_champ_history"].get(x, 0), reverse=True)
-    # mid_champs.sort(key=lambda x: player_info["player_pos_champ_history"].get(x, 0), reverse=True)
-    # bot_champs.sort(key=lambda x: player_info["player_pos_champ_history"].get(x, 0), reverse=True)
-    # sup_champs.sort(key=lambda x: player_info["player_pos_champ_history"].get(x, 0), reverse=True)
-    
-    # tourney_champs_played = ""
-    # top_champs_played = ""
-    # jgl_champs_played = ""
-    # mid_champs_played = ""
-    # bot_champs_played = ""
-    # sup_champs_played = ""
-    # if top_champs: 
-    #     top_champs_played += f"[Tourney - TOP] "
-    #     for champ in top_champs:
-    #         top_champs_played += f"{champ[4:]}, "  # remove the "TOP_" prefix from the champ name
-    #     top_champs_played = top_champs_played[:-2]  # remove the last comma and space
-    #     if top_champs_played != "":
-    #         top_champs_played += "\n"
-    # if jgl_champs:
-    #     jgl_champs_played += f"[Tourney - JGL] "
-    #     for champ in jgl_champs:
-    #         jgl_champs_played += f"{champ[4:]}, "
-    #     jgl_champs_played = jgl_champs_played[:-2]  # remove the last comma and space
-    #     if jgl_champs_played != "":
-    #         jgl_champs_played += "\n"
-    # if mid_champs:
-    #     mid_champs_played += f"[Tourney - MID] "
-    #     for champ in mid_champs:
-    #         mid_champs_played += f"{champ[4:]}, "
-    #     mid_champs_player = mid_champs_played[:-2]  # remove the last comma and space
-    #     if mid_champs_played != "":
-    #         mid_champs_played += "\n"
-    # if bot_champs:
-    #     bot_champs_played += f"[Tourney - BOT] "
-    #     for champ in bot_champs:
-    #         bot_champs_played += f"{champ[4:]}, "
-    #     bot_champs_played = bot_champs_played[:-2]  # remove the last comma and space
-    #     if bot_champs_played != "":
-    #         bot_champs_played += "\n"
-    # if sup_champs:
-    #     sup_champs_played += f"[Tourney - SUP] "
-    #     for champ in sup_champs:
-    #         sup_champs_played += f"{champ[4:]}, "
-    #     sup_champs_played = sup_champs_played[:-2]  # remove the last comma and space
-
-    # tourney_champs_played = top_champs_played + jgl_champs_played + mid_champs_played + bot_champs_played + sup_champs_played
-
-    # if tourney_champs_played.endswith("\n"):
-    #     tourney_champs_played = tourney_champs_played[:-1]  # remove the last newline character
-
     # MATCHA: bold / () / [] various positions + order it from most likely to least likely based on 50 - 25 - 12.5 rule on games played
+    # MATCHA: change FONT of IGNs column && Champs Played Column (only data)
     # --- above 25% play rate && 5 games = chance for playing a that secondary role. _ if a role has been played in the past 5-10 tourney games to indicate it is possible!
     # MATCHA: add hyperlinks for player IGNs on OP.GG and LOG
     # MATCHA: some method of a custom player rank score
     # MATCHA: some method of sorting the rows by "RANK SCORE" to prioritize players with higher rank scores first 
     # MATCHA: some format of highlighting 5 rows which are the main players for roster for a game
     # MATCHA: peak rank (from OP.GG / LOG) and display it in the sheet
+    # MATCHA: always underline roles or champs played in the last 10 games
 
     player_data.append([
         player_discord_username,  # Player Discord Username
         "...",         # Player Rank Score
         player_declared_roles,     # Player Declared Roles
-        profile_opgg,  # Profile OP.GG
-        profile_log,  # Profile LOG
+        player_opgg,  # Profile OP.GG
+        player_log,  # Profile LOG
         player_current_rank,  # Current Rank
         "...",   # Peak Rank
         tourney_champs_played,   # Tourney Champs Played
     ])
 
+# ## Obtain Peak Rank (all time)
+LeagueOfGraphsScraper.set_up_rewind_lol()  # set up the League of Legends rewind scraper
+for player in player_data:
+    player_discord_username = player[0]  # get the player discord username
+    
+    # split the OP.GG into parts by "|" 
+    player_accounts = player[3].split("|")  # split the OP.GG link by pipe character
+    max_rank = "??"  # default value if no rank is available
+
+    for player_account in player_accounts:
+        player_ign = player_account.split("{")[0]  # splice the IGN from the OP.GG link
+        print(f"Processing peak rank for player account: {player_discord_username} ({player_ign})")
+        LeagueOfGraphsScraper.load_player_profile(player_ign)  # load the player profile from League of Legends rewind scraper
+        peak_rank = LeagueOfGraphsScraper.scrape_player_past_peak_ranks()  # scrape the player past peak ranks from League of Legends rewind scraper
+        
+        info_print(f"Peak Rank Data for {player_discord_username} ({player_ign}): {peak_rank}")  # print the peak rank data for debugging
+        
+        ranks = list(peak_rank[0].values())
+
+        info_print(f"Peak Ranks for {player_discord_username} ({player_ign}): {ranks}")  # print the peak ranks for debugging
+
+        # standardize the ranks to a common format
+        ranks = [SPREADSHEET_OPS.standardize_rank(rank) for rank in ranks]
+
+        info_print(f"Standardized Peak Ranks for {player_discord_username} ({player_ign}): {ranks}")  # print the standardized peak ranks for debugging
+        
+        # determine the highest rank from the ranks list
+        if ranks:
+            peak_rank = max(ranks, key=lambda x: SPREADSHEET_OPS.generate_rank_score(x))
+            info_print(f"Peak Rank for {player_discord_username} ({player_ign}): {peak_rank}")  # print the peak rank for debugging
+        else:
+            peak_rank = None
+
+        # compare peak rank to current max rank
+        if peak_rank:
+            peak_rank_score = SPREADSHEET_OPS.generate_rank_score(peak_rank)
+            max_rank_score = SPREADSHEET_OPS.generate_rank_score(max_rank)
+            if max_rank == "??" or peak_rank_score > max_rank_score:
+                max_rank = peak_rank
+                info_print(f"New Max Peak Rank for {player_discord_username} ({player_ign}): {max_rank}")  # print the new max peak rank for debugging
+        else:
+            warning_print(f"Could not find peak rank for {player_discord_username} ({player_ign})")
+
+    
+    if max_rank != "??":
+        player[6] = max_rank  # set the peak rank in the player data
+    else:
+        warning_print(f"Could not find MAX PEAK RANK for {player_discord_username} ({player_ign})")
+        player[6] = "..."  # set to UNKNOWN if no peak rank is found
+        
+        print(f"Player IGN: {player_ign} - Max Peak Rank: {max_rank}")  # print the player IGN and peak rank for debugging 
+        
+LeagueOfGraphsScraper.close()  # close the League of Legends rewind scraper
+
+## Sort Players by Peak Rank Score
+player_data.sort(key=lambda x: SPREADSHEET_OPS.generate_rank_score(x[5]), reverse=True)  # sort players by their current rank score in descending order
+
+## DATA INSERTION ###
 for player in player_data:
     SPREADSHEET_OPS.insert_player_data(TEAM_ID, header_row_num=4, payload=player, start_col_letter="B")  # insert player data into the sheet
 
