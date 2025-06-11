@@ -1,6 +1,24 @@
 # Zephyr
 
-*True to its name, Zephyr delivers subtle yet powerful insights that can shape the outcome of your scouting & tournament draft. While it won’t guarantee victory, its meticulous analysis of opponents provides the strategic advantage needed to tip the balance in your favor, setting the stage for success before your match even starts*
+*Zephyr is a comprehensive League of Legends tournament scouting and analytics platform that automates the entire data collection and analysis workflow for competitive teams. The system integrates multiple data sources to create detailed scouting reports.*
+
+## Core Features
+1. Multi-Source Data Aggregation - Combines Riot API, OP.GG, League of Graphs, and Rewind.lol
+2. Automated Scouting Reports - Generates formatted Google Sheets with team analysis
+3. Historical Rank Tracking - Tracks peak ranks across multiple seasons and splits
+4. Champion Pool Analysis - Comprehensive champion mastery and role distribution
+5. Multi-Account Player Support - Handles players with multiple accounts
+6. Tournament Integration - GCS League tournament data processing
+7. Live Draft Support - Real-time draft analysis and recommendations
+8. Rate-Limited API Management - Robust queue system with retry logic
+9. Other 
+- Parallel Processing - Selenium automation with threading for efficiency
+- Advanced Data Modeling - Weighted statistics for multi-account aggregation
+- Rich Document Generation - Complex Google Sheets formatting with hyperlinks
+- Error Resilience - Comprehensive retry logic and error handling
+- Modular Architecture - Clean separation of concerns with 50+ files
+
+
 
 ## Project Structure
 ```

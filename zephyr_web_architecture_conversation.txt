@@ -1,0 +1,972 @@
+# Zephyr Web Architecture Planning - Full Conversation
+
+## User Question 1:
+think about how we should architect and add in a user interface in the form of a React Website w/ Next.JS framework. right now, data is only being displayed to a google spreadsheet or printed in console. i want to output things on the website. i also want to trigger certain functions (like some data scraping stuff) from buttons or input from the website.
+
+## Assistant Response 1:
+
+I'll help you architect a React/Next.js frontend for Zephyr. This will transform it from a CLI/spreadsheet tool into a full web application.
+
+## Proposed Architecture: React + Next.js Frontend Integration
+
+Based on my analysis of your current Python architecture, here's how to integrate a React/Next.js frontend:
+
+### **1. Architecture Overview**
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    Frontend (Next.js)                      │
+│  ┌─────────────────┐ ┌─────────────────┐ ┌─────────────────┐│
+│  │   Dashboard     │ │  Scouting UI    │ │  Analytics UI   ││
+│  │   Components    │ │   Components    │ │   Components    ││
+│  └─────────────────┘ └─────────────────┘ └─────────────────┘│
+│            │                 │                 │            │
+│  ┌─────────────────────────────────────────────────────────┐│
+│  │              Next.js API Routes                         ││
+│  └─────────────────────────────────────────────────────────┘│
+└─────────────────────────────────────────────────────────────┘
+                              │
+                    ┌─────────────────┐
+                    │   FastAPI       │
+                    │   Python API    │
+                    └─────────────────┘
+                              │
+┌─────────────────────────────────────────────────────────────┐
+│               Current Python Backend                        │
+│  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐            │
+│  │ Riot API    │ │  Scrapers   │ │  Analytics  │            │
+│  │ Clients     │ │   Modules   │ │   Modules   │            │
+│  └─────────────┘ └─────────────┘ └─────────────┘            │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### **2. Technology Stack**
+
+**Frontend:**
+- **Next.js 14** with App Router
+- **TypeScript** for type safety
+- **Tailwind CSS** for styling
+- **Recharts/Chart.js** for data visualization
+- **React Query/TanStack Query** for API state management
+- **Zustand** for client state management
+
+**Backend API Layer:**
+- **FastAPI** (Python) as REST API server
+- **Pydantic** for data validation
+- **WebSockets** for real-time updates
+- **Celery** for background tasks (scraping/processing)
+
+### **3. Project Structure**
+
+```
+Zephyr/
+├── backend/                 # New FastAPI backend
+│   ├── api/
+│   │   ├── routes/
+│   │   │   ├── players.py
+│   │   │   ├── teams.py
+│   │   │   ├── tournaments.py
+│   │   │   ├── scraping.py
+│   │   │   └── analytics.py
+│   │   ├── dependencies.py
+│   │   └── middleware.py
+│   ├── core/
+│   │   ├── config.py
+│   │   └── database.py
+│   ├── services/           # Wrappers around existing modules
+│   │   ├── player_service.py
+│   │   ├── scraping_service.py
+│   │   └── analytics_service.py
+│   ├── schemas/           # Pydantic models
+│   │   ├── player.py
+│   │   ├── team.py
+│   │   └── match.py
+│   ├── tasks/            # Celery tasks
+│   │   ├── scraping_tasks.py
+│   │   └── analytics_tasks.py
+│   └── main.py
+├── frontend/               # New Next.js frontend
+│   ├── app/
+│   │   ├── dashboard/
+│   │   ├── scouting/
+│   │   ├── analytics/
+│   │   ├── teams/
+│   │   └── layout.tsx
+│   ├── components/
+│   │   ├── ui/            # Reusable UI components
+│   │   ├── charts/        # Data visualization components
+│   │   ├── forms/         # Form components
+│   │   └── tables/        # Data table components
+│   ├── lib/
+│   │   ├── api.ts         # API client functions
+│   │   ├── types.ts       # TypeScript types
+│   │   └── utils.ts
+│   ├── hooks/             # Custom React hooks
+│   └── stores/            # Zustand stores
+├── modules/               # Existing Python modules
+└── data/                  # Existing data storage
+```
+
+### **4. Key API Endpoints**
+
+```python
+# Players
+GET    /api/players                    # List players
+POST   /api/players/search             # Search players by IGN
+GET    /api/players/{id}               # Player details
+POST   /api/players/{id}/scrape        # Trigger player data scraping
+
+# Teams  
+GET    /api/teams                      # List teams
+POST   /api/teams                      # Create team
+GET    /api/teams/{id}/scouting-report # Generate scouting report
+
+# Tournaments
+GET    /api/tournaments                # List tournaments
+POST   /api/tournaments/{id}/process   # Process tournament data
+
+# Analytics
+POST   /api/analytics/champion-pool    # Analyze champion pools
+POST   /api/analytics/rank-progression # Track rank progression
+GET    /api/analytics/team-comparison  # Compare teams
+
+# Tasks (WebSocket + REST)
+POST   /api/tasks/scrape-player       # Start scraping task
+GET    /api/tasks/{task_id}/status    # Check task status
+WS     /ws/tasks                      # Real-time task updates
+```
+
+### **5. Frontend Pages & Components**
+
+**Dashboard (`/dashboard`)**
+- Live tournament overview
+- Recent scouting reports
+- API queue status
+- System health metrics
+
+**Scouting Interface (`/scouting`)**
+- Player search and profile display
+- Team roster management
+- Real-time data scraping triggers
+- Champion pool analysis
+
+**Analytics (`/analytics`)**
+- Rank progression charts
+- Champion win rates
+- Team performance comparisons
+- Tournament statistics
+
+**Teams Management (`/teams`)**
+- Team creation/editing
+- Roster management
+- Scouting report generation
+- Export to Google Sheets
+
+### **6. Data Visualization Requirements**
+
+**Charts & Visualizations:**
+- **Rank Progression**: Line charts showing rank over time
+- **Champion Pool**: Pie charts and bar graphs for champion mastery
+- **Team Comparison**: Radar charts for multi-dimensional team stats
+- **Performance Metrics**: Heatmaps for role performance
+- **Live Data**: Real-time updating components during scraping
+
+### **7. Implementation Strategy**
+
+**Phase 1: FastAPI Backend Setup**
+1. Create FastAPI application wrapping existing Python modules
+2. Implement core endpoints for player/team data
+3. Add WebSocket support for real-time updates
+4. Set up Celery for background scraping tasks
+
+**Phase 2: Next.js Frontend Foundation**
+1. Initialize Next.js project with TypeScript
+2. Set up API client and state management
+3. Create base UI components and layouts
+4. Implement authentication/routing
+
+**Phase 3: Feature Integration**
+1. Build player scouting interface
+2. Add team management functionality
+3. Implement data visualization components
+4. Connect background task monitoring
+
+**Phase 4: Advanced Features**
+1. Real-time scraping progress tracking
+2. Advanced analytics dashboards
+3. Export functionality (maintain Google Sheets integration)
+4. Performance optimization
+
+### **8. Key Benefits**
+
+- **Better UX**: Modern web interface instead of CLI/spreadsheets
+- **Real-time Updates**: Live progress tracking for scraping operations
+- **Interactive Analytics**: Dynamic charts and filtering
+- **Scalability**: API-first architecture supports future mobile/desktop apps
+- **Maintainability**: Clear separation between data processing and presentation
+
+This architecture preserves your existing Python logic while adding a modern web interface that enhances usability and provides better visualization of your League of Legends analytics data.
+
+## User Question 2:
+from the .py files, which are the most important that should be refactored in our codebase
+
+## Assistant Response 2:
+
+Based on my analysis, here are the **most critical Python files to refactor** for web architecture integration:
+
+## **Top Priority (Must Refactor First)**
+
+### 1. `modules/api_clients/google_client/google_spreadsheet_api.py`
+**Why Critical:** 900+ lines containing the entire output pipeline - sheet creation, data formatting, styling. Currently tightly coupled to CLI workflows.
+**Refactor Goal:** Extract business logic, create REST endpoints for sheet operations, separate formatting from data.
+
+### 2. `samples/gcs_scout_main.py` 
+**Why Critical:** Main orchestration workflow (300+ lines) with core scouting algorithms. Heavy console interaction and user prompts.
+**Refactor Goal:** Convert to service classes, remove CLI dependencies, create API endpoints for scouting operations.
+
+### 3. `modules/scrapers/league_of_graph_scraper.py`
+**Why Critical:** Primary data source using Selenium automation. Contains rank scoring algorithms essential to platform.
+**Refactor Goal:** Separate scraping logic from browser automation, implement async job system.
+
+## **High Priority (Core Business Logic)**
+
+### 4. `modules/api_clients/riot_client/services/match_v5.py`
+**Why Critical:** Core Riot API integration for match data - central to tournament analysis.
+**Refactor Goal:** Add caching layer, create RESTful wrapper, enhance error handling.
+
+### 5. `samples/lepl_main.py`
+**Why Critical:** Multi-stage tournament processing pipeline with sequential workflows.
+**Refactor Goal:** Convert to microservices with async job processing.
+
+### 6. `modules/analytics/match_dto_analytics.py`
+**Why Critical:** Analytics engine that needs expansion for web dashboard features.
+**Refactor Goal:** Build comprehensive analytics service with REST endpoints.
+
+## **Medium Priority (Infrastructure)**
+
+### 7. `modules/api_clients/riot_client/api_queue.py`
+**Why Critical:** Rate limiting infrastructure using threading - needs enhancement for web scale.
+**Refactor Goal:** Add Redis/database backing, distributed processing support.
+
+### 8. `modules/scrapers/opgg_scraper.py`
+**Why Critical:** Secondary data source requiring similar async job architecture.
+**Refactor Goal:** Implement job queue system, separate scraping concerns.
+
+## **Key Refactoring Patterns Needed:**
+
+1. **Service Layer Creation:** Extract business logic from CLI scripts into reusable services
+2. **Job Queue Architecture:** Convert Selenium scrapers to async background tasks  
+3. **API Abstraction:** Wrap all external API calls with caching and error handling
+4. **Output Decoupling:** Separate data processing from Google Sheets formatting
+5. **State Management:** Add persistence layers for caching and job tracking
+
+The Google Sheets API and main scouting orchestrator are highest priority since they represent the core value proposition of automated scouting report generation.
+
+## User Question 3:
+suggest more deTails on how to do the refactoring u mentioned for   3. modules/scrapers/league_of_graph_scraper.py
+and modules/api_clients/riot_client/services files
+
+## Assistant Response 3:
+
+## Detailed Refactoring Strategy
+
+### **1. League of Graphs Scraper Refactoring**
+
+#### **Current Issues:**
+- 600+ lines in single monolithic class
+- Selenium operations tightly coupled to business logic
+- No error recovery or job tracking
+- Hardcoded paths and static methods
+- Console-based color printing mixed with scraping logic
+
+#### **Proposed New Architecture:**
+
+```python
+# New Structure
+backend/
+├── services/
+│   ├── scraping/
+│   │   ├── base_scraper.py          # Abstract base scraper
+│   │   ├── league_of_graphs_service.py  # Business logic only
+│   │   └── selenium_driver_manager.py   # Driver management
+│   ├── rank_calculation_service.py     # Rank scoring logic
+│   └── player_analysis_service.py      # Data aggregation
+├── tasks/
+│   ├── scraping_tasks.py               # Celery tasks
+│   └── task_models.py                  # Task state models
+├── schemas/
+│   ├── player_rank.py                  # Pydantic models
+│   └── scraping_result.py
+└── api/routes/
+    └── scraping.py                     # REST endpoints
+```
+
+#### **Step-by-Step Refactoring:**
+
+**Phase 1: Extract Business Logic**
+
+```python
+# services/rank_calculation_service.py
+from typing import Dict, Optional
+from pydantic import BaseModel
+
+class RankScore(BaseModel):
+    rank: str
+    score: float
+    tier: str
+    division: Optional[str]
+    lp: Optional[int]
+
+class RankCalculationService:
+    RANK_POINTS = {
+        "Iron 4": 0, "Iron 3": 1, "Iron 2": 2, "Iron 1": 3,
+        # ... rest of mapping
+    }
+    
+    @classmethod
+    def calculate_rank_score(cls, rank_text: str) -> float:
+        """Extract rank scoring logic from scraper"""
+        # Clean implementation without console prints
+        
+    @classmethod
+    def standardize_rank_format(cls, raw_rank: str) -> str:
+        """Standardize rank text format"""
+        
+    @classmethod
+    def compare_ranks(cls, rank1: str, rank2: str) -> int:
+        """Compare two ranks, return -1/0/1"""
+```
+
+**Phase 2: Create Abstract Scraper Base**
+
+```python
+# services/scraping/base_scraper.py
+from abc import ABC, abstractmethod
+from typing import Dict, Any, Optional
+from selenium import webdriver
+
+class BaseScraper(ABC):
+    def __init__(self, driver_manager: 'DriverManager'):
+        self.driver_manager = driver_manager
+        
+    @abstractmethod
+    async def scrape_player_data(self, player_ign: str) -> Dict[str, Any]:
+        """Template method for scraping"""
+        
+    @abstractmethod
+    def validate_player_profile(self, player_ign: str) -> bool:
+        """Check if player profile exists"""
+        
+    async def handle_scraping_error(self, error: Exception, context: Dict):
+        """Common error handling"""
+```
+
+**Phase 3: Separate Driver Management**
+
+```python
+# services/scraping/selenium_driver_manager.py
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+import asyncio
+from typing import Optional
+
+class DriverManager:
+    def __init__(self):
+        self.driver: Optional[webdriver.Chrome] = None
+        self._lock = asyncio.Lock()
+        
+    async def get_driver(self) -> webdriver.Chrome:
+        async with self._lock:
+            if not self.driver:
+                await self._create_driver()
+            return self.driver
+            
+    async def _create_driver(self):
+        """Create headless Chrome driver with optimal settings"""
+        options = ChromeOptions()
+        options.add_argument("--headless=new")
+        options.add_argument("--no-sandbox")
+        options.add_argument("--disable-dev-shm-usage")
+        # Production-ready settings
+        
+    async def cleanup(self):
+        if self.driver:
+            self.driver.quit()
+```
+
+**Phase 4: Clean Service Implementation**
+
+```python
+# services/scraping/league_of_graphs_service.py
+from typing import Dict, List, Optional
+from .base_scraper import BaseScraper
+from ..rank_calculation_service import RankCalculationService
+
+class LeagueOfGraphsService(BaseScraper):
+    BASE_URL = "https://www.leagueofgraphs.com"
+    
+    async def scrape_player_data(self, player_ign: str) -> Dict[str, Any]:
+        """Main scraping method - clean, focused, async"""
+        try:
+            driver = await self.driver_manager.get_driver()
+            
+            # Navigate to player profile
+            profile_url = await self._build_profile_url(player_ign)
+            await self._navigate_to_profile(driver, profile_url)
+            
+            # Extract data in parallel
+            current_rank_task = self._scrape_current_rank(driver)
+            peak_ranks_task = self._scrape_peak_ranks(driver)
+            
+            current_rank, peak_ranks = await asyncio.gather(
+                current_rank_task, peak_ranks_task
+            )
+            
+            return {
+                "player_ign": player_ign,
+                "current_rank": current_rank,
+                "peak_ranks": peak_ranks,
+                "scrape_timestamp": datetime.utcnow()
+            }
+            
+        except Exception as e:
+            await self.handle_scraping_error(e, {"player_ign": player_ign})
+            raise
+            
+    async def _scrape_current_rank(self, driver) -> Optional[Dict]:
+        """Extract current rank data without console prints"""
+        
+    async def _scrape_peak_ranks(self, driver) -> Dict[str, str]:
+        """Extract historical peak ranks"""
+        
+    async def _navigate_to_profile(self, driver, url: str):
+        """Handle profile navigation with error checking"""
+```
+
+**Phase 5: Async Task Implementation**
+
+```python
+# tasks/scraping_tasks.py
+from celery import Celery
+from typing import Dict
+import asyncio
+
+app = Celery('zephyr_scraping')
+
+@app.task(bind=True, max_retries=3)
+def scrape_player_rank_data(self, player_ign: str, requester_id: str = None):
+    """Celery task for player rank scraping"""
+    try:
+        # Update task state
+        self.update_state(
+            state='PROGRESS',
+            meta={'current': 0, 'total': 4, 'status': 'Starting scrape...'}
+        )
+        
+        # Run async scraping
+        result = asyncio.run(_async_scrape_player(player_ign, self))
+        
+        self.update_state(
+            state='SUCCESS',
+            meta={'result': result, 'status': 'Complete'}
+        )
+        return result
+        
+    except Exception as exc:
+        self.update_state(
+            state='FAILURE',
+            meta={'error': str(exc), 'status': 'Failed'}
+        )
+        raise
+
+async def _async_scrape_player(player_ign: str, task_instance):
+    """Async implementation with progress updates"""
+    driver_manager = DriverManager()
+    service = LeagueOfGraphsService(driver_manager)
+    
+    try:
+        task_instance.update_state(
+            state='PROGRESS',
+            meta={'current': 1, 'total': 4, 'status': 'Loading profile...'}
+        )
+        
+        result = await service.scrape_player_data(player_ign)
+        
+        task_instance.update_state(
+            state='PROGRESS', 
+            meta={'current': 4, 'total': 4, 'status': 'Processing data...'}
+        )
+        
+        return result
+    finally:
+        await driver_manager.cleanup()
+```
+
+### **2. Riot API Services Refactoring**
+
+#### **Current Issues:**
+- Basic retry logic without exponential backoff
+- No caching layer for API responses
+- Hardcoded API keys in service files
+- Manual error handling in each method
+- No request/response logging or metrics
+
+#### **Proposed New Architecture:**
+
+```python
+# New Structure
+backend/
+├── services/
+│   ├── riot_api/
+│   │   ├── base_riot_service.py      # Common API patterns
+│   │   ├── account_service.py        # Account operations
+│   │   ├── match_service.py          # Match operations
+│   │   ├── league_service.py         # League/ranking operations
+│   │   └── summoner_service.py       # Summoner operations
+│   ├── cache_service.py              # Redis caching layer
+│   └── rate_limit_service.py         # Advanced rate limiting
+├── schemas/
+│   ├── riot_api/
+│   │   ├── account_dto.py
+│   │   ├── match_dto.py
+│   │   └── summoner_dto.py
+└── middleware/
+    ├── api_logging.py
+    └── metrics_collector.py
+```
+
+#### **Step-by-Step Refactoring:**
+
+**Phase 1: Create Base Service with Advanced Features**
+
+```python
+# services/riot_api/base_riot_service.py
+import asyncio
+import aiohttp
+from typing import Optional, Dict, Any, Union
+from datetime import datetime, timedelta
+import logging
+from functools import wraps
+
+class RiotAPIError(Exception):
+    def __init__(self, status_code: int, message: str, endpoint: str):
+        self.status_code = status_code
+        self.message = message
+        self.endpoint = endpoint
+        super().__init__(f"{endpoint}: {status_code} - {message}")
+
+class BaseRiotService:
+    def __init__(self, 
+                 api_key: str, 
+                 cache_service: 'CacheService',
+                 rate_limiter: 'RateLimitService'):
+        self.api_key = api_key
+        self.cache = cache_service
+        self.rate_limiter = rate_limiter
+        self.session: Optional[aiohttp.ClientSession] = None
+        self.logger = logging.getLogger(f"{self.__class__.__name__}")
+        
+    async def __aenter__(self):
+        self.session = aiohttp.ClientSession(
+            timeout=aiohttp.ClientTimeout(total=30),
+            headers={"X-Riot-Token": self.api_key}
+        )
+        return self
+        
+    async def __aexit__(self, exc_type, exc_val, exc_tb):
+        if self.session:
+            await self.session.close()
+            
+    async def make_request(self, 
+                          endpoint: str, 
+                          region: str,
+                          params: Dict = None,
+                          cache_ttl: int = 300) -> Dict[str, Any]:
+        """
+        Advanced request handler with caching, rate limiting, and retry logic
+        """
+        # Build cache key
+        cache_key = self._build_cache_key(endpoint, region, params)
+        
+        # Check cache first
+        cached_result = await self.cache.get(cache_key)
+        if cached_result:
+            self.logger.debug(f"Cache hit for {endpoint}")
+            return cached_result
+            
+        # Wait for rate limit clearance
+        await self.rate_limiter.wait_for_request(endpoint, region)
+        
+        # Make request with retry logic
+        response_data = await self._make_request_with_retry(
+            endpoint, region, params
+        )
+        
+        # Cache successful responses
+        if response_data:
+            await self.cache.set(cache_key, response_data, ttl=cache_ttl)
+            
+        return response_data
+        
+    async def _make_request_with_retry(self, 
+                                      endpoint: str, 
+                                      region: str, 
+                                      params: Dict = None,
+                                      max_retries: int = 3) -> Dict:
+        """Implement exponential backoff retry logic"""
+        url = f"https://{region}.api.riotgames.com{endpoint}"
+        
+        for attempt in range(max_retries + 1):
+            try:
+                async with self.session.get(url, params=params) as response:
+                    # Handle rate limiting
+                    if response.status == 429:
+                        retry_after = int(response.headers.get('Retry-After', 1))
+                        self.logger.warning(f"Rate limited, waiting {retry_after}s")
+                        await asyncio.sleep(retry_after)
+                        continue
+                        
+                    # Handle server errors with retry
+                    if 500 <= response.status < 600:
+                        if attempt < max_retries:
+                            delay = (2 ** attempt) + (random.uniform(0, 1))
+                            self.logger.warning(
+                                f"Server error {response.status}, "
+                                f"retrying in {delay:.2f}s (attempt {attempt + 1})"
+                            )
+                            await asyncio.sleep(delay)
+                            continue
+                        else:
+                            raise RiotAPIError(
+                                response.status, 
+                                "Server error after max retries", 
+                                endpoint
+                            )
+                            
+                    # Handle client errors (don't retry)
+                    if 400 <= response.status < 500:
+                        error_text = await response.text()
+                        raise RiotAPIError(response.status, error_text, endpoint)
+                        
+                    # Success case
+                    if response.status == 200:
+                        json_data = await response.json()
+                        
+                        # Update rate limiter with response headers
+                        await self.rate_limiter.update_limits_from_headers(
+                            response.headers, region
+                        )
+                        
+                        return json_data
+                        
+            except aiohttp.ClientError as e:
+                if attempt < max_retries:
+                    delay = (2 ** attempt) + random.uniform(0, 1)
+                    self.logger.warning(f"Request failed, retrying: {e}")
+                    await asyncio.sleep(delay)
+                    continue
+                raise
+                
+        raise RiotAPIError(500, "Max retries exceeded", endpoint)
+        
+    def _build_cache_key(self, endpoint: str, region: str, params: Dict = None) -> str:
+        """Build consistent cache keys"""
+        key_parts = [f"riot_api", region, endpoint.replace('/', '_')]
+        if params:
+            # Sort params for consistent caching
+            param_str = "&".join(f"{k}={v}" for k, v in sorted(params.items()))
+            key_parts.append(param_str)
+        return ":".join(key_parts)
+```
+
+**Phase 2: Implement Specific Services**
+
+```python
+# services/riot_api/account_service.py
+from .base_riot_service import BaseRiotService
+from typing import Optional, Tuple
+
+class AccountService(BaseRiotService):
+    
+    async def get_account_by_riot_id(self, 
+                                   game_name: str, 
+                                   tag_line: str, 
+                                   region: str = "americas") -> Optional[Dict]:
+        """
+        Get account by Riot ID with caching and error handling
+        """
+        endpoint = f"/riot/account/v1/accounts/by-riot-id/{game_name}/{tag_line}"
+        
+        try:
+            return await self.make_request(
+                endpoint=endpoint,
+                region=region,
+                cache_ttl=3600  # Cache for 1 hour
+            )
+        except RiotAPIError as e:
+            if e.status_code == 404:
+                self.logger.info(f"Account not found: {game_name}#{tag_line}")
+                return None
+            raise
+            
+    async def get_account_by_puuid(self, 
+                                 puuid: str, 
+                                 region: str = "americas") -> Optional[Dict]:
+        """Get account by PUUID"""
+        endpoint = f"/riot/account/v1/accounts/by-puuid/{puuid}"
+        
+        try:
+            return await self.make_request(
+                endpoint=endpoint,
+                region=region,
+                cache_ttl=3600
+            )
+        except RiotAPIError as e:
+            if e.status_code == 404:
+                return None
+            raise
+            
+    async def resolve_player_puuid(self, riot_id: str) -> Optional[str]:
+        """
+        Helper method to resolve riot ID to PUUID
+        Handles both "name#tag" and separate name/tag formats
+        """
+        if "#" in riot_id:
+            game_name, tag_line = riot_id.split("#", 1)
+        else:
+            raise ValueError("Invalid Riot ID format. Expected 'name#tag'")
+            
+        account = await self.get_account_by_riot_id(game_name, tag_line)
+        return account.get("puuid") if account else None
+```
+
+**Phase 3: Advanced Caching Service**
+
+```python
+# services/cache_service.py
+import redis.asyncio as redis
+import json
+import pickle
+from typing import Any, Optional, Union
+from datetime import timedelta
+
+class CacheService:
+    def __init__(self, redis_url: str = "redis://localhost:6379"):
+        self.redis = redis.from_url(redis_url)
+        
+    async def get(self, key: str) -> Optional[Any]:
+        """Get cached value with automatic deserialization"""
+        try:
+            cached = await self.redis.get(key)
+            if cached:
+                return json.loads(cached)
+        except (json.JSONDecodeError, UnicodeDecodeError):
+            # Handle binary data
+            try:
+                return pickle.loads(cached)
+            except:
+                await self.redis.delete(key)  # Clean invalid cache
+        return None
+        
+    async def set(self, key: str, value: Any, ttl: int = 300):
+        """Set cached value with TTL"""
+        try:
+            serialized = json.dumps(value, default=str)
+        except (TypeError, ValueError):
+            serialized = pickle.dumps(value)
+            
+        await self.redis.setex(key, ttl, serialized)
+        
+    async def delete(self, key: str):
+        """Delete cached value"""
+        await self.redis.delete(key)
+        
+    async def exists(self, key: str) -> bool:
+        """Check if key exists"""
+        return bool(await self.redis.exists(key))
+        
+    async def get_or_set(self, 
+                        key: str, 
+                        factory_func: callable, 
+                        ttl: int = 300) -> Any:
+        """Get from cache or execute function and cache result"""
+        cached = await self.get(key)
+        if cached is not None:
+            return cached
+            
+        result = await factory_func()
+        await self.set(key, result, ttl)
+        return result
+```
+
+**Phase 4: Smart Rate Limiting**
+
+```python
+# services/rate_limit_service.py
+import asyncio
+from collections import defaultdict, deque
+from datetime import datetime, timedelta
+from typing import Dict, Set
+import logging
+
+class RateLimitService:
+    def __init__(self):
+        # Track requests per endpoint per region
+        self.request_times = defaultdict(lambda: defaultdict(deque))
+        # Rate limits from API responses
+        self.endpoint_limits = defaultdict(dict)
+        # Global app rate limits per region
+        self.app_limits = defaultdict(dict)
+        self.logger = logging.getLogger("RateLimitService")
+        
+    async def wait_for_request(self, endpoint: str, region: str):
+        """Wait if necessary before making request"""
+        now = datetime.now()
+        
+        # Check method-specific rate limits
+        method_key = self._extract_method_key(endpoint)
+        await self._enforce_rate_limit(
+            self.request_times[region][method_key],
+            self.endpoint_limits.get(method_key, {}),
+            now
+        )
+        
+        # Check app-wide rate limits
+        await self._enforce_rate_limit(
+            self.request_times[region]["app"],
+            self.app_limits.get(region, {}),
+            now
+        )
+        
+        # Record this request
+        self.request_times[region][method_key].append(now)
+        self.request_times[region]["app"].append(now)
+        
+    async def update_limits_from_headers(self, headers: Dict, region: str):
+        """Update rate limits from API response headers"""
+        # Parse X-Method-Rate-Limit-Count and X-App-Rate-Limit-Count
+        method_count = headers.get("X-Method-Rate-Limit-Count")
+        app_count = headers.get("X-App-Rate-Limit-Count")
+        
+        if method_count:
+            # Format: "1:1,100:120" (requests:seconds)
+            self._parse_rate_limit_header(method_count, self.endpoint_limits)
+            
+        if app_count:
+            self._parse_rate_limit_header(app_count, self.app_limits[region])
+            
+    def _parse_rate_limit_header(self, header_value: str, limit_dict: Dict):
+        """Parse rate limit header format"""
+        for limit_pair in header_value.split(","):
+            count, seconds = map(int, limit_pair.split(":"))
+            limit_dict[seconds] = count
+            
+    async def _enforce_rate_limit(self, request_times: deque, limits: Dict, now: datetime):
+        """Enforce rate limiting for a specific bucket"""
+        for window_seconds, max_requests in limits.items():
+            window_start = now - timedelta(seconds=window_seconds)
+            
+            # Remove old requests outside window
+            while request_times and request_times[0] < window_start:
+                request_times.popleft()
+                
+            # Check if we're at limit
+            if len(request_times) >= max_requests:
+                # Calculate wait time
+                oldest_in_window = request_times[0]
+                wait_until = oldest_in_window + timedelta(seconds=window_seconds)
+                wait_seconds = (wait_until - now).total_seconds()
+                
+                if wait_seconds > 0:
+                    self.logger.info(f"Rate limited, waiting {wait_seconds:.2f}s")
+                    await asyncio.sleep(wait_seconds)
+                    
+    def _extract_method_key(self, endpoint: str) -> str:
+        """Extract method key from endpoint for rate limiting"""
+        # Example: "/lol/match/v5/matches/by-puuid/{puuid}/ids" -> "match_v5_by_puuid"
+        parts = endpoint.strip("/").split("/")
+        if len(parts) >= 3:
+            return f"{parts[1]}_{parts[2]}_{parts[3] if len(parts) > 3 else 'base'}"
+        return "unknown"
+```
+
+### **3. REST API Integration**
+
+```python
+# api/routes/scraping.py
+from fastapi import APIRouter, BackgroundTasks, HTTPException, Depends
+from typing import List, Dict
+import asyncio
+
+router = APIRouter(prefix="/api/scraping", tags=["scraping"])
+
+@router.post("/player/{player_ign}")
+async def scrape_player_data(
+    player_ign: str,
+    background_tasks: BackgroundTasks,
+    current_user = Depends(get_current_user)
+):
+    """Trigger player data scraping"""
+    # Start background task
+    task = scrape_player_rank_data.delay(player_ign, current_user.id)
+    
+    return {
+        "task_id": task.id,
+        "status": "started",
+        "message": f"Scraping data for {player_ign}"
+    }
+
+@router.get("/task/{task_id}")
+async def get_scraping_task_status(task_id: str):
+    """Get scraping task status"""
+    task = scrape_player_rank_data.AsyncResult(task_id)
+    
+    if task.state == 'PENDING':
+        return {"status": "pending", "progress": 0}
+    elif task.state == 'PROGRESS':
+        return {
+            "status": "in_progress",
+            "progress": task.info.get('current', 0),
+            "total": task.info.get('total', 1),
+            "message": task.info.get('status', '')
+        }
+    elif task.state == 'SUCCESS':
+        return {
+            "status": "completed",
+            "result": task.result,
+            "progress": 100
+        }
+    else:
+        return {
+            "status": "failed", 
+            "error": str(task.info)
+        }
+
+@router.post("/batch/players")
+async def batch_scrape_players(player_list: List[str]):
+    """Batch scrape multiple players"""
+    tasks = []
+    for player_ign in player_list:
+        task = scrape_player_rank_data.delay(player_ign)
+        tasks.append({"player_ign": player_ign, "task_id": task.id})
+    
+    return {"batch_id": str(uuid.uuid4()), "tasks": tasks}
+```
+
+This refactoring transforms the monolithic scraper into a modern, scalable, async architecture with proper error handling, caching, rate limiting, and job queue management suitable for a web application.
+
+## User Question 4:
+can you export our entire conversation and all the output you gave (keeping formatting) as a pdf and a tet file in my file base directory?
+
+## Summary
+
+This conversation covered architecting a React/Next.js web interface for the Zephyr League of Legends analytics platform. The key points discussed:
+
+1. **Architecture Overview**: Proposed a 3-tier architecture with Next.js frontend, FastAPI backend, and existing Python modules
+2. **Technology Stack**: Next.js 14, TypeScript, Tailwind CSS, FastAPI, Celery for background tasks
+3. **Critical Files to Refactor**: Identified top priority files including Google Sheets API, main scouting scripts, and League of Graphs scraper
+4. **Detailed Refactoring Plans**: Provided comprehensive refactoring strategies for:
+   - League of Graphs scraper: Extract business logic, create async tasks, separate driver management
+   - Riot API services: Add caching, advanced rate limiting, proper error handling
+
+The goal is to transform Zephyr from a CLI/spreadsheet tool into a modern web application while preserving existing Python logic and enhancing it with better architecture patterns.
