@@ -36,3 +36,7 @@ frontend/.vercel
 frontend/node_modules/
 
 data/processed/*
+
+# Claude Input Files
+claude_input/
+Claude.md

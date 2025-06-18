@@ -290,27 +290,27 @@ class LeagueOfGraphsScraper:
         
         [return] float: Numerical rank score for comparison
         """
-            rank_value = 0
-            
-            # print(f"{ColorPrint.CYAN}\n[Calculate - Rank Text] {ColorPrint.GREEN}{rank_text}{ColorPrint.RESET}")
-            # if rank_text is pd.nan, then return 0
-            if pd.isna(rank_text) or rank_text == "":
-                # print(f"{ColorPrint.CYAN}[STARTING RANK VALUE] {ColorPrint.GREEN}{rank_value}{ColorPrint.RESET}")
-                return rank_value 
-            if "LP" not in rank_text:
-                rank_text = rank_text + " 0 LP"
-            
-            # print(f"{ColorPrint.CYAN}[Rank Text Split] {ColorPrint.GREEN}{rank_text.split(' ')}{ColorPrint.RESET}")
-            # print(f"{ColorPrint.CYAN}[Rank Text Split 0] {ColorPrint.GREEN}{rank_text.split(' ')[0]}{ColorPrint.RESET}")
-            if rank_text.split(" ")[0] in LeagueOfGraphsScraper.APEX_RANKS: # if peak_ego_rank is an apex rank
-                # print(f"{ColorPrint.CYAN}[rank_text.split(' ')[:1]] {ColorPrint.GREEN}{rank_text.split(' ')[:1][0]}{ColorPrint.RESET}")
-                # print(f"{ColorPrint.CYAN}[rank_text.split(' ')[-2]] {ColorPrint.GREEN}{rank_text.split(' ')[-2]}{ColorPrint.RESET}")
-                rank_value = LeagueOfGraphsScraper.RANK_POINTS[rank_text.split(" ")[:1][0]] + (int(rank_text.split(" ")[-2]) / 100)
-                # print(f"{ColorPrint.CYAN}[Rank Score - Apex] {ColorPrint.GREEN}{rank_text} - {rank_value}{ColorPrint.RESET}")
-            else:
-                rank_value = LeagueOfGraphsScraper.RANK_POINTS[" ".join(rank_text.split(" ")[:2])] + (int(rank_text.split(" ")[-2]) / 100)
-                # print(f"{ColorPrint.CYAN}[Rank Score] {ColorPrint.GREEN}{rank_text} - {rank_value}{ColorPrint.RESET}")
-            return rank_value
+        rank_value = 0
+        
+        # print(f"{ColorPrint.CYAN}\n[Calculate - Rank Text] {ColorPrint.GREEN}{rank_text}{ColorPrint.RESET}")
+        # if rank_text is pd.nan, then return 0
+        if pd.isna(rank_text) or rank_text == "":
+            # print(f"{ColorPrint.CYAN}[STARTING RANK VALUE] {ColorPrint.GREEN}{rank_value}{ColorPrint.RESET}")
+            return rank_value 
+        if "LP" not in rank_text:
+            rank_text = rank_text + " 0 LP"
+        
+        # print(f"{ColorPrint.CYAN}[Rank Text Split] {ColorPrint.GREEN}{rank_text.split(' ')}{ColorPrint.RESET}")
+        # print(f"{ColorPrint.CYAN}[Rank Text Split 0] {ColorPrint.GREEN}{rank_text.split(' ')[0]}{ColorPrint.RESET}")
+        if rank_text.split(" ")[0] in LeagueOfGraphsScraper.APEX_RANKS: # if peak_ego_rank is an apex rank
+            # print(f"{ColorPrint.CYAN}[rank_text.split(' ')[:1]] {ColorPrint.GREEN}{rank_text.split(' ')[:1][0]}{ColorPrint.RESET}")
+            # print(f"{ColorPrint.CYAN}[rank_text.split(' ')[-2]] {ColorPrint.GREEN}{rank_text.split(' ')[-2]}{ColorPrint.RESET}")
+            rank_value = LeagueOfGraphsScraper.RANK_POINTS[rank_text.split(" ")[:1][0]] + (int(rank_text.split(" ")[-2]) / 100)
+            # print(f"{ColorPrint.CYAN}[Rank Score - Apex] {ColorPrint.GREEN}{rank_text} - {rank_value}{ColorPrint.RESET}")
+        else:
+            rank_value = LeagueOfGraphsScraper.RANK_POINTS[" ".join(rank_text.split(" ")[:2])] + (int(rank_text.split(" ")[-2]) / 100)
+            # print(f"{ColorPrint.CYAN}[Rank Score] {ColorPrint.GREEN}{rank_text} - {rank_value}{ColorPrint.RESET}")
+        return rank_value
     
     @staticmethod
     def scrape_player_past_peak_ranks():

@@ -14,8 +14,8 @@ from modules.scrapers.gcs_league_scraper import GCSLeagueScraper
 #####################################
 
 setup = False
-TEAM_NAME = "Veni Vidi Vici"  # Team Name for GCS League Season 2
-TEAM_ID = "3V"  # Team ID for GCS League Season 2
+TEAM_NAME = "Ok Zoomers"  # Team Name for GCS League Season 2
+TEAM_ID = "ZOOM"  # Team ID for GCS League Season 2
 GCS_TEAM_PAGE = ""
 
 #####################################
@@ -241,7 +241,11 @@ for discord_tag, player_info in player_dict.items():
 
 # store player_dict as a JSON file for further processing
 import json
-output_file = f"../data/processed/gcs_s2_tourney_scout_info/{TEAM_ID}.json"
+# print current working directory
+import os
+current_dir = os.getcwd()
+info_print(f"Current working directory: {current_dir}")
+output_file = f"data/processed/gcs_s2_tourney_scout_info/{TEAM_ID}.json"
 with open(output_file, 'w') as f:
     json.dump(player_dict, f, indent=4)
 # print success message

@@ -1,5 +1,6 @@
 ### Global Imports
 import sys
+import json
 from collections import defaultdict
 
 ### Local Imports
@@ -14,8 +15,8 @@ from modules.utils.color_utils import warning_print, error_print, info_print, su
 ##############################
 SPREADSHEET_ID = "1uvQafCH4xmiKDgW0lE84AvL1x5n385MU2bIYEaTTR1A"
   # ... get this from the URL of the Google Sheet
-TEAM_ID = "WG"  # Team ID 
-TEAM_NAME = "Wrap Gods"  # Team Name 
+TEAM_ID = "ZOOM"  # Team ID 
+TEAM_NAME = "Ok Zoomers"  # Team Name 
 
 # Initialize the Google Sheets API client
 SPREADSHEET_OPS.initialize("WRITE", SPREADSHEET_ID)
@@ -27,7 +28,7 @@ SPREADSHEET_OPS.initialize("WRITE", SPREADSHEET_ID)
 SHEET_NAME = SPREADSHEET_OPS.create_sheet_for_team(TEAM_ID, TEAM_NAME, mode="reset")  # create a new sheet for the team
 
 # access json file with team data
-TEAM_DATA_JSON = f"../data/processed/gcs_s2_tourney_scout_info/{TEAM_ID}.json"
+TEAM_DATA_JSON = f"data/processed/gcs_s2_tourney_scout_info/{TEAM_ID}.json"
 player_dict = SPREADSHEET_OPS.get_team_data_from_json(TEAM_DATA_JSON)  # get the team data from the JSON file
 
 # Calculate Player Cell Data
@@ -178,25 +179,36 @@ for player in player_data:
         else:
             warning_print(f"Could not find peak rank for {player_discord_username} ({player_ign})")
 
-    
+    # Update JSON with peak rank data (only if we successfully scraped data)
     if max_rank != "??":
+        player_dict[player_discord_username]["player_peak_rank"] = max_rank
         player[6] = max_rank  # set the peak rank in the player data
     else:
-        warning_print(f"Could not find MAX PEAK RANK for {player_discord_username} ({player_ign})")
+        # Only set to ?? if no existing peak rank data exists
+        if "player_peak_rank" not in player_dict[player_discord_username]:
+            player_dict[player_discord_username]["player_peak_rank"] = "??"
+        warning_print(f"Could not find MAX PEAK RANK for {player_discord_username}")
         player[6] = "..."  # set to UNKNOWN if no peak rank is found
-        
-        print(f"Player IGN: {player_ign} - Max Peak Rank: {max_rank}")  # print the player IGN and peak rank for debugging 
+    
+    # Save JSON after processing each player
+    with open(TEAM_DATA_JSON, 'w') as f:
+        json.dump(player_dict, f, indent=4)
+    success_print(f"Updated peak rank data for {player_discord_username} in JSON file")
         
 LeagueOfGraphsScraper.close()  # close the League of Legends rewind scraper
+
+info_print("Finished processing all players for peak ranks.")  # print success message
 
 ## Sort Players by Peak Rank Score
 player_data.sort(key=lambda x: SPREADSHEET_OPS.generate_rank_score(x[5]), reverse=True)  # sort players by their current rank score in descending order
 
 ## DATA INSERTION ###
+info_print("Inserting player data into the Google Sheet...")  # print info message before inserting data
 for player in player_data:
-    SPREADSHEET_OPS.insert_player_data(TEAM_ID, header_row_num=4, payload=player, start_col_letter="B", mode="normal")  # insert player data into the sheet
+    SPREADSHEET_OPS.insert_player_data(TEAM_ID, header_row_num=4, payload=player, start_col_letter="B", mode="reset")  # insert player data into the sheet
 
 ### STYLING ###
+info_print("Applying styles to the Google Sheet...")  # print info message before applying styles
 SPREADSHEET_OPS.make_range_bold_underline(TEAM_ID, "B4", "I4")
 SPREADSHEET_OPS.auto_resize_columns_to_fit_text(TEAM_ID, "B4", "I20", extra_pixels=10)  
 SPREADSHEET_OPS.apply_horizontal_alignment(TEAM_ID, "B4", "H20", alignment="CENTER")

@@ -22,8 +22,8 @@ from modules.utils.color_utils import warning_print, error_print, info_print, su
 ##############################
 SPREADSHEET_ID = "1uvQafCH4xmiKDgW0lE84AvL1x5n385MU2bIYEaTTR1A"
   # ... get this from the URL of the Google Sheet
-TEAM_ID = "WG"  # Team ID 
-TEAM_NAME = "Wrap Gods"  # Team Name 
+TEAM_ID = "ZOOM"  # Team ID 
+TEAM_NAME = "Ok Zoomers"  # Team Name 
 
 def main():  
 
@@ -31,16 +31,12 @@ def main():
   SPREADSHEET_OPS.initialize("WRITE", SPREADSHEET_ID)
 
   # Delete Sheet for Team WG
-  SPREADSHEET_OPS.delete_sheet("[WG] Wrap Gods")  # delete the sheet for the team if it exists
+  # SPREADSHEET_OPS.delete_sheet("[WG] Wrap Gods")  # delete the sheet for the team if it exists
 
   # Create Sheet for TEAM WG
-  SHEET_NAME = SPREADSHEET_OPS.create_sheet_for_team(TEAM_ID, TEAM_NAME)  # create a new sheet for the team
+  # SHEET_NAME = SPREADSHEET_OPS.create_sheet_for_team(TEAM_ID, TEAM_NAME)  # create a new sheet for the team
 
-  # Edit a cell in the newly created sheet
-  SPREADSHEET_OPS.edit_cell(SHEET_NAME, "C1", "C1 Cell Testing")  # edit the cell C1 to "TESTING2"
-  sys.exit(0)  # exit the script after editing the cell
-
-  input("Created New Sheet, Edited Cell - [ENTER] to continue...")  # wait for user input to continue
+  # input("Created New Sheet, Edited Cell - [ENTER] to continue...")  # wait for user input to continue
 
   # Call the Sheets API to get the text data snapshot of the sheet
   sheet_snapshot = SPREADSHEET_OPS.get_sheet_snapshot_basic(TEAM_ID, "B2:I")

@@ -28,8 +28,8 @@ class SPREADSHEET_OPS:
     """
     [info] Google Sheets API operations wrapper for reading/writing spreadsheet data
     """
-    TOKEN_JSON_PATH = "config/token.json"
-    CREDENTIALS_JSON_PATH = "config/credentials.json"
+    TOKEN_JSON_PATH = "backend/config/token.json"
+    CREDENTIALS_JSON_PATH = "backend/config/credentials.json"
     SHEET_SNAPSHOT_DF_CSV_PATH = "data/processed/gcs_s2_roster_snapshot/"
     SERVICE = None
     SPREADSHEET_ID = None
@@ -187,9 +187,17 @@ class SPREADSHEET_OPS:
             if creds and creds.expired and creds.refresh_token:
                 creds.refresh(Request())
             else: # if no credentials, then run the authorization flow
-                flow = InstalledAppFlow.from_client_secrets_file(SPREADSHEET_OPS.CREDENTIALS_JSON_PATH, SCOPES)
-                creds = flow.run_local_server(port=0) # run the local server to authorize the user
-
+                
+                try: 
+                    flow = InstalledAppFlow.from_client_secrets_file(SPREADSHEET_OPS.CREDENTIALS_JSON_PATH, SCOPES)
+                    creds = flow.run_local_server(port=0) # run the local server to authorize the user
+                except FileNotFoundError as e:
+                    error_print(f"Credentials file not found: {e}")
+                    # print current working directory 
+                    info_print(f"Current working directory: {os.getcwd()}")
+                    warning_print("Please ensure 'config/credentials.json' exists with valid Google API credentials.")
+                    sys.exit(1)
+                    
             # Save the credentials for the next run
             with open(SPREADSHEET_OPS.TOKEN_JSON_PATH, "w") as token:
                 token.write(creds.to_json())
